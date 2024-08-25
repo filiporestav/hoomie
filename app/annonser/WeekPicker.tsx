@@ -54,7 +54,7 @@ const WeekPicker: React.FC<WeekPickerProps> = ({
       isAfter(weekStart, currentWeekStart) ||
       isSameWeek(weekStart, currentWeekStart, { weekStartsOn: 1 })
     ) {
-      const weekString = format(weekStart, "yyyy-'V'ww");
+      const weekString = format(weekStart, "yyyy-'v. 'ww");
       if (weekFilter.includes(weekString)) {
         setWeekFilter(weekFilter.filter((week) => week !== weekString));
       } else {
@@ -66,7 +66,7 @@ const WeekPicker: React.FC<WeekPickerProps> = ({
   const renderWeeks = () => {
     const weeks = weeksInMonth();
     return weeks.map((weekStart) => {
-      const weekString = format(weekStart, "yyyy-'V'ww");
+      const weekString = format(weekStart, "yyyy-'v. 'ww");
       const isSelected = weekFilter.includes(weekString);
       const isCurrentMonth = getMonth(weekStart) === getMonth(currentDate);
       const isPastWeek =
@@ -87,7 +87,7 @@ const WeekPicker: React.FC<WeekPickerProps> = ({
           }`}
           onClick={() => !isPastWeek && handleWeekClick(weekStart)}
         >
-          {`V${getWeek(weekStart, { weekStartsOn: 1 })}`}
+          {`v. ${getWeek(weekStart, { weekStartsOn: 1 })}`}
         </div>
       );
     });

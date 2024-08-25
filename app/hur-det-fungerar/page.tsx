@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
+import React from "react";
 import {
-  FaRegCheckCircle,
   FaUserPlus,
   FaHome,
   FaSearch,
@@ -11,153 +9,104 @@ import {
   FaHandshake,
   FaSmile,
 } from "react-icons/fa";
+import StepCard from "../components/InfoSteps/StepCard";
+import FAQSection from "../components/FAQ/FAQSection";
 
 const HurDetFungerarPage = () => {
-  const [faqOpen, setFaqOpen] = useState<number | null>(null);
-
-  const toggleFaq = (index: number) => {
-    setFaqOpen(faqOpen === index ? null : index);
-  };
+  const faqs = [
+    {
+      question: "Är det säkert att byta hem?",
+      answer:
+        "Ja, säkerheten är vår högsta prioritet. Vi erbjuder olika säkerhetsfunktioner och en verifieringsprocess för att skydda våra användare.",
+    },
+    {
+      question: "Vad händer om något går fel?",
+      answer:
+        "Vi har en kundtjänst som är redo att hjälpa dig om något skulle gå fel under bytet. Dessutom har vi en säkerhetspolicy och garantier för att skydda både dig och ditt hem.",
+    },
+    {
+      question: "Hur lång tid tar det att hitta ett byte?",
+      answer:
+        "Det varierar beroende på dina preferenser och tillgängligheten av hem, men vi har många alternativ att välja mellan.",
+    },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-4xl font-bold text-center text-amber-600 mb-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
+      <h1 className="text-5xl font-bold text-center text-gray-900 mb-16">
         Hur fungerar Hemlo?
       </h1>
 
-      <section className="mb-16 text-center">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <FaUserPlus className="text-amber-600 text-6xl mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              Skapa ett konto
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Registrera dig snabbt och enkelt på vår plattform. Börja utforska
-              direkt efter registrering.
-            </p>
-          </div>
-
-          <div>
-            <FaHome className="text-amber-600 text-6xl mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              Lista ditt hem
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Lägg till ditt hem med bilder och beskrivningar för att attrahera
-              potentiella byten.
-            </p>
-          </div>
-
-          <div>
-            <FaSearch className="text-amber-600 text-6xl mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              Utforska och hitta
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Använd våra filter för att hitta det perfekta bytet som matchar
-              dina behov.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="mb-16 text-center">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <FaComments className="text-amber-600 text-6xl mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              Kommunicera
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Diskutera detaljerna med andra användare för att säkra ett smidigt
-              byte.
-            </p>
-          </div>
-
-          <div>
-            <FaHandshake className="text-amber-600 text-6xl mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              Bekräfta bytet
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Kom överens om villkoren och bekräfta bytet enkelt via vår
-              plattform.
-            </p>
-          </div>
-
-          <div>
-            <FaSmile className="text-amber-600 text-6xl mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-              Njut av ditt nya hem
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Upplev ditt nya hem och lämna en recension för att hjälpa framtida
-              användare.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="mb-16">
-        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-8">
-          Vanliga frågor
+      {/* Steps Section */}
+      <section className="mb-24 text-center">
+        <h2 className="text-4xl font-semibold text-gray-900 mb-12">
+          Så här fungerar det
         </h2>
-        <div className="max-w-4xl mx-auto">
-          {[
-            {
-              question: "Är det säkert att byta hem?",
-              answer:
-                "Ja, säkerheten är vår högsta prioritet. Vi har olika säkerhetsfunktioner och en verifieringsprocess för att skydda våra användare.",
-            },
-            {
-              question: "Vad händer om något går fel?",
-              answer:
-                "Vi har en kundtjänst som är redo att hjälpa dig om något skulle gå fel under bytet.",
-            },
-            {
-              question: "Hur lång tid tar det att hitta ett byte?",
-              answer:
-                "Det varierar beroende på dina preferenser och tillgängligheten av hem, men vi har många alternativ att välja mellan.",
-            },
-          ].map((faq, index) => (
-            <div key={index} className="mb-4">
-              <button
-                onClick={() => toggleFaq(index)}
-                className="w-full text-left p-4 bg-amber-100 rounded-md flex justify-between items-center focus:outline-none"
-              >
-                <span className="text-xl font-semibold text-amber-600">
-                  {faq.question}
-                </span>
-                <FaRegCheckCircle
-                  className={`transform transition-transform duration-200 ${
-                    faqOpen === index ? "rotate-180" : "rotate-0"
-                  }`}
-                />
-              </button>
-              {faqOpen === index && (
-                <div className="mt-2 px-4 py-2 bg-amber-50 rounded-md text-gray-700">
-                  {faq.answer}
-                </div>
-              )}
-            </div>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <StepCard
+            icon={FaUserPlus}
+            title="Skapa ett konto"
+            description="Registrera dig snabbt och enkelt på vår plattform. Börja utforska direkt efter registrering."
+          />
+          <StepCard
+            icon={FaHome}
+            title="Lista ditt hem"
+            description="Lägg till ditt hem med bilder och beskrivningar för att attrahera potentiella byten."
+          />
+          <StepCard
+            icon={FaSearch}
+            title="Utforska och hitta"
+            description="Använd våra filter för att hitta det perfekta bytet som matchar dina behov."
+          />
+          <StepCard
+            icon={FaComments}
+            title="Kommunicera"
+            description="Diskutera detaljerna med andra användare för att säkra ett smidigt byte."
+          />
+          <StepCard
+            icon={FaHandshake}
+            title="Bekräfta bytet"
+            description="Kom överens om villkoren och bekräfta bytet enkelt via vår plattform."
+          />
+          <StepCard
+            icon={FaSmile}
+            title="Njut av ditt nya hem"
+            description="Upplev ditt nya hem och lämna en recension för att hjälpa framtida användare."
+          />
         </div>
       </section>
 
-      <section className="mb-16 text-center">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-8">
+      {/* FAQ Section */}
+      <FAQSection faqs={faqs} title="Vanliga frågor" />
+
+      {/* Video Section */}
+      <section className="mb-24 text-center">
+        <h2 className="text-4xl font-semibold text-gray-900 mb-12">
           Så här enkelt är det!
         </h2>
         <div className="flex justify-center">
           <iframe
             src="https://www.youtube.com/embed/dQw4w9WgXcQ"
             title="How it works video"
-            className="rounded-md shadow-md"
+            className="rounded-md shadow-lg"
             width="800"
-            height="400"
+            height="450"
           ></iframe>
         </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="text-center py-12 bg-amber-500 text-white rounded-md">
+        <h2 className="text-4xl font-semibold mb-4">
+          Redo att börja byta hem?
+        </h2>
+        <p className="text-lg mb-8">
+          Skapa ett konto idag och upptäck de fantastiska möjligheter som väntar
+          på dig.
+        </p>
+        <button className="px-8 py-4 bg-white text-amber-500 rounded-full text-lg font-semibold hover:bg-gray-100 transition">
+          Skapa konto
+        </button>
       </section>
     </div>
   );
