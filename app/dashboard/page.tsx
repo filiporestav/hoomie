@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Need to use client with withAuth HOC
 
 // app/dashboard/page.tsx
 import React from "react";
