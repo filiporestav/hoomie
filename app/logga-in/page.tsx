@@ -1,6 +1,34 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("token", data.token);
+        router.push("/dashboard");
+      } else {
+        console.error("Login failed");
+      }
+    } catch (error) {
+      console.error("An error occurred during login", error);
+    }
+  };
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-amber-100">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">

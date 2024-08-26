@@ -1,6 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const RegisterPage = () => {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, username, password }),
+      });
+
+      if (response.ok) {
+        router.push("/logga-in");
+      } else {
+        console.error("Registration failed");
+      }
+    } catch (error) {
+      console.error("An error occurred during registration", error);
+    }
+  };
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-amber-100">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
