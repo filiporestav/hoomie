@@ -11,8 +11,10 @@ import {
 } from "react-icons/fa";
 import StepCard from "../components/InfoSteps/StepCard";
 import FAQSection from "../components/FAQ/FAQSection";
+import { useRouter } from "next/navigation";
 
 const HurDetFungerarPage = () => {
+  const router = useRouter();
   const faqs = [
     {
       question: "Är det säkert att byta hem?",
@@ -104,7 +106,10 @@ const HurDetFungerarPage = () => {
           Skapa ett konto idag och upptäck de fantastiska möjligheter som väntar
           på dig.
         </p>
-        <button className="px-8 py-4 bg-white text-amber-500 rounded-full text-lg font-semibold hover:bg-gray-100 transition">
+        <button
+          onClick={() => router.push("/registrera")}
+          className="px-8 py-4 bg-white text-amber-500 rounded-full text-lg font-semibold hover:bg-gray-100 transition"
+        >
           Skapa konto
         </button>
       </section>
