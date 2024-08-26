@@ -1,3 +1,5 @@
+"use client";
+
 // app/dashboard/page.tsx
 import React from "react";
 import withAuth from "../components/withAuth";
