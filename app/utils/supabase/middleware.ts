@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
   if (!user && restrictedPaths.includes(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    console.log("User is not logged in, redirecting to login page");
     return NextResponse.redirect(url);
   }
 
@@ -59,5 +60,6 @@ export async function updateSession(request: NextRequest) {
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
 
+  console.log("User is logged in, continuing to the requested page");
   return supabaseResponse;
 }
