@@ -3,11 +3,7 @@
 import React from "react";
 import Link from "next/link";
 
-interface NavbarProps {
-  isLoggedIn: boolean;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
+const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -16,7 +12,7 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="text-white font-bold text-xl">
-              Hemlo
+              Semesterbyte
             </Link>
             <div className="hidden md:block ml-10">
               <div className="flex items-baseline space-x-4">
@@ -35,24 +31,18 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
               </div>
             </div>
           </div>
-          {!isLoggedIn && (
-            <div className="hidden md:block">
-              <div className="flex items-center space-x-4">
-                <Link
-                  href="/logga-in"
-                  className="text-black bg-white hover:bg-gray-200 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Logga in
-                </Link>
-                <Link
-                  href="/registrera"
-                  className="text-black bg-white hover:bg-gray-200 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Skapa konto
-                </Link>
-              </div>
+
+          <div className="hidden md:block">
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/login"
+                className="text-black bg-white hover:bg-gray-200 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Logga in
+              </Link>
             </div>
-          )}
+          </div>
+
           <div className="-mr-2 flex md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -117,22 +107,15 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn }) => {
           >
             Hur det fungerar
           </Link>
-          {!isLoggedIn && (
-            <>
-              <Link
-                href="/logga-in"
-                className="text-white  hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                Logga in
-              </Link>
-              <Link
-                href="/registrera"
-                className="text-white  hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                Skapa konto
-              </Link>
-            </>
-          )}
+
+          <>
+            <Link
+              href="/login"
+              className="text-white  hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-medium"
+            >
+              Logga in
+            </Link>
+          </>
         </div>
       </div>
     </nav>

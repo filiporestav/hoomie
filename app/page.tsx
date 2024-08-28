@@ -12,7 +12,9 @@ export default function Home() {
         style={{ backgroundImage: "url('/images/header-bg.jpg')" }}
       >
         <div className="bg-black bg-opacity-50 w-full h-full flex flex-col justify-center items-center text-white text-center px-4">
-          <h1 className="text-6xl font-bold mb-4">Välkommen till Hemlo</h1>
+          <h1 className="text-6xl font-bold mb-4">
+            Välkommen till Semesterbyte
+          </h1>
           <p className="text-2xl mb-6">
             Byt ditt semesterhus och upptäck världen på ett nytt sätt.
           </p>
