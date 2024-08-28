@@ -21,11 +21,12 @@ export async function login(formData: FormData) {
 
   if (error) {
     console.log("Error logging in:", error);
-    redirect("/error");
+    return { error: error.message };
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  // revalidatePath("/", "layout");
+  // redirect("/");
+  return { success: true };
 }
 
 export async function signup(formData: FormData) {
@@ -44,9 +45,12 @@ export async function signup(formData: FormData) {
   console.log(error);
 
   if (error) {
-    redirect("/error");
+    // redirect("/error");
+    return { error: error.message };
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  // revalidatePath("/", "layout");
+  // redirect("/");
+
+  return { success: true };
 }
