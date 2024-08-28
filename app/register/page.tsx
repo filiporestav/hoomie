@@ -1,23 +1,21 @@
 "use client";
 
-import { login } from "./actions";
+import { signup } from "./actions";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
-
-  const handleLogin = async (formData: FormData) => {
+  const handleSignup = async (formData: FormData) => {
     setLoading(true);
-    const result = await login(formData);
+    const result = await signup(formData);
     if (result.error) {
       setError(result.error);
     } else {
       setError(null);
-      router.push("/profile");
+      setConfirmation("Check your email for a confirmation link");
     }
     setLoading(false);
   };
@@ -26,16 +24,19 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-cover bg-center bg-[url('/images/holiday-background.jpg')]">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-80">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Welcome Back
+          Sign Up
         </h2>
         {error && <div className="mb-4 text-red-600 text-center">{error}</div>}
+        {confirmation && (
+          <div className="mb-4 text-green-600 text-center">{confirmation}</div>
+        )}
         <form
           className="space-y-6"
           onSubmit={async (e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget as HTMLFormElement);
             setError(null); // Reset error before submission
-            await handleLogin(formData);
+            await handleSignup(formData);
           }}
         >
           <div>
@@ -101,17 +102,17 @@ export default function LoginPage() {
               className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
               disabled={loading} // Disable button when loading
             >
-              Log In
+              Sign Up
             </button>
           </div>
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Dont have an account?{" "}
+              Already have an account?{" "}
               <a
-                href="/register"
+                href="/login"
                 className="font-medium text-amber-600 hover:text-amber-500"
               >
-                Sign up
+                Log in
               </a>
             </p>
           </div>
