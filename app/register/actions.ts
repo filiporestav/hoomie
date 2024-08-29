@@ -17,7 +17,14 @@ export async function signup(formData: FormData) {
 
   console.log(data);
 
-  const { error } = await supabase.auth.signUp(data);
+  const { error } = await supabase.auth.signUp({
+    email: data.email,
+    password: data.password,
+    options: {
+      emailRedirectTo: "https://semesterbyte.se/welcome",
+    },
+  });
+
   console.log(error);
 
   if (error) {
