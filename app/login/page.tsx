@@ -17,7 +17,7 @@ export default function LoginPage() {
       setError(result.error);
     } else {
       setError(null);
-      router.push("/profile");
+      router.push("/account");
     }
     setLoading(false);
   };

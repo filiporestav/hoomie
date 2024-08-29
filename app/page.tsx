@@ -68,21 +68,21 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <ListingCard
               id={1}
-              imageSrc="/images/house1.jpg"
+              imageSrc="/placeholder-image.jpg"
               title="Stuga i Skåne"
               location="Skåne, Sverige"
               availabilityWeeks={["30", "31", "32"]}
             />
             <ListingCard
               id={2}
-              imageSrc="/images/house2.jpg"
+              imageSrc="/placeholder-image.jpg"
               title="Villa i Stockholm"
               location="Stockholm, Sverige"
               availabilityWeeks={["28", "29", "30"]}
             />
             <ListingCard
               id={3}
-              imageSrc="/images/house3.jpg"
+              imageSrc="/placeholder-image.jpg"
               title="Lägenhet i Göteborg"
               location="Göteborg, Sverige"
               availabilityWeeks={["27", "28", "29"]}
