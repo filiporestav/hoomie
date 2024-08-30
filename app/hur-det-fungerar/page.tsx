@@ -36,7 +36,7 @@ const HurDetFungerarPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
       <h1 className="text-5xl font-bold text-center text-gray-900 mb-16">
-        Hur fungerar Hemlo?
+        Hur fungerar Semesterbyte?
       </h1>
 
       {/* Steps Section */}
@@ -107,7 +107,7 @@ const HurDetFungerarPage = () => {
           på dig.
         </p>
         <button
-          onClick={() => router.push("/registrera")}
+          onClick={() => router.push("/registrer")}
           className="px-8 py-4 bg-white text-amber-500 rounded-full text-lg font-semibold hover:bg-gray-100 transition"
         >
           Skapa konto
