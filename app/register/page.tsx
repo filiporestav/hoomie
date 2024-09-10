@@ -24,7 +24,7 @@ export default function RegisterPage() {
     <div className="flex items-center justify-center min-h-screen bg-cover bg-center bg-[url('/images/holiday-background.jpg')]">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-80">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Sign Up
+          Registera dig
         </h2>
         {error && <div className="mb-4 text-red-600 text-center">{error}</div>}
         {confirmation && (
@@ -59,7 +59,7 @@ export default function RegisterPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              Lösenord
             </label>
             <input
               id="password"
@@ -102,17 +102,17 @@ export default function RegisterPage() {
               className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
               disabled={loading} // Disable button when loading
             >
-              Sign Up
+              Registrera konto
             </button>
           </div>
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Already have an account?{" "}
+              Har du redan ett konto?{" "}
               <a
                 href="/login"
                 className="font-medium text-amber-600 hover:text-amber-500"
               >
-                Log in
+                Logga in
               </a>
             </p>
           </div>
