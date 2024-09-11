@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { createClient } from "../utils/supabase/client";
+import { createClient } from "../../utils/supabase/client";
 import Image from "next/image";
 
 export default function Avatar({
@@ -86,7 +86,11 @@ export default function Avatar({
         />
       )}
       <div style={{ width: size }}>
-        <label className="button primary block" htmlFor="single">
+        <label className={`button primary block py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-white bg-amber-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer ${
+    uploading ? "opacity-50 cursor-not-allowed" : ""
+  }`}
+  htmlFor="single"
+>
           {uploading ? "Laddar upp..." : "Ladda upp bild"}
         </label>
         <input

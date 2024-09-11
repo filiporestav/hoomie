@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { createClient } from "../utils/supabase/client";
+import { createClient } from "../../utils/supabase/client";
 import { type User } from "@supabase/supabase-js";
 import Avatar from "./avatar";
 
@@ -72,7 +72,7 @@ export default function AccountForm({ user }: { user: User | null }) {
   }
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-lg ml-0 mt-10 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">
         Kontoinställningar
       </h2>
