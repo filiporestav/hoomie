@@ -46,12 +46,10 @@ export default function AccountForm({ user }: { user: User | null }) {
 
   async function updateProfile({
     username,
-    website,
     avatar_url,
   }: {
     username: string | null;
     fullname: string | null;
-    website: string | null;
     avatar_url: string | null;
   }) {
     try {
@@ -61,14 +59,13 @@ export default function AccountForm({ user }: { user: User | null }) {
         id: user?.id as string,
         full_name: fullname,
         username,
-        website,
         avatar_url,
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
-      alert("Profile updated!");
+      alert("Profilen uppdaterades");
     } catch (error) {
-      alert("Error updating the data!");
+      alert("Ett fel uppstod när profilen skulle uppdateras");
     } finally {
       setLoading(false);
     }
@@ -76,7 +73,9 @@ export default function AccountForm({ user }: { user: User | null }) {
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Account Settings</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        Kontoinställningar
+      </h2>
 
       <div className="flex flex-col items-center mb-6">
         <Avatar
@@ -85,7 +84,7 @@ export default function AccountForm({ user }: { user: User | null }) {
           size={100}
           onUpload={(url) => {
             setAvatarUrl(url);
-            updateProfile({ fullname, username, website, avatar_url: url });
+            updateProfile({ fullname, username, avatar_url: url });
           }}
         />
       </div>
@@ -111,7 +110,7 @@ export default function AccountForm({ user }: { user: User | null }) {
             htmlFor="fullName"
             className="block text-sm font-medium text-gray-700"
           >
-            Full Name
+            Fullständigt namn
           </label>
           <input
             id="fullName"
@@ -126,28 +125,13 @@ export default function AccountForm({ user }: { user: User | null }) {
             htmlFor="username"
             className="block text-sm font-medium text-gray-700"
           >
-            Username
+            Användarnamn
           </label>
           <input
             id="username"
             type="text"
             value={username || ""}
             onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="website"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Website
-          </label>
-          <input
-            id="website"
-            type="url"
-            value={website || ""}
-            onChange={(e) => setWebsite(e.target.value)}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
           />
         </div>
@@ -158,12 +142,10 @@ export default function AccountForm({ user }: { user: User | null }) {
           className={`w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          onClick={() =>
-            updateProfile({ fullname, username, website, avatar_url })
-          }
+          onClick={() => updateProfile({ fullname, username, avatar_url })}
           disabled={loading}
         >
-          {loading ? "Loading ..." : "Update Profile"}
+          {loading ? "Laddar..." : "Uppdatera profil"}
         </button>
       </div>
 
@@ -173,7 +155,7 @@ export default function AccountForm({ user }: { user: User | null }) {
             className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
             type="submit"
           >
-            Sign out
+            Logga ut
           </button>
         </form>
       </div>

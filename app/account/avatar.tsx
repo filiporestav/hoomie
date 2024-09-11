@@ -31,7 +31,7 @@ export default function Avatar({
         const url = URL.createObjectURL(data);
         setAvatarUrl(url);
       } catch (error) {
-        console.log("Error downloading image: ", error);
+        console.log("Fel när bilden laddades.", error);
       }
     }
 
@@ -45,7 +45,7 @@ export default function Avatar({
       setUploading(true);
 
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error("You must select an image to upload.");
+        throw new Error("Du måste välja en bild att ladda upp.");
       }
 
       const file = event.target.files[0];
@@ -62,7 +62,7 @@ export default function Avatar({
 
       onUpload(filePath);
     } catch (error) {
-      alert("Error uploading avatar!");
+      alert("Fel vid uppladdning av bild.");
     } finally {
       setUploading(false);
     }
@@ -87,7 +87,7 @@ export default function Avatar({
       )}
       <div style={{ width: size }}>
         <label className="button primary block" htmlFor="single">
-          {uploading ? "Uploading ..." : "Upload image"}
+          {uploading ? "Laddar upp..." : "Ladda upp bild"}
         </label>
         <input
           style={{
