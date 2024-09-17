@@ -6,7 +6,7 @@ interface AdsBoxProps {
   areaDescription: string;
   location: string;
   country: string;
-  imageUrls: string[];
+  imageUrls: string[] | null; // Allow imageUrls to be null
   onEdit: (ad: any) => void;
 }
 
@@ -21,13 +21,14 @@ const AdsBox: React.FC<AdsBoxProps> = ({
 }) => {
   return (
     <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
-      {/* {imageUrls.length > 0 && (
+      {/* Check if imageUrls is defined and is an array before rendering the image */}
+      {Array.isArray(imageUrls) && imageUrls.length > 0 && (
         <img
           src={imageUrls[0]} // Display the first image; adjust as needed
           alt="Ad Image"
           className="w-full h-40 object-cover rounded-t-lg"
         />
-      )} */}
+      )}
       <div className="mt-2">
         <h3 className="text-lg font-semibold">{location}, {country}</h3>
         <p className="text-gray-600">{propertyDescription}</p>
