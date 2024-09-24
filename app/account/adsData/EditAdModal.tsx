@@ -20,7 +20,8 @@ export default function EditAdModal({
   const supabase = createClient();
   const [propertyDescription, setPropertyDescription] = useState(ad.property_description);
   const [areaDescription, setAreaDescription] = useState(ad.area_description);
-  const [location, setLocation] = useState(ad.location);
+  const [address, setAddress] = useState(ad.address);
+  const [city, setCity] = useState(ad.city);
   const [country, setCountry] = useState(ad.country);
   const [existingImages, setExistingImages] = useState<string[]>(ad.image_urls || []);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -43,7 +44,8 @@ export default function EditAdModal({
     if (ad) {
       setPropertyDescription(ad.property_description);
       setAreaDescription(ad.area_description);
-      setLocation(ad.location);
+      setAddress(ad.address);
+      setCity(ad.city);
       setCountry(ad.country);
       setExistingImages(ad.image_urls || []);
     }
@@ -97,7 +99,8 @@ export default function EditAdModal({
         .update({
           property_description: propertyDescription,
           area_description: areaDescription,
-          location,
+          address,
+          city,
           country,
           image_urls: imageUrls,
         })
@@ -170,11 +173,21 @@ export default function EditAdModal({
 
           {/* Location and Country fields */}
           <div>
-            <label className="block text-sm font-medium">Location/City</label>
+            <label className="block text-sm font-medium">Address</label>
             <input
               type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="block w-full border border-gray-300 rounded-md p-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium">City</label>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
               className="block w-full border border-gray-300 rounded-md p-2"
             />
           </div>

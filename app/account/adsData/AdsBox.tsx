@@ -4,7 +4,8 @@ interface AdsBoxProps {
   id: string;
   propertyDescription: string;
   areaDescription: string;
-  location: string;
+  address: string;
+  city: string;
   country: string;
   imageUrls: string[] | null; // Allow imageUrls to be null
   onEdit: (ad: any) => void;
@@ -14,7 +15,8 @@ const AdsBox: React.FC<AdsBoxProps> = ({
   id,
   propertyDescription,
   areaDescription,
-  location,
+  address,
+  city,
   country,
   imageUrls,
   onEdit
@@ -30,11 +32,11 @@ const AdsBox: React.FC<AdsBoxProps> = ({
         />
       )}
       <div className="mt-2">
-        <h3 className="text-lg font-semibold">{location}, {country}</h3>
+        <h3 className="text-lg font-semibold">{address}, {city}, {country}</h3>
         <p className="text-gray-600">{propertyDescription}</p>
         <p className="text-gray-500">{areaDescription}</p>
         <button
-          onClick={() => onEdit({ id, property_description: propertyDescription, area_description: areaDescription, location, country, image_urls: imageUrls })}
+          onClick={() => onEdit({ id, property_description: propertyDescription, area_description: areaDescription, address, city, country, image_urls: imageUrls })}
           className="mt-2 py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
         >
           Edit

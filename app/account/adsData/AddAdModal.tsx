@@ -16,7 +16,8 @@ export default function AddAdModal({
   const supabase = createClient();
   const [propertyDescription, setPropertyDescription] = useState("");
   const [areaDescription, setAreaDescription] = useState("");
-  const [location, setLocation] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -81,7 +82,8 @@ export default function AddAdModal({
           user_id: user.id,
           property_description: propertyDescription,
           area_description: areaDescription,
-          location,
+          address,
+          city,
           country,
           image_urls: imageUrls,
         });
@@ -131,11 +133,21 @@ export default function AddAdModal({
 
           {/* Location and Country fields */}
           <div>
-            <label className="block text-sm font-medium">Location/City</label>
+            <label className="block text-sm font-medium">Address</label>
             <input
               type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="block w-full border border-gray-300 rounded-md p-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium">City</label>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
               className="block w-full border border-gray-300 rounded-md p-2"
             />
           </div>

@@ -84,7 +84,8 @@ export default function AdsContainer({ user }: { user: User | null }) {
               id={ad.id}
               propertyDescription={ad.property_description}
               areaDescription={ad.area_description}
-              location={ad.location}
+              address={ad.address}
+              city={ad.city}
               country={ad.country}
               imageUrls={ad.image_urls}
               onEdit={() => handleOpenEditModal(ad)}
