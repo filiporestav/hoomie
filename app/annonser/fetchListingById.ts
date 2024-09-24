@@ -4,7 +4,7 @@ type Listing = {
   id: number;
   propertyDescription: string;
   areaDescription: string;
-  location: string;
+  city: string;
   country: string;
   imageUrls: string[];
   createdAt: string; // Add created_at
@@ -18,7 +18,7 @@ export const fetchListingById = async (id: string): Promise<Listing | null> => {
     const { data, error } = await supabase
       .from("ads")
       .select(
-        "id, property_description, area_description, location, country, image_urls, created_at"
+        "id, property_description, area_description, city, country, image_urls, created_at"
       )
       .eq("id", id) // Fetch based on the listing ID
       .single(); // Ensure only one result is returned
@@ -39,7 +39,7 @@ export const fetchListingById = async (id: string): Promise<Listing | null> => {
       propertyDescription:
         data.property_description || "No description available",
       areaDescription: data.area_description || "No area description available",
-      location: data.location || "Unknown location",
+      city: data.city || "Unknown city",
       country: data.country || "Unknown country",
       imageUrls: data.image_urls || [], // Ensure it's an array
       createdAt: data.created_at, // Include the created_at field

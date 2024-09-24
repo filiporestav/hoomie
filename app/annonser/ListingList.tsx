@@ -9,7 +9,7 @@ type Listing = {
   id: number;
   propertyDescription: string;
   areaDescription: string;
-  location: string;
+  city: string;
   country: string;
   imageUrls: string[];
   createdAt: string;
@@ -45,7 +45,7 @@ const ListingList: React.FC = () => {
 
   const filteredListings = listings.filter((listing) => {
     const matchesLocation = locationFilter
-      ? listing.location.toLowerCase().includes(locationFilter.toLowerCase())
+      ? listing.city.toLowerCase().includes(locationFilter.toLowerCase())
       : true;
 
     const matchesWeek = weekFilter.length
@@ -76,7 +76,7 @@ const ListingList: React.FC = () => {
                 id={listing.id}
                 propertyDescription={listing.propertyDescription}
                 areaDescription={listing.areaDescription}
-                location={listing.location}
+                city={listing.city}
                 country={listing.country}
                 imageUrls={listing.imageUrls}
                 createdAt={listing.createdAt}

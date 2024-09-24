@@ -12,7 +12,7 @@ type Listing = {
   id: number;
   propertyDescription: string;
   areaDescription: string;
-  location: string;
+  city: string;
   country: string;
   imageUrls: string[];
   createdAt: string;
@@ -78,7 +78,7 @@ const ListingPage = () => {
         </h1>
         <p className="text-xl text-gray-600">{listing.areaDescription}</p>
         <p className="text-md text-gray-500 mt-1">
-          {listing.location}, {listing.country}
+          {listing.city}, {listing.country}
         </p>
       </div>
 

@@ -6,7 +6,7 @@ type ListingCardProps = {
   id: number;
   propertyDescription: string;
   areaDescription: string;
-  location: string;
+  city: string;
   country: string;
   imageUrls?: string[]; // Make this optional
   createdAt: string; // Assuming ISO date string
@@ -16,7 +16,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   id,
   propertyDescription,
   areaDescription,
-  location,
+  city,
   country,
   imageUrls = [], // Default to an empty array
   createdAt,
@@ -27,7 +27,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   // Logs for debugging
   console.log("Received property description:", propertyDescription);
   console.log("Received area description:", areaDescription);
-  console.log("Received location:", location);
+  console.log("Received city:", city);
   console.log("Received country:", country);
   console.log("Received image URLs:", imageUrls);
   console.log("Display image:", displayImage);
@@ -47,7 +47,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             {propertyDescription}
           </h4>
           <p className="text-gray-700 mt-2">
-            {location}, {country}
+            {city}, {country}
           </p>
           <p className="text-sm text-gray-500">
             Area:{" "}

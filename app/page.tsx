@@ -11,7 +11,7 @@ type Listing = {
   id: number;
   propertyDescription: string;
   areaDescription: string;
-  location: string;
+  city: string;
   country: string;
   imageUrls: string[];
   createdAt: string;
@@ -117,7 +117,7 @@ export default function Home() {
                   imageUrls={listing.imageUrls}
                   propertyDescription="Studentboende"
                   areaDescription={listing.areaDescription}
-                  location={listing.location}
+                  city={listing.city}
                   country={listing.country}
                   createdAt={listing.createdAt}
                 />
