@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "../utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +23,7 @@ const Navbar = () => {
       setUser(data.user);
     };
     fetchUser();
-  });
+  }, []);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -30,7 +31,6 @@ const Navbar = () => {
       console.error("Error logging out:", error);
       return;
     }
-    // Refresh the page to clear the user state
     router.push("/login");
   };
 
@@ -40,12 +40,12 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="text-white font-bold text-2xl">
-              Semesterbyte
+              Hoomie
             </Link>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-4">
+          <div className="hidden md:flex items-center space-x-4">
             <Link
               href="/annonser"
               className="text-white hover:bg-amber-700 px-3 py-2 rounded-md text-lg font-medium"
@@ -60,38 +60,46 @@ const Navbar = () => {
             </Link>
 
             {user ? (
-              <div className="relative">
-                <button
-                  className="text-white hover:bg-amber-700 px-3 py-2 rounded-md text-lg font-medium focus:outline-none"
-                  onClick={() => setIsOpen(!isOpen)}
-                >
-                  Min profil
-                </button>
-                {isOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
-                    <Link
-                      href="/account"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Min profil
-                    </Link>
-                    <Link
-                      href="/mina-bostader"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Mina bostäder
-                    </Link>
-                    <form action="/auth/signout" method="post">
-                      <button
-                        className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                        type="submit"
+              <>
+                <div className="relative">
+                  <button
+                    className="text-white hover:bg-amber-700 px-3 py-2 rounded-md text-lg font-medium focus:outline-none"
+                    onClick={() => setIsOpen(!isOpen)}
+                  >
+                    Min profil
+                  </button>
+                  {isOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                      <Link
+                        href="/account"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Logga ut
-                      </button>
-                    </form>
-                  </div>
-                )}
-              </div>
+                        Min profil
+                      </Link>
+                      <Link
+                        href="/mina-bostader"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Mina bostäder
+                      </Link>
+                      <form action="/auth/signout" method="post">
+                        <button
+                          className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                          type="submit"
+                        >
+                          Logga ut
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </div>
+                <Link
+                  href="/conversations"
+                  className="text-white hover:bg-amber-700 px-3 py-2 rounded-md"
+                >
+                  <IoChatbubbleEllipsesOutline className="w-6 h-6" />
+                </Link>
+              </>
             ) : (
               <>
                 <Link
@@ -191,6 +199,12 @@ const Navbar = () => {
               className="text-white hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-medium"
             >
               Mina bostäder
+            </Link>
+            <Link
+              href="/conversations"
+              className="text-white hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-medium"
+            >
+              Conversations
             </Link>
           </>
         ) : (
