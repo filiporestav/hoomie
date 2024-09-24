@@ -36,7 +36,7 @@ const HurDetFungerarPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
       <h1 className="text-5xl font-bold text-center text-gray-900 mb-16">
-        Hur fungerar Boendebyte för Studenter?
+        Hur fungerar Hoomie?
       </h1>
 
       {/* Introduction */}
