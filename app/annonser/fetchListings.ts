@@ -1,4 +1,3 @@
-// app/annonser/fetchListings.ts
 import { createClient } from "../utils/supabase/client";
 
 type Listing = {
@@ -8,6 +7,7 @@ type Listing = {
   location: string;
   country: string;
   imageUrls: string[];
+  createdAt: string; // Add created_at
 };
 
 export const fetchListings = async (): Promise<Listing[]> => {
@@ -16,19 +16,32 @@ export const fetchListings = async (): Promise<Listing[]> => {
   try {
     const { data, error } = await supabase
       .from("ads")
-      .select("id, property_description, area_description, location, country, image_urls");
-    if (error) throw error;
+      .select("id, property_description, area_description, location, country, image_urls, created_at");
 
-    return data.map((ad: any) => ({
-      id: ad.id,
-      propertyDescription: ad.property_description,
-      areaDescription: ad.area_description,
-      location: ad.location,
-      country: ad.country,
-      imageUrls: ad.image_urls, // Assuming image_urls is an array of strings
-    }));
+    if (error) {
+      console.error("Error fetching data from Supabase:", error);
+      throw error;
+    }
+
+    console.log("Fetched data from Supabase:", data);
+
+    const listings: Listing[] = data.map((ad: any) => {
+      const listing = {
+        id: ad.id,
+        propertyDescription: ad.property_description || "No description available",
+        areaDescription: ad.area_description || "No area description available",
+        location: ad.location || "Unknown location",
+        country: ad.country || "Unknown country",
+        imageUrls: ad.image_urls || [], // Ensure it's an array
+        createdAt: ad.created_at, // Include the created_at field
+      };
+      console.log("Mapped listing:", listing);
+      return listing;
+    });
+
+    return listings;
   } catch (error) {
-    console.error("Error fetching listings:", error);
+    console.error("Error in fetchListings:", error);
     return [];
   }
 };

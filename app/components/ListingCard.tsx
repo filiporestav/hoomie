@@ -21,12 +21,16 @@ const ListingCard: React.FC<ListingCardProps> = ({
   imageUrls = [], // Default to an empty array
   createdAt
 }) => {
-  // Default to the first image if available
   const displayImage = imageUrls.length > 0 ? imageUrls[0] : "/images/placeholder.jpg";
-  console.log(displayImage)
-  console.log(propertyDescription)
-  console.log(location)
-  
+
+  // Logs for debugging
+  console.log("Received property description:", propertyDescription);
+  console.log("Received area description:", areaDescription);
+  console.log("Received location:", location);
+  console.log("Received country:", country);
+  console.log("Received image URLs:", imageUrls);
+  console.log("Display image:", displayImage);
+
   return (
     <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
       <Link href={`/listing/${id}`}>
