@@ -1,3 +1,4 @@
+// HomeExchangePage.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -37,18 +38,24 @@ const HomeExchangePage: React.FC = () => {
   }, [supabase]);
 
   return (
-    <div>
-      <div className="p-8 max-w-screen-xl mx-auto min-h-screen bg-gray-50">
-        <h1 className="text-4xl font-extrabold mb-8 text-gray-900 text-center">
-          Utforska annonser
-        </h1>
-        <ListingList />
-      </div>
+    <div className="flex flex-col p-8 max-w-screen-xl mx-auto min-h-screen bg-gray-50">
       <h1 className="text-4xl font-extrabold mb-8 text-gray-900 text-center">
-        Karta
+        Utforska annonser
       </h1>
-      {/* Pass ads data to AdMap to render markers */}
-      <AdMap ads={ads} />
+      <div className="flex flex-grow gap-4">
+        {/* Left section for ListingList */}
+        <div className="flex-1">
+          <ListingList />
+        </div>
+
+        {/* Right section for AdMap */}
+        <div className="flex-1">
+          <h1 className="text-4xl font-extrabold mb-8 text-gray-900 text-center">
+            Karta
+          </h1>
+          <AdMap ads={ads} />
+        </div>
+      </div>
     </div>
   );
 };

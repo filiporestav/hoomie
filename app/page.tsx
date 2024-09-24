@@ -116,10 +116,7 @@ export default function Home() {
                   id={listing.id}
                   imageUrls={listing.imageUrls}
                   propertyDescription="Studentboende"
-                  areaDescription={listing.areaDescription}
                   city={listing.city}
-                  country={listing.country}
-                  createdAt={listing.createdAt}
                 />
               ))}
             </div>

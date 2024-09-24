@@ -5,32 +5,24 @@ import Link from "next/link";
 type ListingCardProps = {
   id: number;
   propertyDescription: string;
-  areaDescription: string;
   city: string;
-  country: string;
   imageUrls?: string[]; // Make this optional
-  createdAt: string; // Assuming ISO date string
 };
 
 const ListingCard: React.FC<ListingCardProps> = ({
   id,
   propertyDescription,
-  areaDescription,
   city,
-  country,
   imageUrls = [], // Default to an empty array
-  createdAt,
 }) => {
   const displayImage =
     imageUrls.length > 0 ? imageUrls[0] : "/images/placeholder.jpg";
 
-  // Logs for debugging
-  console.log("Received property description:", propertyDescription);
-  console.log("Received area description:", areaDescription);
-  console.log("Received city:", city);
-  console.log("Received country:", country);
-  console.log("Received image URLs:", imageUrls);
-  console.log("Display image:", displayImage);
+  // Truncate the property description
+  const truncatedDescription =
+    propertyDescription.length > 20
+      ? `${propertyDescription.slice(0, 20)}...`
+      : propertyDescription;
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
@@ -42,22 +34,33 @@ const ListingCard: React.FC<ListingCardProps> = ({
           height={250}
           className="rounded-lg object-cover hover:scale-105 transition-transform duration-200"
         />
-        <div className="mt-4">
-          <h4 className="text-2xl font-bold text-gray-900">
-            {propertyDescription}
-          </h4>
-          <p className="text-gray-700 mt-2">
-            {city}, {country}
-          </p>
-          <p className="text-sm text-gray-500">
-            Area:{" "}
-            <span className="font-medium text-gray-800">{areaDescription}</span>
-          </p>
-          <p className="text-sm text-gray-500">
-            Created At:{" "}
-            <span className="font-medium text-gray-800">
-              {new Date(createdAt).toLocaleDateString()}
-            </span>
+        <div className="mt-2 text-center">
+          <h4 className="text-lg font-bold text-gray-900">{city}</h4>
+          <p
+            className={`text-sm ${
+              truncatedDescription.length > 20 ? "opacity-75" : ""
+            }`}
+            style={{
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              display: "block",
+              maxWidth: "100%",
+              position: "relative",
+            }}
+          >
+            {truncatedDescription}
+            {truncatedDescription.length > 20 && (
+              <span
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  width: "20%",
+                  height: "100%",
+                  background: "linear-gradient(to left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%)",
+                }}
+              />
+            )}
           </p>
         </div>
       </Link>

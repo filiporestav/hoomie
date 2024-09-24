@@ -1,3 +1,4 @@
+// ListingList.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -8,11 +9,8 @@ import { fetchListings } from "../annonser/fetchListings"; // Import the functio
 type Listing = {
   id: number;
   propertyDescription: string;
-  areaDescription: string;
   city: string;
-  country: string;
   imageUrls: string[];
-  createdAt: string;
 };
 
 const ListingList: React.FC = () => {
@@ -48,11 +46,7 @@ const ListingList: React.FC = () => {
       ? listing.city.toLowerCase().includes(locationFilter.toLowerCase())
       : true;
 
-    const matchesWeek = weekFilter.length
-      ? weekFilter.some((week) => listing.imageUrls.some((img) => img.includes(week))) // Example logic
-      : true;
-
-    return matchesLocation && matchesWeek;
+    return matchesLocation; // Adjust logic as needed
   });
 
   return (
@@ -68,18 +62,15 @@ const ListingList: React.FC = () => {
       {loading ? (
         <p className="text-center text-gray-500 mt-16">Laddar annonser...</p> // Display loading message
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
           {filteredListings.length > 0 ? (
             filteredListings.map((listing) => (
               <ListingCard
                 key={listing.id}
                 id={listing.id}
                 propertyDescription={listing.propertyDescription}
-                areaDescription={listing.areaDescription}
                 city={listing.city}
-                country={listing.country}
                 imageUrls={listing.imageUrls}
-                createdAt={listing.createdAt}
               />
             ))
           ) : (
