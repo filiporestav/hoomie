@@ -16,19 +16,22 @@ export const fetchListings = async (): Promise<Listing[]> => {
   try {
     const { data, error } = await supabase
       .from("ads")
-      .select("id, property_description, area_description, location, country, image_urls, created_at");
+      .select(
+        "id, property_description, area_description, location, country, image_urls, created_at"
+      );
 
     if (error) {
       console.error("Error fetching data from Supabase:", error);
       throw error;
     }
 
-    console.log("Fetched data from Supabase:", data);
+    // console.log("Fetched data from Supabase:", data);
 
     const listings: Listing[] = data.map((ad: any) => {
       const listing = {
         id: ad.id,
-        propertyDescription: ad.property_description || "No description available",
+        propertyDescription:
+          ad.property_description || "No description available",
         areaDescription: ad.area_description || "No area description available",
         location: ad.location || "Unknown location",
         country: ad.country || "Unknown country",

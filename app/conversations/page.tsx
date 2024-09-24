@@ -26,15 +26,24 @@ const ConversationList = () => {
         .select(
           `
           user_id,
-          user:users (full_name, avatar_url),
-          content AS last_message,
-          inserted_at AS last_message_time
+          user:profiles (full_name, avatar_url),
+          content,
+          inserted_at
         `
         )
         .order("inserted_at", { ascending: false });
 
-      if (error) console.error(error);
-      else setConversations(data || []);
+      if (error) {
+        console.error(error);
+      } else {
+        const formattedConversations = (data || []).map((message: any) => ({
+          user_id: message.user_id,
+          user: message.user,
+          last_message: message.content,
+          last_message_time: message.inserted_at,
+        }));
+        setConversations(formattedConversations);
+      }
     };
 
     fetchConversations();
