@@ -17,27 +17,37 @@ const HurDetFungerarPage = () => {
   const router = useRouter();
   const faqs = [
     {
-      question: "Är det säkert att byta hem?",
+      question: "Är det säkert att byta boende?",
       answer:
-        "Ja, säkerheten är vår högsta prioritet. Vi erbjuder olika säkerhetsfunktioner och en verifieringsprocess för att skydda våra användare.",
+        "Ja, säkerheten är vår högsta prioritet. Vi erbjuder försäkringar och en verifieringsprocess för att skydda våra användare.",
     },
     {
       question: "Vad händer om något går fel?",
       answer:
-        "Vi har en kundtjänst som är redo att hjälpa dig om något skulle gå fel under bytet. Dessutom har vi en säkerhetspolicy och garantier för att skydda både dig och ditt hem.",
+        "Vår support är redo att hjälpa om något oväntat skulle hända. Dessutom har vi garantier och säkerhetspolicys på plats.",
     },
     {
       question: "Hur lång tid tar det att hitta ett byte?",
       answer:
-        "Det varierar beroende på dina preferenser och tillgängligheten av hem, men vi har många alternativ att välja mellan.",
+        "Det beror på tillgänglighet och dina preferenser, men vi har ett stort urval av studentboenden att välja mellan.",
     },
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
       <h1 className="text-5xl font-bold text-center text-gray-900 mb-16">
-        Hur fungerar Semesterbyte?
+        Hur fungerar Boendebyte för Studenter?
       </h1>
+
+      {/* Introduction */}
+      <section className="mb-12 text-center">
+        <p className="text-lg text-gray-700">
+          Tänk dig att du kan upptäcka nya städer, kulturer och vänner, allt
+          medan du bor i en annan students hem under några dagar eller en vecka.
+          Med vår plattform får du möjligheten att byta boende med andra
+          studenter och skapa oförglömliga minnen, allt till en låg kostnad.
+        </p>
+      </section>
 
       {/* Steps Section */}
       <section className="mb-24 text-center">
@@ -48,32 +58,32 @@ const HurDetFungerarPage = () => {
           <StepCard
             icon={FaUserPlus}
             title="Skapa ett konto"
-            description="Registrera dig snabbt och enkelt på vår plattform. Börja utforska direkt efter registrering."
+            description="Registrera dig på plattformen och skapa en profil för att börja ditt äventyr."
           />
           <StepCard
             icon={FaHome}
-            title="Lista ditt hem"
-            description="Lägg till ditt hem med bilder och beskrivningar för att attrahera potentiella byten."
+            title="Lista ditt boende"
+            description="Lägg till ditt studentboende med bilder och beskrivningar för att attrahera andra studenter."
           />
           <StepCard
             icon={FaSearch}
-            title="Utforska och hitta"
-            description="Använd våra filter för att hitta det perfekta bytet som matchar dina behov."
+            title="Utforska boenden"
+            description="Sök efter studentboenden som passar dina resmål och drömmar."
           />
           <StepCard
             icon={FaComments}
-            title="Kommunicera"
-            description="Diskutera detaljerna med andra användare för att säkra ett smidigt byte."
+            title="Kontakta andra studenter"
+            description="Använd vår chattfunktion för att diskutera detaljer och komma överens om bytet."
           />
           <StepCard
             icon={FaHandshake}
             title="Bekräfta bytet"
-            description="Kom överens om villkoren och bekräfta bytet enkelt via vår plattform."
+            description="När ni är överens om detaljerna, bekräfta bytet och boka boendet."
           />
           <StepCard
             icon={FaSmile}
-            title="Njut av ditt nya hem"
-            description="Upplev ditt nya hem och lämna en recension för att hjälpa framtida användare."
+            title="Njut av din resa"
+            description="Flytta in i ditt nya boende och njut av att utforska en ny plats!"
           />
         </div>
       </section>
@@ -84,7 +94,7 @@ const HurDetFungerarPage = () => {
       {/* Video Section */}
       <section className="mb-24 text-center">
         <h2 className="text-4xl font-semibold text-gray-900 mb-12">
-          Så här enkelt är det!
+          Så enkelt är det!
         </h2>
         <div className="flex justify-center">
           <iframe
@@ -100,11 +110,11 @@ const HurDetFungerarPage = () => {
       {/* Call to Action */}
       <section className="text-center py-12 bg-amber-500 text-white rounded-md">
         <h2 className="text-4xl font-semibold mb-4">
-          Redo att börja byta hem?
+          Redo att börja ditt äventyr?
         </h2>
         <p className="text-lg mb-8">
-          Skapa ett konto idag och upptäck de fantastiska möjligheter som väntar
-          på dig.
+          Skapa ett konto idag och upptäck hur enkelt det är att resa och bo
+          billigt, samtidigt som du skapar nya vänskapsband!
         </p>
         <button
           onClick={() => router.push("/registrer")}
