@@ -1,35 +1,34 @@
 // app/annonser/fetchListings.ts
+import { createClient } from "../utils/supabase/client";
+
 type Listing = {
   id: number;
-  title: string;
+  propertyDescription: string;
+  areaDescription: string;
   location: string;
-  availabilityWeeks: string[];
-  image: string;
+  country: string;
+  imageUrls: string[];
 };
 
 export const fetchListings = async (): Promise<Listing[]> => {
-  // Replace this with actual data fetching logic
-  return [
-    {
-      id: 1,
-      title: "Cozy Cottage in the Mountains",
-      location: "Aspen, CO",
-      availabilityWeeks: ["2024-W01", "2024-W02", "2024-W03"],
-      image: "/images/aspen-cottage.jpg",
-    },
-    {
-      id: 2,
-      title: "Beachfront Villa",
-      location: "Malibu, CA",
-      availabilityWeeks: ["2024-W03", "2024-W04"],
-      image: "/images/malibu-villa.jpg",
-    },
-    {
-      id: 3,
-      title: "Urban Apartment",
-      location: "New York, NY",
-      availabilityWeeks: ["2024-W02", "2024-W05"],
-      image: "/images/nyc-apartment.jpg",
-    },
-  ];
+  const supabase = createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from("ads")
+      .select("id, property_description, area_description, location, country, image_urls");
+    if (error) throw error;
+
+    return data.map((ad: any) => ({
+      id: ad.id,
+      propertyDescription: ad.property_description,
+      areaDescription: ad.area_description,
+      location: ad.location,
+      country: ad.country,
+      imageUrls: ad.image_urls, // Assuming image_urls is an array of strings
+    }));
+  } catch (error) {
+    console.error("Error fetching listings:", error);
+    return [];
+  }
 };

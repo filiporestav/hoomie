@@ -6,10 +6,12 @@ import ListingCard from "../components/ListingCard";
 
 type Listing = {
   id: number;
-  title: string;
+  property_description: string;
+  area_description: string;
   location: string;
-  availabilityWeeks: string[];
-  image: string;
+  country: string;
+  image_urls: string[]; // Changed from `image` to `image_urls` for multiple images
+  created_at: string; // Assuming ISO date string
 };
 
 type ListingListProps = {
@@ -25,13 +27,15 @@ const ListingList: React.FC<ListingListProps> = ({ listings }) => {
     setWeekFilter([]);
   };
 
+  // Assuming weekFilter logic needs to be adapted if availability weeks are not used
   const filteredListings = listings.filter((listing) => {
     const matchesLocation = locationFilter
       ? listing.location.toLowerCase().includes(locationFilter.toLowerCase())
       : true;
 
+    // Adapt this if availability weeks are used in a different way
     const matchesWeek = weekFilter.length
-      ? weekFilter.some((week) => listing.availabilityWeeks.includes(week))
+      ? weekFilter.some((week) => listing.image_urls.some((img) => img.includes(week))) // Example logic
       : true;
 
     return matchesLocation && matchesWeek;
@@ -53,10 +57,12 @@ const ListingList: React.FC<ListingListProps> = ({ listings }) => {
             <ListingCard
               key={listing.id}
               id={listing.id}
-              title={listing.title}
+              propertyDescription={listing.property_description}
+              areaDescription={listing.area_description}
               location={listing.location}
-              availabilityWeeks={listing.availabilityWeeks}
-              imageSrc={listing.image}
+              country={listing.country}
+              imageUrls={listing.image_urls}
+              createdAt={listing.created_at}
             />
           ))
         ) : (
