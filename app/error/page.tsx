@@ -1,3 +1,9 @@
-export default function ErrorPage() {
-  return <p>Sorry, something went wrong</p>;
-}
+"use client";
+
+import React from "react";
+
+const ErrorPage = () => {
+  return <div>An error occurred. Please try again later.</div>;
+};
+
+export default ErrorPage;
