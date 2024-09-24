@@ -66,7 +66,7 @@ const Navbar = () => {
                     className="text-white hover:bg-amber-700 px-3 py-2 rounded-md text-lg font-medium focus:outline-none"
                     onClick={() => setIsOpen(!isOpen)}
                   >
-                    Min profil
+                    Profil
                   </button>
                   {isOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
@@ -74,13 +74,7 @@ const Navbar = () => {
                         href="/account"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Min profil
-                      </Link>
-                      <Link
-                        href="/mina-bostader"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Mina bostäder
+                        Ändra profil
                       </Link>
                       <form action="/auth/signout" method="post">
                         <button
@@ -192,19 +186,13 @@ const Navbar = () => {
               href="/min-profil"
               className="text-white hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-medium"
             >
-              Min profil
-            </Link>
-            <Link
-              href="/mina-bostader"
-              className="text-white hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-medium"
-            >
-              Mina bostäder
+              Ändra profil
             </Link>
             <Link
               href="/conversations"
               className="text-white hover:bg-amber-700 block px-3 py-2 rounded-md text-base font-medium"
             >
-              Conversations
+              Konversationer
             </Link>
           </>
         ) : (
