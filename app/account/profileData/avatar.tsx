@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "../../utils/supabase/client";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 export default function Avatar({
   uid,
@@ -31,7 +32,7 @@ export default function Avatar({
         const url = URL.createObjectURL(data);
         setAvatarUrl(url);
       } catch (error) {
-        console.log("Fel när bilden laddades.", error);
+        console.log("Error when loading image.", error);
       }
     }
 
@@ -45,7 +46,7 @@ export default function Avatar({
       setUploading(true);
 
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error("Du måste välja en bild att ladda upp.");
+        throw new Error("You must select an image to upload.");
       }
 
       const file = event.target.files[0];
@@ -62,48 +63,42 @@ export default function Avatar({
 
       onUpload(filePath);
     } catch (error) {
-      alert("Fel vid uppladdning av bild.");
+      alert("Error uploading image.");
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div>
+    <div className="flex flex-col items-center space-y-4">
       {avatarUrl ? (
         <Image
           width={size}
           height={size}
           src={avatarUrl}
           alt="Avatar"
-          className="avatar image"
-          style={{ height: size, width: size }}
+          className="rounded-full object-cover"
         />
       ) : (
         <div
-          className="avatar no-image"
-          style={{ height: size, width: size }}
-        />
+          className="bg-indigo-200 rounded-full flex items-center justify-center text-indigo-600 font-bold"
+          style={{ width: size, height: size }}
+        >
+          {uid?.charAt(0).toUpperCase()}
+        </div>
       )}
-      <div style={{ width: size }}>
-        <label className={`button primary block py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-white bg-amber-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer ${
-    uploading ? "opacity-50 cursor-not-allowed" : ""
-  }`}
-  htmlFor="single"
->
-          {uploading ? "Laddar upp..." : "Ladda upp bild"}
-        </label>
-        <input
-          style={{
-            visibility: "hidden",
-            position: "absolute",
-          }}
-          type="file"
-          id="single"
-          accept="image/*"
-          onChange={uploadAvatar}
-          disabled={uploading}
-        />
+      <div>
+        <Button variant="outline" className="relative" disabled={uploading}>
+          {uploading ? "Uploading..." : "Upload Image"}
+          <input
+            type="file"
+            id="single"
+            accept="image/*"
+            onChange={uploadAvatar}
+            disabled={uploading}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+        </Button>
       </div>
     </div>
   );

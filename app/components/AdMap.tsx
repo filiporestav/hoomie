@@ -1,30 +1,21 @@
-// AdMap.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
-import AdMarker from "./AdMarker"; // Import your custom marker
-
-interface Ad {
-  id: string;
-  latitude: number;
-  longitude: number;
-  property_description: string;
-  image_urls: string[]; // Assuming you have an array of images
-}
+import AdMarker from "./AdMarker";
+import Ad from "./AdInterface";
 
 interface AdMapProps {
-  ads: Ad[]; // Array of ads with latitude and longitude
+  ads: Ad[];
 }
 
 const containerStyle = {
   width: "100%",
-  height: "400px", // Adjust height as needed
+  height: "100vh", // Full height of the viewport
 };
 
-const AdMap: React.FC<AdMapProps> = ({ ads }) => {
-  const [center, setCenter] = useState({ lat: 59.3293, lng: 18.0686 }); // Default center
+export default function AdMap({ ads }: AdMapProps) {
+  const [center, setCenter] = useState({ lat: 59.3293, lng: 18.0686 }); // Default center (Stockholm)
 
-  // Update the center to the first ad's location if ads are available
   useEffect(() => {
     if (ads.length > 0) {
       setCenter({ lat: ads[0].latitude, lng: ads[0].longitude });
@@ -36,7 +27,7 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={10} // Adjust zoom level as needed
+        zoom={10}
       >
         {ads.map((ad) => (
           <AdMarker
@@ -44,12 +35,10 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
             id={ad.id}
             position={{ lat: ad.latitude, lng: ad.longitude }}
             propertyDescription={ad.property_description}
-            imageUrl={ad.image_urls[0]} // Use the first image for the marker
+            imageUrl={ad.image_urls[0]}
           />
         ))}
       </GoogleMap>
     </LoadScript>
   );
-};
-
-export default AdMap;
+}

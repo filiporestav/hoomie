@@ -1,23 +1,14 @@
 import { createClient } from "../utils/supabase/client";
+import Ad from "../components/AdInterface"
 
-type Listing = {
-  id: number;
-  propertyDescription: string;
-  areaDescription: string;
-  city: string;
-  country: string;
-  imageUrls: string[];
-  createdAt: string; // Add created_at
-};
-
-export const fetchListings = async (): Promise<Listing[]> => {
+export const fetchListings = async (): Promise<Ad[]> => {
   const supabase = createClient();
 
   try {
     const { data, error } = await supabase
       .from("ads")
       .select(
-        "id, property_description, area_description, city, country, image_urls, created_at"
+        "id, property_description, area_description, address, city, country, latitude, longitude, image_urls, created_at"
       );
 
     if (error) {
@@ -27,16 +18,19 @@ export const fetchListings = async (): Promise<Listing[]> => {
 
     // console.log("Fetched data from Supabase:", data);
 
-    const listings: Listing[] = data.map((ad: any) => {
+    const listings: Ad[] = data.map((ad: any) => {
       const listing = {
         id: ad.id,
-        propertyDescription:
+        property_description:
           ad.property_description || "No description available",
-        areaDescription: ad.area_description || "No area description available",
+        area_description: ad.area_description || "No area description available",
+        address: ad.address,
         city: ad.city || "Unknown city",
         country: ad.country || "Unknown country",
-        imageUrls: ad.image_urls || [], // Ensure it's an array
-        createdAt: ad.created_at, // Include the created_at field
+        longitude: ad.longitude,
+        latitude: ad.latitude,
+        image_urls: ad.image_urls || [], // Ensure it's an array
+        created_at: ad.created_at, // Include the created_at field
       };
       console.log("Mapped listing:", listing);
       return listing;

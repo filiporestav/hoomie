@@ -1,40 +1,49 @@
-// AdMarker.tsx
-"use client";
-
 import React from "react";
-import { Marker } from "@react-google-maps/api";
-import { useRouter } from "next/navigation"; // Use next/navigation for Next.js 13+
+import { Marker, InfoWindow } from "@react-google-maps/api";
 
 interface AdMarkerProps {
   id: string;
-  position: { lat: number; lng: number };
+  position: google.maps.LatLngLiteral;
   propertyDescription: string;
-  imageUrl: string; // URL for the mini image
+  imageUrl: string;
 }
 
-const AdMarker: React.FC<AdMarkerProps> = ({
-  id,
-  position,
-  propertyDescription,
-  imageUrl,
-}) => {
-  const router = useRouter();
+export default function AdMarker({ id, position, propertyDescription, imageUrl }: AdMarkerProps) {
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  const handleClick = () => {
-    router.push(`/annonser/${id}`);
-  };
+  const toggleOpen = () => setIsOpen(!isOpen);
+
+  const PriceBubble = () => (
+    <div className="bg-white rounded-full px-2 py-1 shadow-md">
+      <span className="font-semibold">100 kr SEK</span>
+    </div>
+  );
 
   return (
     <Marker
       position={position}
-      title={propertyDescription} // Tooltip with description
-      onClick={handleClick} // Redirect on marker click
+      onClick={toggleOpen}
       icon={{
-        url: imageUrl,
-        scaledSize: new window.google.maps.Size(40, 40), // Customize size as needed
+        url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
+          `<svg width="80" height="40" xmlns="http://www.w3.org/2000/svg">
+            <rect width="80" height="40" rx="20" fill="white"/>
+            <text x="40" y="25" font-family="Arial" font-size="14" fill="black" text-anchor="middle">
+              100 kr
+            </text>
+          </svg>`
+        ),
+        scaledSize: new google.maps.Size(80, 40),
       }}
-    />
+    >
+      {isOpen && (
+        <InfoWindow onCloseClick={toggleOpen}>
+          <div className="max-w-xs">
+            <img src={imageUrl} alt={propertyDescription} className="w-full h-32 object-cover mb-2" />
+            <p className="text-sm">{propertyDescription}</p>
+            <p className="text-sm font-bold mt-1">100 kr SEK per night</p>
+          </div>
+        </InfoWindow>
+      )}
+    </Marker>
   );
-};
-
-export default AdMarker;
+}

@@ -1,8 +1,13 @@
 "use client";
+
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "../../utils/supabase/client";
 import { type User } from "@supabase/supabase-js";
 import Avatar from "./avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AccountForm({ user }: { user: User | null }) {
   const supabase = createClient();
@@ -22,7 +27,6 @@ export default function AccountForm({ user }: { user: User | null }) {
         .single();
 
       if (error && status !== 406) {
-        console.log(error.message);
         throw error;
       }
 
@@ -61,102 +65,75 @@ export default function AccountForm({ user }: { user: User | null }) {
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
-      alert("Profilen uppdaterades");
+      alert("Profile updated successfully");
     } catch (error) {
-      alert("Ett fel uppstod när profilen skulle uppdateras");
+      alert("Error updating the profile");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="max-w-lg ml-0 mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Kontoinställningar
-      </h2>
-
-      <div className="flex flex-col items-center mb-6">
-        <Avatar
-          uid={user?.id ?? null}
-          url={avatar_url}
-          size={100}
-          onUpload={(url) => {
-            setAvatarUrl(url);
-            updateProfile({ fullname, username, avatar_url: url });
-          }}
-        />
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="text"
-            value={user?.email || ""}
-            disabled
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+    <Card>
+      <CardHeader>
+        <CardTitle>Account Settings</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col items-center mb-6">
+          <Avatar
+            uid={user?.id ?? null}
+            url={avatar_url}
+            size={100}
+            onUpload={(url) => {
+              setAvatarUrl(url);
+              updateProfile({ fullname, username, avatar_url: url });
+            }}
           />
         </div>
-        <div>
-          <label
-            htmlFor="fullName"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Fullständigt namn
-          </label>
-          <input
-            id="fullName"
-            type="text"
-            value={fullname || ""}
-            onChange={(e) => setFullname(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Användarnamn
-          </label>
-          <input
-            id="username"
-            type="text"
-            value={username || ""}
-            onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
-          />
-        </div>
-      </div>
 
-      <div className="mt-6">
-        <button
-          className={`w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          onClick={() => updateProfile({ fullname, username, avatar_url })}
-          disabled={loading}
-        >
-          {loading ? "Laddar..." : "Uppdatera profil"}
-        </button>
-      </div>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="text" value={user?.email || ""} disabled />
+          </div>
+          <div>
+            <Label htmlFor="fullName">Full Name</Label>
+            <Input
+              id="fullName"
+              type="text"
+              value={fullname || ""}
+              onChange={(e) => setFullname(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              type="text"
+              value={username || ""}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+        </div>
 
-      <div className="mt-6 text-center">
-        <form action="/auth/signout" method="post">
-          <button
-            className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
-            type="submit"
+        <div className="mt-6">
+          <Button
+            className="w-full"
+            onClick={() => updateProfile({ fullname, username, avatar_url })}
+            disabled={loading}
           >
-            Logga ut
-          </button>
-        </form>
-      </div>
-    </div>
+            {loading ? "Loading..." : "Update Profile"}
+          </Button>
+        </div>
+
+        <div className="mt-6">
+          <form action="/auth/signout" method="post">
+            <Button variant="outline" className="w-full" type="submit">
+              Sign Out
+            </Button>
+          </form>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
