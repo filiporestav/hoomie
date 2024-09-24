@@ -27,14 +27,27 @@ const ConversationList = () => {
           `
           user_id,
           user:users (full_name, avatar_url),
-          content AS last_message,
-          inserted_at AS last_message_time
+          content,
+          inserted_at
         `
         )
         .order("inserted_at", { ascending: false });
 
-      if (error) console.error(error);
-      else setConversations(data || []);
+      if (error) {
+        console.error(error);
+      } else {
+        // Map the fetched data to match the Conversation interface
+        const mappedData = (data || []).map((conv: any) => ({
+          user_id: conv.user_id,
+          user: {
+            full_name: conv.user.full_name,
+            avatar_url: conv.user.avatar_url,
+          },
+          last_message: conv.content,
+          last_message_time: conv.inserted_at,
+        }));
+        setConversations(mappedData);
+      }
     };
 
     fetchConversations();
