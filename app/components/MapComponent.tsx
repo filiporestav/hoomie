@@ -1,5 +1,3 @@
-// components/MapComponent.tsx
-
 import React from "react";
 import { GoogleMap, LoadScript } from "@react-google-maps/api";
 
@@ -14,8 +12,14 @@ const center = {
 };
 
 const MapComponent: React.FC = () => {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  if (!apiKey) {
+    return <p>Google Maps API key is missing!</p>;
+  }
+
   return (
-    <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+    <LoadScript googleMapsApiKey={apiKey}>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
