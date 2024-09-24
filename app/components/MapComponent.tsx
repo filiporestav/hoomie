@@ -4,6 +4,7 @@ import { GoogleMap, LoadScript } from '@react-google-maps/api';
 const containerStyle = {
   width: '100%',
   height: '400px',
+
 };
 
 const center = {
@@ -16,12 +17,14 @@ const MapComponent: React.FC = () => {
 
   return (
     <LoadScript googleMapsApiKey={googleMapsApiKey}>
+
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
         zoom={10}
       >
         { /* Your map markers and other components can go here */ }
+
       </GoogleMap>
     </LoadScript>
   );
