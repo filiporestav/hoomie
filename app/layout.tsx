@@ -7,8 +7,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Semesterbyte",
-  description: "Byt semesterbostad med andra",
+  title: "Hoomie",
+  description: "Bostadsbyten för studenter",
 };
 
 export default function RootLayout({

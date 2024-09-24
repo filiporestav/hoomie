@@ -7,8 +7,8 @@ export default function Footer() {
       <div className="container mx-auto px-4 text-center md:text-left">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h4 className="text-xl font-bold mb-4">Semesterbyte</h4>
-            <p>Byt ditt semesterhus och upptäck världen på ett nytt sätt.</p>
+            <h4 className="text-xl font-bold mb-4">Hoomie</h4>
+            <p>Byt din studentbostad och upptäck Sverige på ett nytt sätt.</p>
           </div>
           <div>
             <h4 className="text-xl font-bold mb-4">Snabblänkar</h4>
