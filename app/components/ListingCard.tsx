@@ -21,7 +21,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   imageUrls = [], // Default to an empty array
   createdAt
 }) => {
-  const displayImage = imageUrls.length > 0 ? imageUrls[0] : "/images/placeholder.jpg";
+  const displayImage = imageUrls[0];
 
   // Logs for debugging
   console.log("Received property description:", propertyDescription);
