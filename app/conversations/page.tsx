@@ -26,7 +26,7 @@ const ConversationList = () => {
         .select(
           `
           user_id,
-          user:users (full_name, avatar_url),
+          user:profiles (full_name, avatar_url),
           content,
           inserted_at
         `

@@ -16,7 +16,7 @@ export default function AccountForm({ user }: { user: User | null }) {
       setLoading(true);
 
       const { data, error, status } = await supabase
-        .from("users")
+        .from("profiles")
         .select(`full_name, username, avatar_url`)
         .eq("id", user?.id)
         .single();
@@ -53,7 +53,7 @@ export default function AccountForm({ user }: { user: User | null }) {
     try {
       setLoading(true);
 
-      const { error } = await supabase.from("users").upsert({
+      const { error } = await supabase.from("profiles").upsert({
         id: user?.id as string,
         full_name: fullname,
         username,

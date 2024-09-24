@@ -29,7 +29,7 @@ export async function signup(formData: FormData) {
 
   if (error) {
     // redirect("/error");
-    return { error: error.message };
+    return { error: JSON.stringify(error, null, 2) };
   }
 
   // revalidatePath("/", "layout");
