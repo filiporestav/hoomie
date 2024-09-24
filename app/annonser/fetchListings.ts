@@ -4,7 +4,8 @@ type Listing = {
   id: number;
   propertyDescription: string;
   areaDescription: string;
-  location: string;
+  address: string;
+  city: string;
   country: string;
   imageUrls: string[];
   createdAt: string; // Add created_at
@@ -17,7 +18,7 @@ export const fetchListings = async (): Promise<Listing[]> => {
     const { data, error } = await supabase
       .from("ads")
       .select(
-        "id, property_description, area_description, location, country, image_urls, created_at"
+        "id, property_description, area_description, address, city, country, image_urls, created_at"
       );
 
     if (error) {
@@ -33,7 +34,8 @@ export const fetchListings = async (): Promise<Listing[]> => {
         propertyDescription:
           ad.property_description || "No description available",
         areaDescription: ad.area_description || "No area description available",
-        location: ad.location || "Unknown location",
+        address: ad.address || "Unknown address",
+        city: ad.city || "Unknown city",
         country: ad.country || "Unknown country",
         imageUrls: ad.image_urls || [], // Ensure it's an array
         createdAt: ad.created_at, // Include the created_at field
