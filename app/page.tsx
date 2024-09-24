@@ -1,9 +1,52 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import { BsArrowRightCircle } from "react-icons/bs";
 import ListingCard from "./components/ListingCard";
+import { fetchListings } from "./annonser/fetchListings";
+
+type Listing = {
+  id: number;
+  propertyDescription: string;
+  areaDescription: string;
+  location: string;
+  country: string;
+  imageUrls: string[];
+  createdAt: string;
+};
 
 export default function Home() {
+  const [latestListings, setLatestListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch listings when the component mounts
+  useEffect(() => {
+    const loadListings = async () => {
+      try {
+        setLoading(true);
+        const fetchedListings = await fetchListings();
+
+        // Sort listings by createdAt in descending order and take the top 3
+        const sortedListings = fetchedListings
+          .sort(
+            (a: Listing, b: Listing) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+          .slice(0, 3);
+
+        setLatestListings(sortedListings);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+        setLoading(false);
+      }
+    };
+
+    loadListings();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header with Background Image */}
@@ -57,35 +100,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Section */}
+      {/* Featured Section with Latest Listings */}
       <section className="py-10 bg-white">
         <div className="container mx-auto px-4 text-center">
           <h3 className="text-3xl font-bold mb-6 text-gray-800">
-            Utvalda studentboenden
+            Senaste annonserna
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <ListingCard
-              id={1}
-              imageSrc="/placeholder-image.jpg"
-              title="Stuga i Skåne"
-              location="Skåne, Sverige"
-              availabilityWeeks={["30", "31", "32"]}
-            />
-            <ListingCard
-              id={2}
-              imageSrc="/placeholder-image.jpg"
-              title="Villa i Stockholm"
-              location="Stockholm, Sverige"
-              availabilityWeeks={["28", "29", "30"]}
-            />
-            <ListingCard
-              id={3}
-              imageSrc="/placeholder-image.jpg"
-              title="Lägenhet i Göteborg"
-              location="Göteborg, Sverige"
-              availabilityWeeks={["27", "28", "29"]}
-            />
-          </div>
+          {loading ? (
+            <p className="text-gray-500">Laddar annonser...</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {latestListings.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  id={listing.id}
+                  imageUrls={listing.imageUrls}
+                  propertyDescription="Studentboende"
+                  areaDescription={listing.areaDescription}
+                  location={listing.location}
+                  country={listing.country}
+                  createdAt={listing.createdAt}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>

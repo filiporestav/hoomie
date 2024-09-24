@@ -1,11 +1,11 @@
 // components/MapComponent.tsx
 
-import React from 'react';
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import React from "react";
+import { GoogleMap, LoadScript } from "@react-google-maps/api";
 
 const containerStyle: React.CSSProperties = {
-  width: '100%',
-  height: '400px', // Adjust height as needed
+  width: "100%",
+  height: "400px", // Adjust height as needed
 };
 
 const center = {
@@ -21,7 +21,7 @@ const MapComponent: React.FC = () => {
         center={center}
         zoom={10} // Adjust zoom level as needed
       >
-        { /* Add markers here later */ }
+        {/* Add markers here later */}
       </GoogleMap>
     </LoadScript>
   );
