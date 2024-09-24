@@ -1,33 +1,31 @@
-import React from "react";
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
+"use client";
 
-const containerStyle: React.CSSProperties = {
-  width: "100%",
-  height: "400px", // Adjust height as needed
-};
+import React from 'react';
+import { useRouter } from 'next/router';
+import { GoogleMap, Marker } from '@react-google-maps/api';
 
-const center = {
-  lat: 59.3293, // Default latitude (for example, Stockholm)
-  lng: 18.0686, // Default longitude
-};
+const MapComponent: React.FC<{ ads: { id: string; lat: number; lng: number }[] }> = ({ ads }) => {
+  const router = useRouter();
+  const defaultCenter = { lat: 59.3293, lng: 18.0686 }; // Set your default center
 
-const MapComponent: React.FC = () => {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  if (!apiKey) {
-    return <p>Google Maps API key is missing!</p>;
-  }
+  const handleMarkerClick = (adId: string) => {
+    router.push(`/annonser/${adId}`);
+  };
 
   return (
-    <LoadScript googleMapsApiKey={apiKey}>
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={10} // Adjust zoom level as needed
-      >
-        {/* Add markers here later */}
-      </GoogleMap>
-    </LoadScript>
+    <GoogleMap
+      center={defaultCenter}
+      zoom={10}
+      mapContainerClassName="h-96 w-full"
+    >
+      {ads.map(ad => (
+        <Marker
+          key={ad.id}
+          position={{ lat: ad.lat, lng: ad.lng }}
+          onClick={() => handleMarkerClick(ad.id)} // Redirect on marker click
+        />
+      ))}
+    </GoogleMap>
   );
 };
 

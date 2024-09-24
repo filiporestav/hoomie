@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { createClient } from "../../utils/supabase/client";
+import { geocodeAddress } from "../../utils/geocode";
+
 
 export default function AddAdModal({
   isOpen,
@@ -60,6 +62,10 @@ export default function AddAdModal({
     setLoading(true);
 
     try {
+      const { latitude, longitude } = await geocodeAddress(address, city, country);
+
+      console.log("latitude: ", latitude, " Longitude: ", longitude);
+
       const imageUrls = [];
       for (const image of selectedImages) {
         const normalizedurl = normalizeFileName(image.name)
@@ -86,6 +92,8 @@ export default function AddAdModal({
           city,
           country,
           image_urls: imageUrls,
+          latitude,
+          longitude,
         });
 
       if (error) throw error;
