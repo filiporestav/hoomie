@@ -7,7 +7,7 @@ import { BsArrowRightCircle } from "react-icons/bs";
 import { fetchListings } from "./annonser/fetchListings";
 import Ad from "./components/AdInterface";
 import AdMap from "./components/AdMap";
-
+import { useClient } from "./ClientProvider";
 export default function Home() {
   const [listings, setLatestListings] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,13 +87,6 @@ export default function Home() {
           <h3 className="text-3xl font-bold mb-6 text-indigo-900">
             Senaste annonserna
           </h3>
-          {loading ? (
-            <p className="text-indigo-500">Laddar annonser...</p>
-          ) : (
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <AdMap ads={listings} />
-            </div>
-          )}
         </div>
       </section>
     </div>

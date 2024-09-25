@@ -68,9 +68,6 @@ export default function AdsContainer({ user }: { user: User | null }) {
         <CardTitle>My Ads</CardTitle>
       </CardHeader>
       <CardContent>
-        <Button onClick={handleOpenModal} className="w-full mb-6">
-          Add New Ad
-        </Button>
 
         <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-auto">
           {loading ? (
@@ -111,6 +108,9 @@ export default function AdsContainer({ user }: { user: User | null }) {
             onAdDeleted={handleAdDeleted}
           />
         )}
+        <Button onClick={handleOpenModal} className="w-full mt-10">
+          Add New Ad
+        </Button>
       </CardContent>
     </Card>
   );

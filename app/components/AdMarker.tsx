@@ -1,6 +1,8 @@
+'use client';
+
 import React from "react";
 import { Marker, InfoWindow } from "@react-google-maps/api";
-
+import { useClient } from '../ClientProvider';
 interface AdMarkerProps {
   id: string;
   position: google.maps.LatLngLiteral;
@@ -10,6 +12,8 @@ interface AdMarkerProps {
 
 export default function AdMarker({ id, position, propertyDescription, imageUrl }: AdMarkerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const isClient = useClient();
+  if (!isClient) return null;
 
   const toggleOpen = () => setIsOpen(!isOpen);
 

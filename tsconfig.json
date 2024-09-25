@@ -12,6 +12,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": ["leaflet"],
     "plugins": [
       {
         "name": "next"
@@ -19,7 +20,8 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    
   },
   "include": [
     "next-env.d.ts",
