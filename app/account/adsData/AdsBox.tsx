@@ -55,7 +55,7 @@ const AdsBox: React.FC<AdsBoxProps> = ({
             <p className="text-sm">{propertyDescription}</p>
             <p className="text-sm text-muted-foreground">{areaDescription}</p>
             <p className="text-sm font-semibold">
-              Available for Switch: {formatDate(availabilityStart)} - {formatDate(availabilityEnd)}
+              Tillgänglig för Byte: {formatDate(availabilityStart)} - {formatDate(availabilityEnd)}
             </p>
           </div>
           <div className="md:w-1/2">

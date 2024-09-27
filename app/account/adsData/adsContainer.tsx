@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { type User } from "@supabase/supabase-js"
-import AddAdModal from "./AddAdModal"
-import EditAdModal from "./EditAdModal"
+import AddEditAdModal from "./AddEditAdModal"
 import { createClient } from "../../utils/supabase/client"
 import AdsBox from "./AdsBox"
 import { Button } from "@/components/ui/button"
@@ -12,21 +11,20 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function AdsContainer({ user }: { user: User | null }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [ads, setAds] = useState<any[]>([])
   const [selectedAd, setSelectedAd] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [modalAction, setModalAction] = useState<'add' | 'edit'>('add')
 
-  const handleOpenModal = () => setIsModalOpen(true)
-  const handleCloseModal = () => setIsModalOpen(false)
-
-  const handleOpenEditModal = (ad: any) => {
-    setSelectedAd(ad)
-    setIsEditModalOpen(true)
+  const handleOpenModal = (action: 'add' | 'edit', ad?: any) => {
+    setModalAction(action)
+    setSelectedAd(ad || null)
+    setIsModalOpen(true)
   }
-  const handleCloseEditModal = () => {
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
     setSelectedAd(null)
-    setIsEditModalOpen(false)
   }
 
   const handleAdUpdated = () => {
@@ -89,7 +87,7 @@ export default function AdsContainer({ user }: { user: User | null }) {
                     imageUrls={ad.image_urls}
                     availabilityStart={ad.availability_start}
                     availabilityEnd={ad.availability_end}
-                    onEdit={() => handleOpenEditModal(ad)}
+                    onEdit={() => handleOpenModal('edit', ad)}
                   />
                 </div>
               ))
@@ -99,28 +97,21 @@ export default function AdsContainer({ user }: { user: User | null }) {
       </div>
 
       <div className="p-6">
-        <Button onClick={handleOpenModal} className="w-full">
+        <Button onClick={() => handleOpenModal('add')} className="w-full">
           Add New Ad
         </Button>
       </div>
 
-      <AddAdModal
+      <AddEditAdModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         user={user}
+        ad={selectedAd}
         onAdAdded={handleAdAdded}
+        onAdUpdated={handleAdUpdated}
+        onAdDeleted={handleAdDeleted}
+        action={selectedAd ? 'edit' : 'add'}
       />
-
-      {selectedAd && (
-        <EditAdModal
-          isOpen={isEditModalOpen}
-          onClose={handleCloseEditModal}
-          user={user}
-          ad={selectedAd}
-          onAdUpdated={handleAdUpdated}
-          onAdDeleted={handleAdDeleted}
-        />
-      )}
     </div>
   )
 }

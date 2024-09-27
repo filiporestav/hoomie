@@ -1,15 +1,26 @@
-import React from "react";
-import Image from "next/image";
-import { Heart } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import Ad from "./AdInterface";
+import React from "react"
+import Image from "next/image"
+import { Heart, Calendar } from "lucide-react"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import Ad from "./AdInterface"
 
 interface ListingCardProps {
-  ad: Ad;
+  ad: Ad
 }
 
 export default function ListingCard({ ad }: ListingCardProps) {
+  const truncateDescription = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text
+    return text.slice(0, maxLength) + '...'
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
@@ -21,7 +32,7 @@ export default function ListingCard({ ad }: ListingCardProps) {
                   <div className="relative aspect-[4/3]">
                     <Image 
                       src={url} 
-                      alt={`${ad.city} property - Image ${index + 1}`}
+                      alt={`${ad.title} - Image ${index + 1}`}
                       fill
                       className="object-cover"
                     />
@@ -32,19 +43,34 @@ export default function ListingCard({ ad }: ListingCardProps) {
             <CarouselPrevious className="left-2" />
             <CarouselNext className="right-2" />
           </Carousel>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute top-2 right-2 bg-white bg-opacity-50 hover:bg-opacity-75 transition-opacity"
+          >
+            <Heart className="h-4 w-4" />
+          </Button>
         </div>
         <div className="p-4">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold">{ad.city}</h3>
-            <div className="flex items-center">
-              <svg className="w-4 h-4 text-yellow-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </div>
+            <h3 className="text-lg font-semibold">{ad.title}</h3>
+            <Badge variant="secondary">{ad.city}</Badge>
           </div>
-          <p className="text-gray-600 mb-2">{ad.property_description}</p>
+          <p className="text-muted-foreground text-sm mb-2">
+            {truncateDescription(ad.property_description, 120)}
+          </p>
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4 mr-1" />
+            <span>
+              {ad.availability_start.toString()} - 
+              {ad.availability_end.toString()}
+            </span>
+          </div>
         </div>
       </CardContent>
+      <CardFooter className="px-4 py-3 bg-secondary">
+        <Button variant="secondary" className="w-full">View Details</Button>
+      </CardFooter>
     </Card>
-  );
+  )
 }

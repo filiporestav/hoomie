@@ -9,5 +9,8 @@ export default interface Ad {
     longitude: number;
     image_urls: string[];
     created_at: Date; // Make sure this is the correct field name
+    availability_start: Date;
+    availability_end: Date;
+    title: string;
   }
   

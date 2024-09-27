@@ -8,7 +8,7 @@ export const fetchListings = async (): Promise<Ad[]> => {
     const { data, error } = await supabase
       .from("ads")
       .select(
-        "id, property_description, area_description, address, city, country, latitude, longitude, image_urls, created_at"
+        "*"
       );
 
     if (error) {
@@ -31,6 +31,9 @@ export const fetchListings = async (): Promise<Ad[]> => {
         latitude: ad.latitude,
         image_urls: ad.image_urls || [], // Ensure it's an array
         created_at: ad.created_at, // Include the created_at field
+        availability_start: ad.availability_start,
+        availability_end: ad.availability_end,
+        title: ad.title,
       };
       console.log("Mapped listing:", listing);
       return listing;
