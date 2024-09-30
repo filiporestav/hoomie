@@ -1,9 +1,10 @@
 "use client"; // Must remain at the top
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import "./globals.css";
+import "@radix-ui/themes/styles.css";
 import { Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ClientProvider from "./ClientProvider";
@@ -23,7 +24,7 @@ export default function RootLayout({
         <ClientProvider>
           <Navbar />
           <main>{children}</main>
-          {pathname !== '/annonser' && <Footer />}
+          {pathname !== "/annonser" && <Footer />}
           <SpeedInsights />
         </ClientProvider>
       </body>
