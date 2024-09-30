@@ -2,21 +2,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "../../utils/supabase/client";
 
-export default function EditAdModal({
-  isOpen,
-  onClose,
-  user,
-  ad,
-  onAdUpdated,
-  onAdDeleted
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  user: any;
-  ad: any;
-  onAdUpdated: () => void;
-  onAdDeleted: () => void;
-}) {
+export default function EditAdModal({ isOpen, onClose, user, ad }: { isOpen: boolean; onClose: () => void; user: any; ad: any }) {
     const supabase = createClient();
 
     const [propertyDescription, setPropertyDescription] = useState(ad.property_description);
@@ -56,7 +42,6 @@ export default function EditAdModal({
             }
 
             alert("Ad successfully updated!");
-            onAdUpdated(); // Notify the parent component to refresh the ads
             onClose();
         } catch (error) {
             console.error("Error updating ad:", error);
@@ -81,7 +66,6 @@ export default function EditAdModal({
             }
 
             alert("Ad successfully deleted!");
-            onAdDeleted(); // Notify the parent component to refresh the ads
             onClose();
         } catch (error) {
             console.error("Error deleting ad:", error);
@@ -136,7 +120,7 @@ export default function EditAdModal({
                         />
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-4"> 
                         <label className="block text-sm font-medium text-gray-700" htmlFor="country">
                             Country
                         </label>

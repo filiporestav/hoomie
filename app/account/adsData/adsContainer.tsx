@@ -4,7 +4,7 @@ import { type User } from "@supabase/supabase-js";
 import AddAdModal from "./AddAdModal";
 import EditAdModal from "./EditAdModal";
 import { createClient } from "../../utils/supabase/client";
-import AdsBox from "./AdsBox"; // Ensure this import path is correct
+import AdsBox from "./AdsBox";
 
 export default function AdsContainer({ user }: { user: User | null }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,8 +49,6 @@ export default function AdsContainer({ user }: { user: User | null }) {
         console.error("Error fetching ads:", error.message);
       } else {
         setAds(data || []);
-        console.log('User_id:', user.id);
-        console.log("Fetched ads:", data);
       }
 
       setLoading(false);
@@ -62,17 +60,18 @@ export default function AdsContainer({ user }: { user: User | null }) {
   }, [fetchAds]);
 
   return (
-    <div className="max-w-lg ml-0 mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Ads</h2>
+    <div className="ml-0 mt-10 p-6 bg-white rounded-lg shadow-md flex-1">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Ads</h2>
+        <button
+          className="py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700"
+          onClick={handleOpenModal}
+        >
+          Add New Ad
+        </button>
+      </div>
 
-      <button
-        className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 mb-6"
-        onClick={handleOpenModal}
-      >
-        Add New Ad
-      </button>
-
-      <div className="flex flex-col space-y-4 max-h-[calc(100vh-200px)] overflow-auto">
+      <div className="grid grid-cols-1 gap-6 max-h-[calc(100vh-200px)] overflow-auto">
         {loading ? (
           <p>Loading ads...</p>
         ) : ads.length === 0 ? (
