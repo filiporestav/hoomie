@@ -1,25 +1,36 @@
-import React from "react"
-import Image from "next/image"
-import { Heart, Calendar } from "lucide-react"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import Ad from "./AdInterface"
+import React from "react";
+import Image from "next/image";
+import { Heart, Calendar } from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Ad from "./AdInterface";
+import { useRouter } from "next/navigation";
 
 interface ListingCardProps {
-  ad: Ad
+  ad: Ad;
 }
 
 export default function ListingCard({ ad }: ListingCardProps) {
+  const router = useRouter();
   const truncateDescription = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text
-    return text.slice(0, maxLength) + '...'
-  }
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  }
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -30,8 +41,8 @@ export default function ListingCard({ ad }: ListingCardProps) {
               {ad.image_urls.map((url, index) => (
                 <CarouselItem key={index}>
                   <div className="relative aspect-[4/3]">
-                    <Image 
-                      src={url} 
+                    <Image
+                      src={url}
                       alt={`${ad.title} - Image ${index + 1}`}
                       fill
                       className="object-cover"
@@ -43,9 +54,9 @@ export default function ListingCard({ ad }: ListingCardProps) {
             <CarouselPrevious className="left-2" />
             <CarouselNext className="right-2" />
           </Carousel>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="absolute top-2 right-2 bg-white bg-opacity-50 hover:bg-opacity-75 transition-opacity"
           >
             <Heart className="h-4 w-4" />
@@ -62,15 +73,21 @@ export default function ListingCard({ ad }: ListingCardProps) {
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="h-4 w-4 mr-1" />
             <span>
-              {ad.availability_start.toString()} - 
+              {ad.availability_start.toString()} -
               {ad.availability_end.toString()}
             </span>
           </div>
         </div>
       </CardContent>
       <CardFooter className="px-4 py-3 bg-secondary">
-        <Button variant="secondary" className="w-full">View Details</Button>
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={() => router.push(`annonser/${ad.id}`)}
+        >
+          Se annons
+        </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
