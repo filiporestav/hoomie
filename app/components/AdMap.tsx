@@ -11,9 +11,11 @@ import Image from 'next/image';
 
 interface AdMapProps {
   ads: Ad[];
+  latitude: number;   // Add latitude prop
+  longitude: number;  // Add longitude prop
 }
 
-const AdMap: React.FC<AdMapProps> = ({ ads }) => {
+const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
   const [customIcon, setCustomIcon] = useState<Icon | null>(null);
 
   useEffect(() => {
@@ -29,8 +31,9 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
   const isClient = useClient();
   if (!isClient) return null;
 
-  const stockholmCenter: LatLngExpression = [59.3293, 18.0686];
-  
+  // Use the passed latitude and longitude to center the map
+  const mapCenter: LatLngExpression = [latitude, longitude];
+
   const truncateDescription = (description: string) => {
     if (description.length <= 30) return description;
     return (
@@ -44,7 +47,7 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
 
   return (
     <MapContainer 
-      center={stockholmCenter}
+      center={mapCenter}  // Use the dynamic map center
       zoom={13} 
       style={{ height: '100%', width: '100%' }}
       className="text-indigo-600"

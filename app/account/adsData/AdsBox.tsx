@@ -19,6 +19,8 @@ interface AdsBoxProps {
   availabilityStart: Date
   availabilityEnd: Date
   onEdit: (ad: any) => void
+
+  
 }
 
 const AdsBox: React.FC<AdsBoxProps> = ({

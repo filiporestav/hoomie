@@ -32,6 +32,14 @@ export default function ListingCard({ ad }: ListingCardProps) {
     });
   };
 
+  const handleClick = () => {
+    // Store the ad data in localStorage or sessionStorage
+    sessionStorage.setItem("selectedAd", JSON.stringify(ad));
+
+    // Navigate to the ad page
+    router.push(`annonser/${ad.id}`);
+  };
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
@@ -80,13 +88,10 @@ export default function ListingCard({ ad }: ListingCardProps) {
         </div>
       </CardContent>
       <CardFooter className="px-4 py-3 bg-secondary">
-        <Button
-          variant="secondary"
-          className="w-full"
-          onClick={() => router.push(`annonser/${ad.id}`)}
-        >
+      <Button variant="secondary" className="w-full" onClick={handleClick}>
           Se annons
         </Button>
+
       </CardFooter>
     </Card>
   );

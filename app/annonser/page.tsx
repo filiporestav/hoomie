@@ -6,15 +6,17 @@ import ListingList from './ListingList';
 import { fetchListings } from './fetchListings';
 import Ad from '../components/AdInterface';
 import { useClient } from '../ClientProvider';
+import { set } from 'date-fns';
 
 // Dynamically import the AdMap component with SSR disabled
 const AdMapNoSSR = dynamic(() => import('../components/AdMap'), { ssr: false });
 
 export default function HomeExchangePage() {
   const [ads, setAds] = useState<Ad[]>([]);
+  const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
   const isClient = useClient();
 
-  // Fetch listings on component mount
+  // Fetch user location and listings on component mount
   useEffect(() => {
     const loadAds = async () => {
       try {
@@ -25,7 +27,26 @@ export default function HomeExchangePage() {
       }
     };
 
-    loadAds();
+    // Fetch user's location using the Geolocation API
+    const getUserLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setUserLocation({ lat: latitude, lng: longitude });
+          },
+          (error) => {
+            console.error('Error fetching user location:', error);
+          }
+        );
+      } else {
+        setUserLocation({ lat: 59.3293, lng: 18.0686 }); // Default to Stockholm if geolocation is not supported
+        console.error('Geolocation is not supported by this browser');
+      }
+    };
+
+    getUserLocation(); // Call function to get location
+    loadAds(); // Load ads
   }, []); // Empty dependency array ensures this runs once on mount
 
   if (!isClient) return null;
@@ -39,7 +60,11 @@ export default function HomeExchangePage() {
         </div>
         <div className="w-5/12 relative">
           <div className="absolute inset-0">
-            <AdMapNoSSR ads={ads} />
+            {userLocation ? (
+              <AdMapNoSSR ads={ads} latitude={userLocation.lat} longitude={userLocation.lng} />
+            ) : (
+              <p>Loading map...</p>
+            )}
           </div>
         </div>
       </div>

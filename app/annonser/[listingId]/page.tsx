@@ -1,154 +1,117 @@
-"use client";
-// app/listings/[id]/page.tsx
+'use client'
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { fetchListingById } from "../fetchListingById";
 import Image from "next/image";
-import { ClipLoader } from "react-spinners";
-import Modal from "react-modal";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import AdMap from "../../components/AdMap";
+import Ad from "../../components/AdInterface";
 
-type Listing = {
-  id: number;
-  propertyDescription: string;
-  areaDescription: string;
-  city: string;
-  country: string;
-  imageUrls: string[];
-  createdAt: string;
-};
-
-const ListingPage = () => {
+export default function ListingPage() {
   const { listingId } = useParams();
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [listing, setListing] = useState<Ad | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (listingId) {
-      const loadListing = async () => {
-        try {
-          setLoading(true);
-          const fetchedListing = await fetchListingById(listingId as string);
-          setListing(fetchedListing);
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching listing:", error);
-          setLoading(false);
-        }
-      };
-
-      loadListing();
+    // Retrieve the ad data from sessionStorage
+    const storedAd = sessionStorage.getItem("selectedAd");
+    if (storedAd) {
+      const ad = JSON.parse(storedAd);
+      // Only use the stored ad if the ID matches the listingId
+      if (ad.id === listingId) {
+        setListing(ad);
+      }
     }
   }, [listingId]);
 
-  const openModal = (imageUrl: string) => {
-    setSelectedImage(imageUrl);
-    setModalIsOpen(true);
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString();
   };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setSelectedImage(null);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <ClipLoader size={50} color={"#123abc"} loading={loading} />
-      </div>
-    );
-  }
 
   if (!listing) {
     return (
-      <p className="text-center mt-10 text-xl text-gray-600">
-        Annonsen kunde inte hittas.
-      </p>
+      <Card className="max-w-lg mx-auto mt-10">
+        <CardContent className="text-center py-10">
+          <p className="text-xl text-muted-foreground">Annonsen kunde inte hittas.</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Property Description Section */}
-      <div className="mb-6 text-center">
-        <h1 className="text-4xl font-extrabold text-gray-800 mb-2">
-          {listing.propertyDescription}
-        </h1>
-        <p className="text-xl text-gray-600">{listing.areaDescription}</p>
-        <p className="text-md text-gray-500 mt-1">
-          {listing.city}, {listing.country}
-        </p>
-      </div>
-
-      {/* Image Gallery Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {listing.imageUrls.map((url, index) => (
-          <div key={index} className="relative group">
-            <Image
-              src={url}
-              alt={`Image of ${listing.propertyDescription}`}
-              width={500}
-              height={300}
-              className="rounded-lg shadow-lg transition-transform transform group-hover:scale-105 cursor-pointer"
-              onClick={() => openModal(url)}
-            />
-            <div
-              className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg cursor-pointer"
-              onClick={() => openModal(url)}
-            >
-              <p className="text-white font-bold">Förstora</p>
+    <div className="container mx-auto p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">{listing.title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="md:w-1/2 space-y-4">
+              <p className="text-lg">{listing.property_description}</p>
+              <p className="text-muted-foreground">{listing.area_description}</p>
+              <p className="text-sm">
+                {listing.address}, {listing.city}, {listing.country}
+              </p>
+              <p className="text-sm">
+                Tillgänglig för Byte: {formatDate(listing.availability_start)} - {formatDate(listing.availability_end)}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Publicerad: {formatDate(listing.created_at)}
+              </p>
+            </div>
+            <div className="md:w-1/2">
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <div className="grid grid-cols-2 gap-2 cursor-pointer">
+                    {listing.image_urls.slice(0, 4).map((url, index) => (
+                      <div key={index} className="relative aspect-square">
+                        <Image
+                          src={url}
+                          alt={`Image of ${listing.property_description}`}
+                          layout="fill"
+                          objectFit="cover"
+                          className="rounded-md"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl">
+                  <Carousel>
+                    <CarouselContent>
+                      {listing.image_urls.map((url, index) => (
+                        <CarouselItem key={index}>
+                          <div className="relative aspect-video">
+                            <Image
+                              src={url}
+                              alt={`Image of ${listing.property_description}`}
+                              layout="fill"
+                              objectFit="contain"
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </Carousel>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Image Modal */}
-      {selectedImage && (
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          contentLabel="Image Modal"
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
-          overlayClassName="fixed inset-0 bg-black bg-opacity-50"
-        >
-          <div className="relative w-11/12 md:w-2/3 lg:w-1/2">
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-white text-xl font-bold p-2"
-            >
-              &times;
-            </button>
-            <Image
-              src={selectedImage}
-              alt="Selected Image"
-              width={1000}
-              height={600}
-              className="rounded-lg shadow-lg"
-            />
-          </div>
-        </Modal>
-      )}
-
-      {/* Posted Date */}
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-400">
-          Publicerad: {new Date(listing.createdAt).toLocaleDateString()}
-        </p>
-      </div>
-
-      {/* Back to Listings Button */}
-      <div className="mt-8 flex justify-center">
-        <button
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105"
-          onClick={() => window.history.back()}
-        >
-          Tillbaka till alla annonser
-        </button>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <Button onClick={() => window.history.back()}>
+            Tillbaka till alla annonser
+          </Button>
+        </CardFooter>
+      </Card>
+      <div className="h-96 w-full">
+        <AdMap ads={[listing]}  latitude={listing.latitude} longitude={listing.longitude}/>
       </div>
     </div>
   );
-};
-
-export default ListingPage;
+}
