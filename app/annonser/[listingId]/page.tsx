@@ -64,7 +64,7 @@ const ListingPage = () => {
   if (!listing) {
     return (
       <p className="text-center mt-10 text-xl text-gray-600">
-        No listing found.
+        Annonsen kunde inte hittas.
       </p>
     );
   }
@@ -98,7 +98,7 @@ const ListingPage = () => {
               className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg cursor-pointer"
               onClick={() => openModal(url)}
             >
-              <p className="text-white font-bold">View Image</p>
+              <p className="text-white font-bold">Förstora</p>
             </div>
           </div>
         ))}
@@ -134,7 +134,7 @@ const ListingPage = () => {
       {/* Posted Date */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-400">
-          Posted on: {new Date(listing.createdAt).toLocaleDateString()}
+          Publicerad: {new Date(listing.createdAt).toLocaleDateString()}
         </p>
       </div>
 
@@ -144,7 +144,7 @@ const ListingPage = () => {
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105"
           onClick={() => window.history.back()}
         >
-          Back to Listings
+          Tillbaka till alla annonser
         </button>
       </div>
     </div>
