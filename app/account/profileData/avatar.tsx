@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { createClient } from "../../utils/supabase/client";
+import { createBrowserSupabaseClient } from "../../utils/supabase/client";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
@@ -15,7 +15,7 @@ export default function Avatar({
   size: number;
   onUpload: (url: string) => void;
 }) {
-  const supabase = createClient();
+  const supabase = createBrowserSupabaseClient();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(url);
   const [uploading, setUploading] = useState(false);
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from "react"
-import { createClient } from "../../utils/supabase/client"
+import { createBrowserSupabaseClient } from "../../utils/supabase/client"
 import { geocodeAddress } from "../../utils/geocode"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -35,7 +35,7 @@ export default function AddEditAdModal({
   action,
   ad
 }: AddEditAdModalProps) {
-  const supabase = createClient()
+  const supabase = createBrowserSupabaseClient()
   const [title, setTitle] = useState("")
   const [propertyDescription, setPropertyDescription] = useState("")
   const [areaDescription, setAreaDescription] = useState("")

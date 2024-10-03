@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { type User } from "@supabase/supabase-js"
 import AddEditAdModal from "./AddEditAdModal"
-import { createClient } from "../../utils/supabase/client"
+import { createBrowserSupabaseClient } from "../../utils/supabase/client"
 import AdsBox from "./AdsBox"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -41,7 +41,7 @@ export default function AdsContainer({ user }: { user: User | null }) {
 
   const fetchAds = useCallback(async () => {
     if (user) {
-      const supabase = createClient()
+      const supabase = createBrowserSupabaseClient()
       const { data, error } = await supabase
         .from("ads")
         .select("*")

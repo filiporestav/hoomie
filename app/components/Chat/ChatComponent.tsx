@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/app/utils/supabase/client";
+import { createBrowserSupabaseClient } from "@/app/utils/supabase/client";
 
 interface Message {
   id: number;
@@ -22,7 +22,7 @@ const Chat: React.FC<ChatProps> = ({ userId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
 
-  const supabase = createClient();
+  const supabase = createBrowserSupabaseClient();
 
   useEffect(() => {
     // Fetch messages between the logged-in user and the other user

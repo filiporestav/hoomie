@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { createClient } from "../utils/supabase/client";
+import { createBrowserSupabaseClient } from "../utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
@@ -14,7 +14,7 @@ import Image from "next/image";
 
 const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
-  const supabase = createClient();
+  const supabase = createBrowserSupabaseClient();
   const router = useRouter();
 
   useEffect(() => {

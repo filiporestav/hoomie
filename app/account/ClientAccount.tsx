@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // useRouter for refreshing
 import AccountForm from "./profileData/account-form";
 import AdsContainer from "./adsData/adsContainer";
 
@@ -10,6 +11,15 @@ interface ClientAccountProps {
 
 export default function ClientAccount({ user }: ClientAccountProps) {
   const [activeTab, setActiveTab] = useState('Mina Annonser');
+  const router = useRouter(); // Initialize router to handle refresh
+
+  // Check if the user came from /login and refresh the page
+  useEffect(() => {
+    const referrer = document.referrer;
+    if (referrer.includes('/login')) {
+      router.refresh();
+    }
+  }, [router]);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -41,7 +51,7 @@ export default function ClientAccount({ user }: ClientAccountProps) {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-auto ">
+      <div className="flex-1 overflow-auto">
         {activeTab === 'Mina Annonser' ? (
           <AdsContainer user={user} />
         ) : (

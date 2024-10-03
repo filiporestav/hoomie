@@ -1,8 +1,8 @@
-import { createClient } from "../utils/supabase/client";
+import { createBrowserSupabaseClient } from "../utils/supabase/client";
 import Ad from "../components/AdInterface"
 
 export const fetchListings = async (): Promise<Ad[]> => {
-  const supabase = createClient();
+  const supabase = createBrowserSupabaseClient();
 
   try {
     const { data, error } = await supabase

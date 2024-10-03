@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/app/utils/supabase/client";
+import { createBrowserSupabaseClient } from "@/app/utils/supabase/client";
 
 interface Conversation {
   user_id: string;
@@ -17,7 +17,7 @@ interface Conversation {
 const ConversationList = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = createBrowserSupabaseClient();
 
   useEffect(() => {
     const fetchConversations = async () => {

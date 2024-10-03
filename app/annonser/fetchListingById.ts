@@ -1,4 +1,4 @@
-import { createClient } from "../utils/supabase/client";
+import { createBrowserSupabaseClient } from "../utils/supabase/client";
 
 type Listing = {
   id: number;
@@ -12,7 +12,7 @@ type Listing = {
 
 // Function to fetch a listing by ID
 export const fetchListingById = async (id: string): Promise<Listing | null> => {
-  const supabase = createClient();
+  const supabase = createBrowserSupabaseClient();
 
   try {
     const { data, error } = await supabase
