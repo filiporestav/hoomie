@@ -1,13 +1,15 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/app/utils/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 interface Message {
   id: number;
   content: string;
   inserted_at: string;
   user_id: string;
+  conversation_id: string;
   user: {
     full_name: string;
     avatar_url: string | null;
@@ -15,43 +17,75 @@ interface Message {
 }
 
 interface ChatProps {
-  userId: string; // The ID of the user you're chatting with
+  conversationId: string; // Updated to track the conversation by its ID
 }
 
-const Chat: React.FC<ChatProps> = ({ userId }) => {
+const Chat: React.FC<ChatProps> = ({ conversationId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const supabase = createClient();
 
   useEffect(() => {
-    // Fetch messages between the logged-in user and the other user
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from("messages")
-        .select(
-          `
-          *,
-          user:profiles (name, avatar_url)
-        `
-        )
-        .eq("user_id", userId) // Only fetch messages with this user
-        .order("inserted_at", { ascending: true });
-
-      if (error) console.error(error);
-      else setMessages(data || []);
+    const loadUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
     };
 
+    loadUser();
     fetchMessages();
-  }, [userId]);
 
+    // Subscribe to real-time updates in the messages table
+    const subscription = supabase
+      .channel('messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        const newMessage = payload.new as Message;
+        // Only add the new message if it's part of the current conversation
+        if (newMessage.conversation_id === conversationId) {
+          setMessages((currentMessages) => [...currentMessages, newMessage]);
+        }
+      })
+      .subscribe();
+
+    // Cleanup the subscription on component unmount
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [conversationId, currentUser?.id]);
+
+  // Function to fetch messages from the server
+  const fetchMessages = async () => {
+    if (!currentUser) return;
+
+    const { data, error } = await supabase
+      .from("messages")
+      .select(
+        `
+        *,
+        user:profiles (name, avatar_url)
+      `
+      )
+      .eq('conversation_id', conversationId) // Fetch messages based on the conversation ID
+      .order("inserted_at", { ascending: true });
+
+    if (error) console.error(error);
+    else setMessages(data || []);
+  };
+
+  // Handle sending a new message
   const handleSendMessage = async () => {
-    if (newMessage.trim()) {
+    if (newMessage.trim() && currentUser) {
       const { error } = await supabase
         .from("messages")
-        .insert([{ content: newMessage, user_id: userId }]); // Insert new message for this conversation
+        .insert([{ 
+          content: newMessage, 
+          user_id: currentUser.id, 
+          conversation_id: conversationId // Ensure to add the conversation ID when sending the message
+        }]);
+
       if (error) console.error(error);
-      setNewMessage("");
+      setNewMessage(""); // Clear the input field after sending the message
     }
   };
 

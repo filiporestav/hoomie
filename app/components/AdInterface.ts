@@ -12,5 +12,6 @@ export default interface Ad {
     availability_start: Date;
     availability_end: Date;
     title: string;
+    user_id?: string;
   }
   

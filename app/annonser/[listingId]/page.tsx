@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/app/utils/supabase/client";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,9 @@ export default function ListingPage() {
   const { listingId } = useParams();
   const [listing, setListing] = useState<Ad | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
     // Retrieve the ad data from sessionStorage
@@ -23,12 +27,67 @@ export default function ListingPage() {
       // Only use the stored ad if the ID matches the listingId
       if (ad.id === listingId) {
         setListing(ad);
+        console.log(ad, "ad.user_id");
       }
     }
+
+    // Fetch current user
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
+    };
+    fetchUser();
   }, [listingId]);
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString();
+  };
+
+  const handleSendMessage = async () => {
+    if (currentUser && listing) {
+      // Check if a conversation already exists
+      const { data: existingConversation, error: fetchError } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`)
+        .or(`user1.eq.${listing.user_id},user2.eq.${listing.user_id}`)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Error checking existing conversation:', fetchError);
+        return;
+      }
+
+      let conversationId;
+
+      if (existingConversation) {
+        conversationId = existingConversation.id;
+      } else {
+        // Create a new conversation
+        const { data: newConversation, error: insertError } = await supabase
+          .from('conversations')
+          .insert({
+            user1: currentUser.id,
+            user2: listing.user_id,
+            last_message: new Date().toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (insertError) {
+          console.error('Error creating new conversation:', insertError);
+          return;
+        }
+
+        conversationId = newConversation.id;
+      }
+
+      // Navigate to the chat page with the conversation ID
+      router.push(`/chat/${conversationId}`);
+    } else {
+      // Handle case where user is not logged in
+      alert("Please log in to send a message.");
+    }
   };
 
   if (!listing) {
@@ -103,9 +162,12 @@ export default function ListingPage() {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex justify-between">
           <Button onClick={() => window.history.back()}>
             Tillbaka till alla annonser
+          </Button>
+          <Button onClick={handleSendMessage} disabled={!currentUser || currentUser.id === listing.user_id}>
+            Skicka meddelande
           </Button>
         </CardFooter>
       </Card>
