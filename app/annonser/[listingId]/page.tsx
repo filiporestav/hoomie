@@ -83,7 +83,7 @@ export default function ListingPage() {
       }
 
       // Navigate to the chat page with the conversation ID
-      router.push(`/chat/${conversationId}`);
+      router.push(`/chat`);
     } else {
       // Handle case where user is not logged in
       alert("Please log in to send a message.");

@@ -76,7 +76,7 @@ const Navbar = () => {
                 Profil
               </Link>
               <Link
-                href="/conversations"
+                href="/chat"
                 className="bg-background text-primary hover:text-primary/80 transition-colors duration-200"
               >
                 <IoChatbubbleEllipsesOutline className="w-6 h-6" />
