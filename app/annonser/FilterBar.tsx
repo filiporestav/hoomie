@@ -7,7 +7,7 @@ interface FilterBarProps {
   dateRange: DateRange | undefined;
   onDateRangeChange: (range: DateRange | undefined) => void;
   onFilterApply: () => void;
-  className?: string; // Optional className prop
+  className?: string; // Optional className prop for styling
 }
 
 export default function FilterBar({
