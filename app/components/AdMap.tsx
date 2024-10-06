@@ -1,16 +1,24 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { LatLngExpression, Icon } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import Ad from './AdInterface';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { useClient } from '../ClientProvider';
-import Image from 'next/image';
+import React, { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { LatLngExpression, Icon } from "leaflet";
+import "leaflet/dist/leaflet.css";
+import Ad from "./AdInterface";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { useClient } from "../ClientProvider";
+import Image from "next/image";
 
 interface AdMapProps {
   ads: Ad[];
+  latitude: number; // New prop
+  longitude: number; // New prop
 }
 
 const AdMap: React.FC<AdMapProps> = ({ ads }) => {
@@ -18,7 +26,8 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
 
   useEffect(() => {
     const icon = new Icon({
-      iconUrl: 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png',
+      iconUrl:
+        "https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png",
       iconSize: [38, 38],
       iconAnchor: [19, 38],
       popupAnchor: [0, -38],
@@ -30,7 +39,7 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
   if (!isClient) return null;
 
   const stockholmCenter: LatLngExpression = [59.3293, 18.0686];
-  
+
   const truncateDescription = (description: string) => {
     if (description.length <= 30) return description;
     return (
@@ -43,10 +52,10 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
   };
 
   return (
-    <MapContainer 
+    <MapContainer
       center={stockholmCenter}
-      zoom={13} 
-      style={{ height: '100%', width: '100%' }}
+      zoom={13}
+      style={{ height: "100%", width: "100%" }}
       className="text-indigo-600"
     >
       <TileLayer
@@ -55,22 +64,26 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
         maxZoom={19}
       />
       {ads.map((ad) => (
-        <Marker 
-          key={ad.id} 
+        <Marker
+          key={ad.id}
           position={[ad.latitude, ad.longitude] as LatLngExpression}
           icon={customIcon || undefined} // Only render if customIcon is defined
         >
           <Popup className="custom-popup">
             <div className="text-amber-500 w-48 sm:w-56 md:w-64">
-              <h3 className="font-bold text-base mb-2">{truncateDescription(ad.property_description)}</h3>
+              <h3 className="font-bold text-base mb-2">
+                {truncateDescription(ad.property_description)}
+              </h3>
               <Carousel className="w-full mb-3">
                 <CarouselContent>
                   {ad.image_urls.map((url, index) => (
                     <CarouselItem key={index}>
                       <div className="relative aspect-[4/3]">
-                        <Image 
-                          src={url} 
-                          alt={`${ad.property_description} - Image ${index + 1}`}
+                        <Image
+                          src={url}
+                          alt={`${ad.property_description} - Image ${
+                            index + 1
+                          }`}
                           fill
                           className="object-cover rounded-md"
                         />
@@ -81,8 +94,12 @@ const AdMap: React.FC<AdMapProps> = ({ ads }) => {
                 <CarouselPrevious className="left-1 w-6 h-6" />
                 <CarouselNext className="right-1 w-6 h-6" />
               </Carousel>
-              <p className="text-xs mb-1">{truncateDescription(ad.area_description)}</p>
-              <p className="text-xs font-semibold">{ad.address}, {ad.city}</p>
+              <p className="text-xs mb-1">
+                {truncateDescription(ad.area_description)}
+              </p>
+              <p className="text-xs font-semibold">
+                {ad.address}, {ad.city}
+              </p>
             </div>
           </Popup>
         </Marker>
