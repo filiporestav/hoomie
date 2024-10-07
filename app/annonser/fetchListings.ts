@@ -34,6 +34,7 @@ export const fetchListings = async (): Promise<Ad[]> => {
         availability_start: ad.availability_start,
         availability_end: ad.availability_end,
         title: ad.title,
+        user_id: ad.user_id,
       };
       console.log("Mapped listing:", listing);
       return listing;

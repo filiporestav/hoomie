@@ -33,6 +33,7 @@ export default function HomeExchangePage() {
       }
     };
 
+    // Fetch user's location using the Geolocation API
     const getUserLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -41,7 +42,7 @@ export default function HomeExchangePage() {
             setUserLocation({ lat: latitude, lng: longitude });
           },
           (error) => {
-            console.error("Error fetching user location:", error);
+            console.error('Error fetching user location:', error);
           }
         );
       } else {
@@ -78,6 +79,13 @@ export default function HomeExchangePage() {
       setFilteredAds(ads); // If no date range is selected, show all ads
     }
   };
+        console.error('Geolocation is not supported by this browser');
+      }
+    };
+
+    getUserLocation(); // Call function to get location
+    loadAds(); // Load ads
+  }, []); // Empty dependency array ensures this runs once on mount
 
   if (!isClient) return null;
 
