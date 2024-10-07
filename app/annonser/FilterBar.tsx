@@ -1,28 +1,24 @@
-// app/annonser/FilterBar.tsx
-"use client";
+import React from "react";
+import { DayPicker, DateRange } from "react-day-picker";
+import { Button } from "@/components/ui/button";
+import { addDays } from "date-fns";
 
-import React, { useState } from "react";
-import WeekPicker from "./WeekPicker";
+interface FilterBarProps {
+  dateRange: DateRange | undefined;
+  onDateRangeChange: (range: DateRange | undefined) => void;
+  onFilterApply: () => void;
+  className?: string; // Optional className prop
+}
 
-type FilterBarProps = {
-  locationFilter: string;
-  setLocationFilter: (location: string) => void;
-  weekFilter: string[];
-  setWeekFilter: (weeks: string[]) => void;
-  clearFilters: () => void;
-};
-
-const FilterBar: React.FC<FilterBarProps> = ({
-  locationFilter,
-  setLocationFilter,
-  weekFilter,
-  setWeekFilter,
-  clearFilters,
-}) => {
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-
-  const handleToggleCalendar = () => {
-    setIsCalendarOpen(!isCalendarOpen);
+export default function FilterBar({
+  dateRange,
+  onDateRangeChange,
+  onFilterApply,
+  className = "",
+}: FilterBarProps) {
+  const defaultSelected: DateRange = {
+    from: new Date(),
+    to: addDays(new Date(), 7),
   };
 
   return (
