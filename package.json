@@ -26,6 +26,7 @@
     "@react-google-maps/api": "^2.19.3",
     "@supabase/ssr": "^0.5.0",
     "@supabase/supabase-js": "^2.45.3",
+    "@types/react-day-picker": "^5.3.0",
     "@vercel/speed-insights": "^1.0.12",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",

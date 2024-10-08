@@ -27,7 +27,7 @@ export default function HomeExchangePage() {
       try {
         const fetchedAds = await fetchListings();
         setAds(fetchedAds);
-        setFilteredAds(fetchedAds);
+        setFilteredAds(fetchedAds); // Set the filtered ads to the fetched ads initially
       } catch (error) {
         console.error("Error fetching ads:", error);
       }
@@ -81,6 +81,11 @@ export default function HomeExchangePage() {
     }
   };
 
+  const handleCleanFilters = () => {
+    setDateRange(undefined); // Reset the date range
+    setFilteredAds(ads); // Reset the filtered ads to show all ads
+  };
+
   if (!isClient) return null;
 
   return (
@@ -94,6 +99,7 @@ export default function HomeExchangePage() {
             dateRange={dateRange}
             onDateRangeChange={handleDateRangeChange}
             onFilterApply={applyFilter}
+            onCleanFilters={handleCleanFilters} // Pass the clean handler to FilterBar
             className="max-w-xs"
           />
         </div>
