@@ -6,8 +6,7 @@ import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import { BsArrowRightCircle } from "react-icons/bs";
 import { fetchListings } from "./annonser/fetchListings";
 import Ad from "./components/AdInterface";
-import AdMap from "./components/AdMap";
-import { useClient } from "./ClientProvider";
+
 export default function Home() {
   const [listings, setLatestListings] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,28 +28,31 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-indigo-50">
-      {/* Header with Background Image */}
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Header Section */}
       <header
-        className="w-full h-[70vh] bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/images/header-bg.jpg')" }}
+        className="relative w-full h-[60vh] bg-cover bg-center"
+        style={{ backgroundImage: "url('/header-bg.jpg')" }}
       >
-        <div className="bg-indigo-900 bg-opacity-70 w-full h-full flex flex-col justify-center items-center text-white text-center px-4">
-          <h1 className="text-6xl font-bold mb-4">Välkommen till Hoomie</h1>
-          <p className="text-2xl mb-6">
-            Byt ditt studentboende med andra studenter
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className="relative w-full h-full flex flex-col justify-center items-center text-white text-center px-4">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            Välkommen till Hoomie
+          </h1>
+          <p className="text-lg md:text-2xl mb-6 max-w-2xl">
+            Byt ditt studentboende med andra studenter i hela Sverige
           </p>
-          <div className="flex justify-center space-x-4">
+          <div className="flex justify-center space-x-4 mt-4">
             <Link
               href="/annonser"
-              className="px-8 py-4 bg-indigo-600 text-white rounded-full flex items-center space-x-2 text-lg hover:bg-indigo-700 transition"
+              className="px-8 py-3 md:py-4 bg-indigo-600 text-white rounded-full flex items-center space-x-2 text-lg hover:bg-indigo-700 transition-all"
             >
               <FaSearch />
               <span>Utforska annonser</span>
             </Link>
             <Link
               href="/hur-det-fungerar"
-              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-full flex items-center space-x-2 text-lg hover:bg-white hover:text-indigo-600 transition"
+              className="px-8 py-3 md:py-4 bg-transparent border-2 border-white text-white rounded-full flex items-center space-x-2 text-lg hover:bg-white hover:text-indigo-600 transition-all"
             >
               <FaInfoCircle />
               <span>Så fungerar det</span>
@@ -59,34 +61,54 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Search Section */}
-      <section className="py-10 bg-white">
+      {/* Latest Listings Section */}
+      <section className="py-12 bg-gray-100">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6 text-indigo-900">
-            Hitta ditt nästa resmål
-          </h2>
-          <div className="flex justify-center mb-8">
-            <input
-              type="text"
-              placeholder="Sök plats, t.ex. Stockholm, Gotland..."
-              className="w-full max-w-3xl p-4 border border-indigo-300 rounded-l-full focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            />
-            <button className="px-6 py-4 bg-indigo-600 text-white rounded-r-full hover:bg-indigo-700 transition">
-              <FaSearch />
-            </button>
-          </div>
-          <Link href="/annonser" className="text-indigo-600 hover:underline">
-            <BsArrowRightCircle className="inline mr-2" /> Se alla annonser
-          </Link>
-        </div>
-      </section>
-
-      {/* Featured Section with Latest Listings */}
-      <section className="py-10 bg-indigo-50">
-        <div className="container mx-auto px-4 text-center">
-          <h3 className="text-3xl font-bold mb-6 text-indigo-900">
+          <h3 className="text-3xl font-bold mb-8 text-indigo-900">
             Senaste annonserna
           </h3>
+          {loading ? (
+            <p className="text-indigo-600">Laddar annonser...</p>
+          ) : listings.length ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {listings.map((listing, index) => (
+                <div
+                  key={index}
+                  className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                >
+                  <div className="relative w-full h-48 mb-4">
+                    {listing.image_urls.length ? (
+                      <img
+                        src={listing.image_urls[0]}
+                        alt={listing.title}
+                        className="object-cover object-center w-full h-full rounded-lg"
+                      />
+                    ) : (
+                      <div className="bg-gray-200 w-full h-full rounded-lg flex items-center justify-center text-gray-500">
+                        Inga bilder tillgängliga
+                      </div>
+                    )}
+                  </div>
+                  <h4 className="text-xl font-semibold mb-2">
+                    {listing.title}
+                  </h4>
+                  <p className="text-gray-700">
+                    {listing.address}, {listing.city}
+                  </p>
+                  <Link
+                    href={`/annonser/${listing.id}`}
+                    className="text-indigo-600 mt-4 inline-block hover:underline"
+                  >
+                    Läs mer
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-indigo-600">
+              Inga annonser tillgängliga just nu.
+            </p>
+          )}
         </div>
       </section>
     </div>

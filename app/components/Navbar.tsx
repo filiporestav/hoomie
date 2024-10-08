@@ -40,7 +40,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-background p-4">
+    <nav className="bg-background pt-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <Image
@@ -171,7 +171,7 @@ const Navbar = () => {
       </div>
       <Separator
         orientation="horizontal"
-        className="bg-indigo-600 h-0.5 w-full"
+        className="bg-indigo-600 h-0.5 w-full mt-4"
       />
     </nav>
   );

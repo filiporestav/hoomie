@@ -45,6 +45,9 @@ export default function Footer() {
               </Link>
             </div>
           </div>
+          <p className="text-sm">
+            © {new Date().getFullYear()} Hoomie. Alla rättigheter förbehållna.
+          </p>
         </div>
       </div>
     </footer>
