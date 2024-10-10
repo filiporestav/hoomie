@@ -63,8 +63,8 @@ export function ConversationsList({ onConversationSelect, currentUser }: Convers
             inserted_at
           )
         `)
-        .or(`user1.id.eq.${currentUser.id},user2.id.eq.${currentUser.id}`)
-        .order('messages.inserted_at', { ascending: false })
+        .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`)
+        .order('inserted_at', { foreignTable: 'messages', ascending: false })
 
       if (error) {
         console.error('Error fetching conversations:', error)
@@ -80,6 +80,7 @@ export function ConversationsList({ onConversationSelect, currentUser }: Convers
               const avatarUrl = await downloadAvatar(otherUser.avatar_url)
 
               // Replace with actual ad fetching logic based on your data structure
+              // Here, mock Ad data is created. Replace with actual logic.
               const ad: Ad = {
                 id: conv.id,
                 property_description: 'Sample property description',
@@ -106,6 +107,7 @@ export function ConversationsList({ onConversationSelect, currentUser }: Convers
             })
           )
           setConversations(formattedConversations)
+          console.log(formattedConversations, "formatted conversations")
         } catch (error) {
           console.error('Error formatting conversations:', error)
         }
@@ -116,7 +118,6 @@ export function ConversationsList({ onConversationSelect, currentUser }: Convers
 
     fetchConversations()
   }, [currentUser])
-
 
   if (loading) {
     return (

@@ -1,5 +1,3 @@
-// src/app/components/ChatWindow.tsx
-
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
@@ -47,38 +45,41 @@ export function ChatWindow({ selectedConversation, currentUser }: ChatWindowProp
 
       setLoading(true)
 
-      // Fetch the conversation to get the other user's information
-      const { data: convData, error: convError } = await supabaseClient
-        .from('conversations')
-        .select('user1, user2')
-        .eq('id', selectedConversation)
-        .single()
+      try {
+        // Fetch the conversation to get the other user's information
+        const { data: convData, error: convError } = await supabaseClient
+          .from('conversations')
+          .select('user1, user2')
+          .eq('id', selectedConversation)
+          .single()
 
-      if (convError) {
-        console.error('Error fetching conversation:', convError)
-        setLoading(false)
-        return
-      }
+        if (convError) {
+          console.error('Error fetching conversation:', convError)
+          setLoading(false)
+          return
+        }
 
-      const otherUserData = convData.user1.id === currentUser.id ? convData.user2 : convData.user1
-      const avatarUrl = await downloadAvatar(otherUserData.avatar_url)
-      setOtherUser({ ...otherUserData, avatar_url: avatarUrl })
+        const otherUserData = convData.user1.id === currentUser.id ? convData.user2 : convData.user1
+        
+        if (otherUserData) {
+          const avatarUrl = await downloadAvatar(otherUserData.avatar_url)
+          setOtherUser({ ...otherUserData, avatar_url: avatarUrl })
+        }
 
-      // Fetch messages
-      const { data, error } = await supabaseClient
-        .from('messages')
-        .select('*, user:profiles(full_name, avatar_url)')
-        .eq('conversation_id', selectedConversation)
-        .order('inserted_at', { ascending: true })
+        // Fetch messages
+        const { data, error } = await supabaseClient
+          .from('messages')
+          .select('*, user:profiles(full_name, avatar_url)')
+          .eq('conversation_id', selectedConversation)
+          .order('inserted_at', { ascending: true })
 
-      if (error) {
-        console.error('Error fetching messages:', error)
-        setLoading(false)
-        return
-      }
+        if (error) {
+          console.error('Error fetching messages:', error)
+          setLoading(false)
+          return
+        }
 
-      if (data) {
-        try {
+        if (data) {
           const formattedMessages: Message[] = await Promise.all(
             data.map(async (message: any) => {
               const avatarUrl = await downloadAvatar(message.user.avatar_url)
@@ -92,12 +93,13 @@ export function ChatWindow({ selectedConversation, currentUser }: ChatWindowProp
             })
           )
           setMessages(formattedMessages)
-        } catch (error) {
-          console.error('Error formatting messages:', error)
         }
-      }
 
-      setLoading(false)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
+      }
     }
 
     fetchMessages()
@@ -133,6 +135,13 @@ export function ChatWindow({ selectedConversation, currentUser }: ChatWindowProp
       }
     }
   }, [selectedConversation, currentUser])
+
+  // Log otherUser once it is set
+  useEffect(() => {
+    if (otherUser) {
+      console.log(otherUser, 'OTHER USER (updated)');
+    }
+  }, [otherUser]);
 
   // Scroll to bottom of messages on new message
   useEffect(() => {
@@ -186,8 +195,8 @@ export function ChatWindow({ selectedConversation, currentUser }: ChatWindowProp
             {otherUser && (
               <>
                 <Avatar>
-                  <AvatarImage src={otherUser.avatar_url || undefined} />
-                  <AvatarFallback>{otherUser.full_name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={otherUser.avatar_url || '/placeholder.svg'} />
+                  <AvatarFallback>{otherUser?.full_name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <span>{otherUser.full_name}</span>
               </>
@@ -201,27 +210,27 @@ export function ChatWindow({ selectedConversation, currentUser }: ChatWindowProp
                 <div
                   key={message.id}
                   className={`flex ${
-                    message.user_id === currentUser.id ? 'justify-end' : 'justify-start'
+                    message.user_id === currentUser?.id ? 'justify-end' : 'justify-start'
                   }`}
                 >
-                  {message.user_id !== currentUser.id && (
+                  {message.user_id !== currentUser?.id && (
                     <Avatar className="mr-2">
-                      <AvatarImage src={message.user.avatar_url || undefined} />
+                      <AvatarImage src={message.user.avatar_url || '/placeholder.svg'} />
                       <AvatarFallback>{message.user.full_name.charAt(0)}</AvatarFallback>
                     </Avatar>
                   )}
                   <div
                     className={`max-w-[70%] p-2 rounded-2xl text-sm ${
-                      message.user_id === currentUser.id
+                      message.user_id === currentUser?.id
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-secondary'
                     }`}
                   >
                     {message.content}
                   </div>
-                  {message.user_id === currentUser.id && (
+                  {message.user_id === currentUser?.id && (
                     <Avatar className="ml-2">
-                      <AvatarImage src={currentUser.avatar_url || undefined} />
+                      <AvatarImage src={currentUser?.avatar_url || '/placeholder.svg'} />
                       <AvatarFallback>{currentUser.full_name.charAt(0)}</AvatarFallback>
                     </Avatar>
                   )}
