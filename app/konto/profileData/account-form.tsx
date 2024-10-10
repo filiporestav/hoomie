@@ -64,7 +64,7 @@ export default function AccountForm({ user }: { user: User | null }) {
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
-      alert("Profile updated successfully");
+      alert("Profilen uppdaterades!");
     } catch (error) {
       alert("Error updating the profile");
     } finally {
