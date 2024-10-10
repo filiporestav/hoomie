@@ -6,10 +6,13 @@ import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import { BsArrowRightCircle } from "react-icons/bs";
 import { fetchListings } from "./annonser/fetchListings";
 import Ad from "./components/AdInterface";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [listings, setLatestListings] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
 
   useEffect(() => {
     const loadListings = async () => {
@@ -74,7 +77,8 @@ export default function Home() {
               {listings.map((listing, index) => (
                 <div
                   key={index}
-                  className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer"
+                  onClick={() => router.push(`/annonser/${listing.id}`)}
                 >
                   <div className="relative w-full h-48 mb-4">
                     {listing.image_urls.length ? (
@@ -95,12 +99,6 @@ export default function Home() {
                   <p className="text-gray-700">
                     {listing.address}, {listing.city}
                   </p>
-                  <Link
-                    href={`/annonser/${listing.id}`}
-                    className="text-indigo-600 mt-4 inline-block hover:underline"
-                  >
-                    Läs mer
-                  </Link>
                 </div>
               ))}
             </div>

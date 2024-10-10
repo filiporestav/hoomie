@@ -36,25 +36,35 @@ export default function ListingPage() {
   const [listingOwner, setListingOwner] = useState<Profile | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     const fetchListingAndOwner = async () => {
-      // Get the stored ad from sessionStorage
-      const storedAd = sessionStorage.getItem("selectedAd");
-      let ad: Ad;
+      try {
+        setIsLoading(true);
 
-      if (storedAd) {
-        ad = JSON.parse(storedAd);
-        if (ad.id === listingId) {
-          setListing(ad);
+        // Fetch the listing from Supabase
+        const { data: adData, error: adError } = await supabase
+          .from("ads")
+          .select("*")
+          .eq("id", listingId)
+          .single();
+
+        if (adError) {
+          console.error("Error fetching listing:", adError);
+          return;
+        }
+
+        if (adData) {
+          setListing(adData);
 
           // Fetch the listing owner's profile
           const { data: ownerProfile, error: profileError } = await supabase
             .from("profiles")
             .select("id, full_name")
-            .eq("id", ad.user_id)
+            .eq("id", adData.user_id)
             .single();
 
           if (profileError) {
@@ -63,16 +73,22 @@ export default function ListingPage() {
             setListingOwner(ownerProfile);
           }
         }
-      }
 
-      // Fetch current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setCurrentUser(user);
+        // Fetch current user
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        setCurrentUser(user);
+      } catch (error) {
+        console.error("Error in fetchListingAndOwner:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    fetchListingAndOwner();
+    if (listingId) {
+      fetchListingAndOwner();
+    }
   }, [listingId, supabase]);
 
   const formatDate = (date: Date) => {
@@ -121,6 +137,16 @@ export default function ListingPage() {
       alert("Please log in to send a message.");
     }
   };
+
+  if (isLoading) {
+    return (
+      <Card className="max-w-lg mx-auto mt-10">
+        <CardContent className="text-center py-10">
+          <p className="text-xl text-muted-foreground">Laddar annons...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!listing) {
     return (
