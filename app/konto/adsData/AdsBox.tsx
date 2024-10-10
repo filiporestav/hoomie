@@ -1,26 +1,36 @@
-'use client'
+"use client";
 
-import React, { useState } from "react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import React, { useState } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface AdsBoxProps {
-  id: string
-  title: string
-  propertyDescription: string
-  areaDescription: string
-  address: string
-  city: string
-  country: string
-  imageUrls: string[] | null
-  availabilityStart: Date
-  availabilityEnd: Date
-  onEdit: (ad: any) => void
-
-  
+  id: string;
+  title: string;
+  propertyDescription: string;
+  areaDescription: string;
+  address: string;
+  city: string;
+  country: string;
+  imageUrls: string[] | null;
+  availabilityStart: Date;
+  availabilityEnd: Date;
+  onEdit: (ad: any) => void;
 }
 
 const AdsBox: React.FC<AdsBoxProps> = ({
@@ -34,9 +44,9 @@ const AdsBox: React.FC<AdsBoxProps> = ({
   imageUrls,
   availabilityStart,
   availabilityEnd,
-  onEdit
+  onEdit,
 }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const formatDate = (date: Date | string) => {
     if (date instanceof Date) {
@@ -53,11 +63,14 @@ const AdsBox: React.FC<AdsBoxProps> = ({
       <CardContent>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="md:w-1/2 space-y-4">
-            <p className="text-sm text-muted-foreground">{address}, {city}, {country}</p>
+            <p className="text-sm text-muted-foreground">
+              {address}, {city}, {country}
+            </p>
             <p className="text-sm">{propertyDescription}</p>
             <p className="text-sm text-muted-foreground">{areaDescription}</p>
             <p className="text-sm font-semibold">
-              Tillgänglig för Byte: {formatDate(availabilityStart)} - {formatDate(availabilityEnd)}
+              Tillgänglig för byte: {formatDate(availabilityStart)} -{" "}
+              {formatDate(availabilityEnd)}
             </p>
           </div>
           <div className="md:w-1/2">
@@ -104,12 +117,27 @@ const AdsBox: React.FC<AdsBoxProps> = ({
         </div>
       </CardContent>
       <CardFooter>
-        <Button onClick={() => onEdit({ id, title, property_description: propertyDescription, area_description: areaDescription, address, city, country, image_urls: imageUrls, availability_start: availabilityStart, availability_end: availabilityEnd })}>
-          Edit
+        <Button
+          onClick={() =>
+            onEdit({
+              id,
+              title,
+              property_description: propertyDescription,
+              area_description: areaDescription,
+              address,
+              city,
+              country,
+              image_urls: imageUrls,
+              availability_start: availabilityStart,
+              availability_end: availabilityEnd,
+            })
+          }
+        >
+          Ändra
         </Button>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
 
-export default AdsBox
+export default AdsBox;

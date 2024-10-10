@@ -36,12 +36,12 @@ const Navbar = () => {
       return;
     }
     setUser(null);
-    router.push("/login");
+    router.push("/");
   };
 
   return (
-    <nav className="bg-background pt-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <nav className="bg-white shadow-md pt-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8">
         <Link href="/" className="flex items-center">
           <Image
             src="/hoomie_logo.jpg"
@@ -54,36 +54,36 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden font-bold md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-6">
           <Link
             href="/annonser"
-            className="bg-background text-primary hover:text-primary/80 transition-colors duration-200"
+            className="text-gray-800 hover:text-indigo-600 transition-colors duration-200"
           >
             Annonser
           </Link>
           <Link
             href="/hur-det-fungerar"
-            className="bg-background text-primary hover:text-primary/80 transition-colors duration-200"
+            className="text-gray-800 hover:text-indigo-600 transition-colors duration-200"
           >
             Hur det fungerar
           </Link>
           {user ? (
             <>
               <Link
-                href="/account"
-                className="bg-background text-primary hover:text-primary/80 transition-colors duration-200"
+                href="/konto"
+                className="text-gray-800 hover:text-indigo-600 transition-colors duration-200"
               >
-                Profil
+                Mitt konto
               </Link>
               <Link
-                href="/chat"
-                className="bg-background text-primary hover:text-primary/80 transition-colors duration-200"
+                href="/meddelanden"
+                className="text-gray-800 hover:text-indigo-600 transition-colors duration-200"
               >
                 <IoChatbubbleEllipsesOutline className="w-6 h-6" />
               </Link>
               <Button
-                variant="ghost"
-                className="bg-background text-primary hover:text-primary/80 transition-colors duration-200"
+                variant="outline"
+                className="text-gray-800 hover:text-indigo-600 border-gray-300 transition-colors duration-200"
                 onClick={handleLogout}
               >
                 Logga ut
@@ -92,14 +92,14 @@ const Navbar = () => {
           ) : (
             <>
               <Link
-                href="/login"
-                className="text-indigo-700 hover:text-indigo-500"
+                href="/logga-in"
+                className="text-indigo-600 hover:text-indigo-400 transition-colors duration-200"
               >
                 Logga in
               </Link>
               <Link
-                href="/register"
-                className="text-indigo-700 hover:text-indigo-500"
+                href="/skapa-konto"
+                className="text-indigo-600 hover:text-indigo-400 transition-colors duration-200"
               >
                 Registrera dig
               </Link>
@@ -113,40 +113,37 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden text-indigo-700"
+              className="md:hidden text-indigo-600"
             >
               <Menu className="h-6 w-6" />
               <span className="sr-only">Öppna meny</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="bg-gray-100 text-indigo-700">
+          <SheetContent side="right" className="bg-white text-indigo-600">
             <nav className="flex flex-col space-y-4">
-              <Link href="/annonser" className="text-lg hover:text-indigo-500">
+              <Link href="/annonser" className="text-lg hover:text-indigo-400">
                 Annonser
               </Link>
               <Link
                 href="/hur-det-fungerar"
-                className="text-lg hover:text-indigo-500"
+                className="text-lg hover:text-indigo-400"
               >
                 Hur det fungerar
               </Link>
               {user ? (
                 <>
-                  <Link
-                    href="/account"
-                    className="text-lg hover:text-indigo-500"
-                  >
-                    Profil
+                  <Link href="/konto" className="text-lg hover:text-indigo-400">
+                    Mitt konto
                   </Link>
                   <Link
-                    href="/conversations"
-                    className="text-lg hover:text-indigo-500"
+                    href="/meddelanden"
+                    className="text-lg hover:text-indigo-400"
                   >
                     Konversationer
                   </Link>
                   <Button
                     variant="ghost"
-                    className="text-lg text-indigo-700 hover:text-indigo-500"
+                    className="text-lg text-indigo-600 hover:text-indigo-400"
                     onClick={handleLogout}
                   >
                     Logga ut
@@ -154,12 +151,15 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-lg hover:text-indigo-500">
+                  <Link
+                    href="/logga-in"
+                    className="text-lg hover:text-indigo-400"
+                  >
                     Logga in
                   </Link>
                   <Link
-                    href="/register"
-                    className="text-lg hover:text-indigo-500"
+                    href="/skapa-konto"
+                    className="text-lg hover:text-indigo-400"
                   >
                     Registrera dig
                   </Link>

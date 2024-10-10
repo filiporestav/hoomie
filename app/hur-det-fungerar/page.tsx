@@ -107,7 +107,7 @@ const HurDetFungerarPage = () => {
           på dig.
         </p>
         <button
-          onClick={() => router.push("/registrer")}
+          onClick={() => router.push("/skapa-konto")}
           className="px-8 py-4 bg-white text-amber-500 rounded-full text-lg font-semibold hover:bg-gray-100 transition"
         >
           Skapa konto
