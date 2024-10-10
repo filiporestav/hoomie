@@ -43,6 +43,21 @@ const ChatPage = () => {
   const supabase = createClient()
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
+  // Function to download avatars from Supabase storage
+  const downloadAvatar = async (path: string | null) => {
+    if (!path) return null;  // If there's no avatar URL, return null
+    try {
+      const { data, error } = await supabase.storage.from("avatars").download(path);
+      if (error) {
+        throw error;
+      }
+      return URL.createObjectURL(data); // Convert the file to a usable URL
+    } catch (error) {
+      console.error("Error downloading avatar:", error);
+      return null;
+    }
+  };
+
   // Fetch current user details
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -68,7 +83,7 @@ const ChatPage = () => {
     fetchCurrentUser()
   }, [router, supabase])
 
-  // Fetch conversations
+  // Fetch conversations and download avatars
   useEffect(() => {
     const fetchConversations = async () => {
       if (!currentUser) return
@@ -84,20 +99,28 @@ const ChatPage = () => {
       if (error) {
         console.error('Error fetching conversations:', error)
       } else if (data) {
-        const formattedConversations = data.map((conv: any) => ({
-          id: conv.id,
-          other_user: conv.user1.id === currentUser.id ? conv.user2 : conv.user1,
-          last_message: conv.messages[0]?.content || '',
-          inserted_at: conv.messages[0]?.inserted_at || ''
-        }))
+        const formattedConversations = await Promise.all(
+          data.map(async (conv: any) => {
+            const otherUser = conv.user1.id === currentUser.id ? conv.user2 : conv.user1;
+            const avatarUrl = await downloadAvatar(otherUser.avatar_url); // Download avatar
+
+            return {
+              id: conv.id,
+              other_user: { ...otherUser, avatar_url: avatarUrl }, // Set the downloaded avatar URL
+              last_message: conv.messages[0]?.content || '',
+              inserted_at: conv.messages[0]?.inserted_at || ''
+            };
+          })
+        )
         setConversations(formattedConversations)
+        console.log(formattedConversations, "formatted conversations")
       }
     }
 
     fetchConversations()
   }, [currentUser, supabase])
 
-  // Fetch messages for the selected conversation
+  // Fetch messages for the selected conversation and download avatars
   useEffect(() => {
     const fetchMessages = async () => {
       if (!selectedConversation) return
@@ -111,7 +134,19 @@ const ChatPage = () => {
       if (error) {
         console.error('Error fetching messages:', error)
       } else if (data) {
-        setMessages(data)
+        const formattedMessages = await Promise.all(
+          data.map(async (message: any) => {
+            const avatarUrl = await downloadAvatar(message.user.avatar_url);
+            return {
+              ...message,
+              user: {
+                ...message.user,
+                avatar_url: avatarUrl
+              }
+            };
+          })
+        )
+        setMessages(formattedMessages)
       }
     }
 
@@ -230,24 +265,22 @@ const ChatPage = () => {
                 </div>
               </ScrollArea>
             </CardContent>
-            <CardFooter className="py-2"> {/* Reduced padding */}
-              <form onSubmit={sendMessage} className="flex w-full gap-2">
+            <CardFooter className="border-t border-border p-3"> {/* Reduced padding */}
+              <form onSubmit={sendMessage} className="flex w-full items-center space-x-2">
                 <Input
-                  type="text"
-                  placeholder="Type a message..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  className="flex-grow"
+                  placeholder="Type a message"
                 />
-                <Button type="submit" size="sm"> {/* Smaller button */}
+                <Button type="submit">
                   <Send className="h-4 w-4" />
                 </Button>
               </form>
             </CardFooter>
           </Card>
         ) : (
-          <div className="flex justify-center items-center h-full text-muted-foreground">
-            <p>Select a conversation to start chatting.</p>
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            Select a conversation
           </div>
         )}
       </div>
