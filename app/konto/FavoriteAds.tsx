@@ -63,7 +63,9 @@ export default function FavoriteAds({ userId }: FavoriteAdsProps) {
   if (loading) return <div>Laddar...</div>;
 
   if (favoriteAds.length === 0) {
-    return <div className="text-center">Du har inga favoriter.</div>;
+    return (
+      <div className="text-center">Du har inga favoritmarkerade annonser.</div>
+    );
   }
 
   return (

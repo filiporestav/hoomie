@@ -9,6 +9,7 @@ import "react-day-picker/dist/style.css";
 import { Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ClientProvider from "./ClientProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({
           <Navbar />
           <main>{children}</main>
           {pathname !== "/annonser" && <Footer />}
+          <Toaster />
           <SpeedInsights />
         </ClientProvider>
       </body>
