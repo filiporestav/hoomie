@@ -1,60 +1,60 @@
-"use client"
+"use client";
 
-import { useCallback, useEffect, useState } from "react"
-import { createClient } from "../../utils/supabase/client"
-import { type User } from "@supabase/supabase-js"
-import Avatar from "./avatar"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
+import { useCallback, useEffect, useState } from "react";
+import { createClient } from "../../utils/supabase/client";
+import { type User } from "@supabase/supabase-js";
+import Avatar from "./avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export default function AccountForm({ user }: { user: User | null }) {
-  const supabase = createClient()
-  const [loading, setLoading] = useState(true)
-  const [fullname, setFullname] = useState<string | null>(null)
-  const [username, setUsername] = useState<string | null>(null)
-  const [avatar_url, setAvatarUrl] = useState<string | null>(null)
+  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
+  const [fullname, setFullname] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [avatar_url, setAvatarUrl] = useState<string | null>(null);
 
   const getProfile = useCallback(async () => {
     try {
-      setLoading(true)
+      setLoading(true);
 
       const { data, error, status } = await supabase
         .from("profiles")
         .select(`full_name, username, avatar_url`)
         .eq("id", user?.id)
-        .single()
+        .single();
 
       if (error && status !== 406) {
-        throw error
+        throw error;
       }
 
       if (data) {
-        setFullname(data.full_name)
-        setUsername(data.username)
-        setAvatarUrl(data.avatar_url)
+        setFullname(data.full_name);
+        setUsername(data.username);
+        setAvatarUrl(data.avatar_url);
       }
     } catch (error) {
-      alert("Error loading user data!")
+      alert("Error loading user data!");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [user, supabase])
+  }, [user, supabase]);
 
   useEffect(() => {
-    getProfile()
-  }, [user, getProfile])
+    getProfile();
+  }, [user, getProfile]);
 
   async function updateProfile({
     username,
     avatar_url,
   }: {
-    username: string | null
-    fullname: string | null
-    avatar_url: string | null
+    username: string | null;
+    fullname: string | null;
+    avatar_url: string | null;
   }) {
     try {
-      setLoading(true)
+      setLoading(true);
 
       const { error } = await supabase.from("profiles").upsert({
         id: user?.id as string,
@@ -62,19 +62,21 @@ export default function AccountForm({ user }: { user: User | null }) {
         username,
         avatar_url,
         updated_at: new Date().toISOString(),
-      })
-      if (error) throw error
-      alert("Profile updated successfully")
+      });
+      if (error) throw error;
+      alert("Profile updated successfully");
     } catch (error) {
-      alert("Error updating the profile")
+      alert("Error updating the profile");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
     <div className="max-w-2xl mx-auto py-8">
-      <h2 className="text-3xl font-bold mb-6">Account Settings</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center">
+        Ändra profiluppgifter
+      </h2>
       <div className="space-y-8">
         <div className="flex flex-col items-center">
           <Avatar
@@ -82,8 +84,8 @@ export default function AccountForm({ user }: { user: User | null }) {
             url={avatar_url}
             size={100}
             onUpload={(url) => {
-              setAvatarUrl(url)
-              updateProfile({ fullname, username, avatar_url: url })
+              setAvatarUrl(url);
+              updateProfile({ fullname, username, avatar_url: url });
             }}
           />
         </div>
@@ -94,7 +96,7 @@ export default function AccountForm({ user }: { user: User | null }) {
             <Input id="email" type="text" value={user?.email || ""} disabled />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="fullName">Fullständigt namn</Label>
             <Input
               id="fullName"
               type="text"
@@ -103,7 +105,7 @@ export default function AccountForm({ user }: { user: User | null }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">Användarnamn</Label>
             <Input
               id="username"
               type="text"
@@ -118,15 +120,15 @@ export default function AccountForm({ user }: { user: User | null }) {
           onClick={() => updateProfile({ fullname, username, avatar_url })}
           disabled={loading}
         >
-          {loading ? "Loading..." : "Update Profile"}
+          {loading ? "Laddar..." : "Uppdatera profil"}
         </Button>
 
         <form action="/auth/signout" method="post">
           <Button variant="outline" className="w-full" type="submit">
-            Sign Out
+            Logga ut
           </Button>
         </form>
       </div>
     </div>
-  )
+  );
 }

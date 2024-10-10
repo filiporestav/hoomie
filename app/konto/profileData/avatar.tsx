@@ -89,7 +89,7 @@ export default function Avatar({
       )}
       <div>
         <Button variant="outline" className="relative" disabled={uploading}>
-          {uploading ? "Uploading..." : "Upload Image"}
+          {uploading ? "Laddar upp..." : "Ladda upp bild"}
           <input
             type="file"
             id="single"

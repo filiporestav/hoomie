@@ -1,68 +1,69 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState } from "react"
-import { type User } from "@supabase/supabase-js"
-import AddEditAdModal from "./AddEditAdModal"
-import { createClient } from "../../utils/supabase/client"
-import AdsBox from "./AdsBox"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { useCallback, useEffect, useState } from "react";
+import { type User } from "@supabase/supabase-js";
+import AddEditAdModal from "./AddEditAdModal";
+import { createClient } from "../../utils/supabase/client";
+import AdsBox from "./AdsBox";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function AdsContainer({ user }: { user: User | null }) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [ads, setAds] = useState<any[]>([])
-  const [selectedAd, setSelectedAd] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [modalAction, setModalAction] = useState<'add' | 'edit'>('add')
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ads, setAds] = useState<any[]>([]);
+  const [selectedAd, setSelectedAd] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [modalAction, setModalAction] = useState<"add" | "edit">("add");
 
-  const handleOpenModal = (action: 'add' | 'edit', ad?: any) => {
-    setModalAction(action)
-    setSelectedAd(ad || null)
-    setIsModalOpen(true)
-  }
+  const handleOpenModal = (action: "add" | "edit", ad?: any) => {
+    setModalAction(action);
+    setSelectedAd(ad || null);
+    setIsModalOpen(true);
+  };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setSelectedAd(null)
-  }
+    setIsModalOpen(false);
+    setSelectedAd(null);
+  };
 
   const handleAdUpdated = () => {
-    fetchAds()
-  }
+    fetchAds();
+  };
 
   const handleAdDeleted = () => {
-    fetchAds()
-  }
+    fetchAds();
+  };
 
   const handleAdAdded = () => {
-    fetchAds()
-  }
+    fetchAds();
+  };
 
   const fetchAds = useCallback(async () => {
     if (user) {
-      const supabase = createClient()
+      const supabase = createClient();
       const { data, error } = await supabase
         .from("ads")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", user.id);
 
       if (error) {
-        console.error("Error fetching ads:", error.message)
+        console.error("Error fetching ads:", error.message);
       } else {
-        setAds(data || [])
+        setAds(data || []);
       }
 
-      setLoading(false)
+      setLoading(false);
     }
-  }, [user])
+  }, [user]);
 
   useEffect(() => {
-    fetchAds()
-  }, [fetchAds])
+    fetchAds();
+  }, [fetchAds]);
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col py-8">
+      <h2 className="text-3xl font-bold mb-6 text-center">Mina annonser</h2>
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full pr-4">
           <div className="space-y-6 p-6">
@@ -87,7 +88,7 @@ export default function AdsContainer({ user }: { user: User | null }) {
                     imageUrls={ad.image_urls}
                     availabilityStart={ad.availability_start}
                     availabilityEnd={ad.availability_end}
-                    onEdit={() => handleOpenModal('edit', ad)}
+                    onEdit={() => handleOpenModal("edit", ad)}
                   />
                 </div>
               ))
@@ -97,8 +98,8 @@ export default function AdsContainer({ user }: { user: User | null }) {
       </div>
 
       <div className="p-6">
-        <Button onClick={() => handleOpenModal('add')} className="w-full">
-          Add New Ad
+        <Button onClick={() => handleOpenModal("add")} className="w-full">
+          Lägg till ny annons
         </Button>
       </div>
 
@@ -110,8 +111,8 @@ export default function AdsContainer({ user }: { user: User | null }) {
         onAdAdded={handleAdAdded}
         onAdUpdated={handleAdUpdated}
         onAdDeleted={handleAdDeleted}
-        action={selectedAd ? 'edit' : 'add'}
+        action={selectedAd ? "edit" : "add"}
       />
     </div>
-  )
+  );
 }

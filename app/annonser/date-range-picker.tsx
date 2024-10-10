@@ -1,25 +1,26 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { addDays, format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
+import * as React from "react";
+import { addDays, format } from "date-fns";
+import { sv } from "date-fns/locale";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
 interface DateRangePickerProps {
-  dateRange: DateRange | undefined
-  onDateRangeChange: (range: DateRange | undefined) => void
-  onFilterApply: () => void
-  onCleanFilters: () => void
-  className?: string
+  dateRange: DateRange | undefined;
+  onDateRangeChange: (range: DateRange | undefined) => void;
+  onFilterApply: () => void;
+  onCleanFilters: () => void;
+  className?: string;
 }
 
 export function DateRangePicker({
@@ -29,13 +30,13 @@ export function DateRangePicker({
   onCleanFilters,
   className,
 }: DateRangePickerProps) {
-  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
 
   const handleCleanFilters = () => {
-    onDateRangeChange(undefined)
-    onCleanFilters()
-    setIsCalendarOpen(false)
-  }
+    onDateRangeChange(undefined);
+    onCleanFilters();
+    setIsCalendarOpen(false);
+  };
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -53,14 +54,14 @@ export function DateRangePicker({
             {dateRange?.from ? (
               dateRange.to ? (
                 <>
-                  {format(dateRange.from, "LLL dd, y")} -{" "}
-                  {format(dateRange.to, "LLL dd, y")}
+                  {format(dateRange.from, "d MMM y", { locale: sv })} -{" "}
+                  {format(dateRange.to, "d MMM y", { locale: sv })}
                 </>
               ) : (
-                format(dateRange.from, "LLL dd, y")
+                format(dateRange.from, "d MMM y", { locale: sv })
               )
             ) : (
-              <span>Pick a date range</span>
+              <span>Välj datumintervall</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -72,6 +73,7 @@ export function DateRangePicker({
             selected={dateRange}
             onSelect={onDateRangeChange}
             numberOfMonths={2}
+            locale={sv}
           />
           <div className="flex justify-end gap-2 p-3">
             <Button
@@ -84,8 +86,8 @@ export function DateRangePicker({
             <Button
               className="text-xs"
               onClick={() => {
-                onFilterApply()
-                setIsCalendarOpen(false)
+                onFilterApply();
+                setIsCalendarOpen(false);
               }}
             >
               Välj datum
@@ -94,5 +96,5 @@ export function DateRangePicker({
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }

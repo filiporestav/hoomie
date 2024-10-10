@@ -1,13 +1,25 @@
-'use client'
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import AdMap from "../../components/AdMap";
 import Ad from "../../components/AdInterface";
 
@@ -33,7 +45,9 @@ export default function ListingPage() {
 
     // Fetch current user
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setCurrentUser(user);
     };
     fetchUser();
@@ -47,14 +61,14 @@ export default function ListingPage() {
     if (currentUser && listing) {
       // Check if a conversation already exists
       const { data: existingConversation, error: fetchError } = await supabase
-        .from('conversations')
-        .select('id')
+        .from("conversations")
+        .select("id")
         .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`)
         .or(`user1.eq.${listing.user_id},user2.eq.${listing.user_id}`)
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error('Error checking existing conversation:', fetchError);
+      if (fetchError && fetchError.code !== "PGRST116") {
+        console.error("Error checking existing conversation:", fetchError);
         return;
       }
 
@@ -65,17 +79,17 @@ export default function ListingPage() {
       } else {
         // Create a new conversation
         const { data: newConversation, error: insertError } = await supabase
-          .from('conversations')
+          .from("conversations")
           .insert({
             user1: currentUser.id,
             user2: listing.user_id,
-            last_message: new Date().toISOString()
+            last_message: new Date().toISOString(),
           })
-          .select('id')
+          .select("id")
           .single();
 
         if (insertError) {
-          console.error('Error creating new conversation:', insertError);
+          console.error("Error creating new conversation:", insertError);
           return;
         }
 
@@ -94,7 +108,9 @@ export default function ListingPage() {
     return (
       <Card className="max-w-lg mx-auto mt-10">
         <CardContent className="text-center py-10">
-          <p className="text-xl text-muted-foreground">Annonsen kunde inte hittas.</p>
+          <p className="text-xl text-muted-foreground">
+            Annonsen kunde inte hittas.
+          </p>
         </CardContent>
       </Card>
     );
@@ -110,12 +126,16 @@ export default function ListingPage() {
           <div className="flex flex-col md:flex-row gap-6">
             <div className="md:w-1/2 space-y-4">
               <p className="text-lg">{listing.property_description}</p>
-              <p className="text-muted-foreground">{listing.area_description}</p>
+              <p className="text-muted-foreground">
+                {listing.area_description}
+              </p>
               <p className="text-sm">
                 {listing.address}, {listing.city}, {listing.country}
               </p>
               <p className="text-sm">
-                Tillgänglig för Byte: {formatDate(listing.availability_start)} - {formatDate(listing.availability_end)}
+                Tillgänglig för byte mellan:{" "}
+                {formatDate(listing.availability_start)} -{" "}
+                {formatDate(listing.availability_end)}
               </p>
               <p className="text-sm text-muted-foreground">
                 Publicerad: {formatDate(listing.created_at)}
@@ -166,13 +186,20 @@ export default function ListingPage() {
           <Button onClick={() => window.history.back()}>
             Tillbaka till alla annonser
           </Button>
-          <Button onClick={handleSendMessage} disabled={!currentUser || currentUser.id === listing.user_id}>
+          <Button
+            onClick={handleSendMessage}
+            disabled={!currentUser || currentUser.id === listing.user_id}
+          >
             Skicka meddelande
           </Button>
         </CardFooter>
       </Card>
       <div className="h-96 w-full">
-        <AdMap ads={[listing]}  latitude={listing.latitude} longitude={listing.longitude}/>
+        <AdMap
+          ads={[listing]}
+          latitude={listing.latitude}
+          longitude={listing.longitude}
+        />
       </div>
     </div>
   );
