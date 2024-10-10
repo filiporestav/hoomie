@@ -83,6 +83,7 @@ export default function AddEditAdModal({
   }, [action, ad]);
 
   const normalizeFileName = (fileName: string) => {
+    // Step 1: Replace special non-English characters with English counterparts
     const specialChars: { [key: string]: string } = {
       å: "a",
       ä: "a",
@@ -91,9 +92,20 @@ export default function AddEditAdModal({
       Ä: "A",
       Ö: "O",
     };
+    
+    // Use regex to replace the special characters with English equivalents
     const regex = new RegExp(Object.keys(specialChars).join("|"), "g");
-    return fileName.replace(regex, (match) => specialChars[match]);
+    let normalizedFileName = fileName.replace(regex, (match) => specialChars[match]);
+    
+    // Step 2: Remove any remaining non-English characters using regex
+    normalizedFileName = normalizedFileName.replace(/[^a-zA-Z0-9 ]/g, "");
+  
+    // Step 3: Replace spaces with underscores
+    normalizedFileName = normalizedFileName.replace(/ /g, "_");
+  
+    return normalizedFileName;
   };
+  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
