@@ -20,38 +20,60 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Separator } from "@/components/ui/separator";
+import { Calendar, MapPin, Clock, User } from "lucide-react";
 import AdMap from "../../components/AdMap";
 import Ad from "../../components/AdInterface";
+
+interface Profile {
+  id: string;
+  full_name: string;
+}
 
 export default function ListingPage() {
   const { listingId } = useParams();
   const [listing, setListing] = useState<Ad | null>(null);
+  const [listingOwner, setListingOwner] = useState<Profile | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    // Retrieve the ad data from sessionStorage
-    const storedAd = sessionStorage.getItem("selectedAd");
-    if (storedAd) {
-      const ad = JSON.parse(storedAd);
-      // Only use the stored ad if the ID matches the listingId
-      if (ad.id === listingId) {
-        setListing(ad);
-        console.log(ad, "ad.user_id");
-      }
-    }
+    const fetchListingAndOwner = async () => {
+      // Get the stored ad from sessionStorage
+      const storedAd = sessionStorage.getItem("selectedAd");
+      let ad: Ad;
 
-    // Fetch current user
-    const fetchUser = async () => {
+      if (storedAd) {
+        ad = JSON.parse(storedAd);
+        if (ad.id === listingId) {
+          setListing(ad);
+
+          // Fetch the listing owner's profile
+          const { data: ownerProfile, error: profileError } = await supabase
+            .from("profiles")
+            .select("id, full_name")
+            .eq("id", ad.user_id)
+            .single();
+
+          if (profileError) {
+            console.error("Error fetching listing owner:", profileError);
+          } else {
+            setListingOwner(ownerProfile);
+          }
+        }
+      }
+
+      // Fetch current user
       const {
         data: { user },
       } = await supabase.auth.getUser();
       setCurrentUser(user);
     };
-    fetchUser();
-  }, [listingId]);
+
+    fetchListingAndOwner();
+  }, [listingId, supabase]);
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString();
@@ -59,7 +81,6 @@ export default function ListingPage() {
 
   const handleSendMessage = async () => {
     if (currentUser && listing) {
-      // Check if a conversation already exists
       const { data: existingConversation, error: fetchError } = await supabase
         .from("conversations")
         .select("id")
@@ -77,7 +98,6 @@ export default function ListingPage() {
       if (existingConversation) {
         conversationId = existingConversation.id;
       } else {
-        // Create a new conversation
         const { data: newConversation, error: insertError } = await supabase
           .from("conversations")
           .insert({
@@ -96,10 +116,8 @@ export default function ListingPage() {
         conversationId = newConversation.id;
       }
 
-      // Navigate to the chat page with the conversation ID
       router.push(`/meddelanden`);
     } else {
-      // Handle case where user is not logged in
       alert("Please log in to send a message.");
     }
   };
@@ -118,47 +136,72 @@ export default function ListingPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">{listing.title}</CardTitle>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-primary text-primary-foreground">
+          <CardTitle className="text-3xl font-bold">{listing.title}</CardTitle>
+          <div className="flex items-center text-sm mt-2">
+            <MapPin className="w-4 h-4 mr-1" />
+            <span>
+              {listing.address}, {listing.city}, {listing.country}
+            </span>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="md:w-1/2 space-y-4">
-              <p className="text-lg">{listing.property_description}</p>
-              <p className="text-muted-foreground">
-                {listing.area_description}
-              </p>
-              <p className="text-sm">
-                {listing.address}, {listing.city}, {listing.country}
-              </p>
-              <p className="text-sm">
-                Tillgänglig för byte mellan:{" "}
-                {formatDate(listing.availability_start)} -{" "}
-                {formatDate(listing.availability_end)}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Publicerad: {formatDate(listing.created_at)}
-              </p>
+        <CardContent className="p-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-1/2 space-y-6">
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Fastigheten</h3>
+                <p className="text-lg">{listing.property_description}</p>
+              </div>
+              <Separator />
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Området</h3>
+                <p className="text-muted-foreground">
+                  {listing.area_description}
+                </p>
+              </div>
+              <Separator />
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Calendar className="w-5 h-5 mr-2 text-primary" />
+                  <span>
+                    Tillgänglig för byte:{" "}
+                    {formatDate(listing.availability_start)} -{" "}
+                    {formatDate(listing.availability_end)}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="w-5 h-5 mr-2 text-primary" />
+                  <span>Publicerad: {formatDate(listing.created_at)}</span>
+                </div>
+                <div className="flex items-center">
+                  <User className="w-5 h-5 mr-2 text-primary" />
+                  <span>
+                    Annonsör: {listingOwner?.full_name || "Laddar..."}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="md:w-1/2">
+            <div className="lg:w-1/2">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <div className="grid grid-cols-2 gap-2 cursor-pointer">
                     {listing.image_urls.slice(0, 4).map((url, index) => (
-                      <div key={index} className="relative aspect-square">
+                      <div
+                        key={index}
+                        className="relative aspect-square rounded-lg overflow-hidden hover:opacity-90 transition-opacity"
+                      >
                         <Image
                           src={url}
                           alt={`Image of ${listing.property_description}`}
                           layout="fill"
                           objectFit="cover"
-                          className="rounded-md"
                         />
                       </div>
                     ))}
                   </div>
                 </DialogTrigger>
-                <DialogContent className="max-w-3xl">
+                <DialogContent className="max-w-4xl z-[999]">
                   <Carousel>
                     <CarouselContent>
                       {listing.image_urls.map((url, index) => (
@@ -182,8 +225,8 @@ export default function ListingPage() {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button onClick={() => window.history.back()}>
+        <CardFooter className="flex justify-between bg-secondary p-6">
+          <Button variant="outline" onClick={() => window.history.back()}>
             Tillbaka till alla annonser
           </Button>
           <Button
@@ -194,13 +237,20 @@ export default function ListingPage() {
           </Button>
         </CardFooter>
       </Card>
-      <div className="h-96 w-full">
-        <AdMap
-          ads={[listing]}
-          latitude={listing.latitude}
-          longitude={listing.longitude}
-        />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Karta</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="h-96 w-full">
+            <AdMap
+              ads={[listing]}
+              latitude={listing.latitude}
+              longitude={listing.longitude}
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
