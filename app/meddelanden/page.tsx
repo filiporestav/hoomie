@@ -2,54 +2,23 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/app/utils/supabase/client";
-import { Send } from "lucide-react";
-
-interface Message {
-  id: number;
-  content: string;
-  inserted_at: string;
-  user_id: string;
-  conversation_id: string;
-  user: {
-    full_name: string;
-    avatar_url: string | null;
-  };
-}
-
-interface Conversation {
-  id: string;
-  other_user: {
-    id: string;
-    full_name: string;
-    avatar_url: string | null;
-  };
-  last_message: string;
-  inserted_at: string;
-}
+import ChatWindow from "./ChatWindow";
+import ConversationList from "./ConversationList";
+import { Conversation, Message } from "./types";
 
 const ChatPage = () => {
   const router = useRouter();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [listings, setListings] = useState<any[]>([]); // Add state for listings
   const [selectedConversation, setSelectedConversation] = useState<
     string | null
   >(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
   const [currentUser, setCurrentUser] = useState<any>(null);
   const supabase = createClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [newMessage, setNewMessage] = useState("");
 
   // Function to download avatars from Supabase storage
   const downloadAvatar = async (path: string | null) => {
@@ -75,7 +44,7 @@ const ChatPage = () => {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        router.push("/login");
+        router.push("/logga-in");
         return;
       }
 
@@ -95,6 +64,21 @@ const ChatPage = () => {
     fetchCurrentUser();
   }, [router, supabase]);
 
+  // Fetch listings
+  useEffect(() => {
+    const fetchListings = async () => {
+      const { data, error } = await supabase.from("ads").select("*");
+      if (error) {
+        console.error("Error fetching listings:", error);
+      } else {
+        console.log(data, "data");
+        setListings(data);
+      }
+    };
+
+    fetchListings();
+  }, [supabase]);
+
   // Fetch conversations and download avatars
   useEffect(() => {
     const fetchConversations = async () => {
@@ -103,7 +87,7 @@ const ChatPage = () => {
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "id, user1(id, full_name, avatar_url), user2(id, full_name, avatar_url), messages(content, inserted_at)"
+          "id, user1(id, full_name, avatar_url), user2(id, full_name, avatar_url), messages(content, inserted_at), ad_id" // ad_id added here
         )
         .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`)
         .order("inserted_at", { foreignTable: "messages", ascending: false });
@@ -122,11 +106,12 @@ const ChatPage = () => {
               other_user: { ...otherUser, avatar_url: avatarUrl }, // Set the downloaded avatar URL
               last_message: conv.messages[0]?.content || "",
               inserted_at: conv.messages[0]?.inserted_at || "",
+              listing_id: conv.ad_id || null, // Use ad_id instead of listing_id
             };
           })
         );
         setConversations(formattedConversations);
-        console.log(formattedConversations, "formatted conversations");
+        // console.log(formattedConversations, "formatted conversations");
       }
     };
 
@@ -199,12 +184,11 @@ const ChatPage = () => {
     }
   }, [messages]);
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !currentUser || !selectedConversation) return;
+  const sendMessage = async (content: string) => {
+    if (!content.trim() || !currentUser || !selectedConversation) return;
 
     const { error } = await supabase.from("messages").insert({
-      content: newMessage,
+      content,
       user_id: currentUser.id,
       conversation_id: selectedConversation,
     });
@@ -217,129 +201,23 @@ const ChatPage = () => {
 
   return (
     <div className="flex h-[80vh] bg-background">
-      {" "}
-      {/* Changed to 80vh */}
-      {/* Sidebar for conversations */}
-      <div className="w-1/4 border-r border-border">
-        <ScrollArea className="h-full">
-          {conversations.map((conv) => (
-            <div
-              key={conv.id}
-              className={`p-4 cursor-pointer hover:bg-accent ${
-                selectedConversation === conv.id ? "bg-accent" : ""
-              }`}
-              onClick={() => setSelectedConversation(conv.id)}
-            >
-              <div className="flex items-center space-x-3">
-                <Avatar>
-                  <AvatarImage src={conv.other_user.avatar_url || undefined} />
-                  <AvatarFallback>
-                    {conv.other_user.full_name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">{conv.other_user.full_name}</p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {conv.last_message}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </ScrollArea>
-      </div>
-      {/* Chat window */}
-      <div className="flex-1">
-        {selectedConversation ? (
-          <Card className="h-full flex flex-col">
-            <CardHeader className="py-3">
-              {" "}
-              {/* Reduced padding */}
-              <CardTitle className="flex items-center gap-2 text-lg">
-                {" "}
-                {/* Smaller text */}
-                {conversations.find((conv) => conv.id === selectedConversation)
-                  ?.other_user && (
-                  <>
-                    <Avatar>
-                      <AvatarImage
-                        src={
-                          conversations.find(
-                            (conv) => conv.id === selectedConversation
-                          )?.other_user.avatar_url || undefined
-                        }
-                      />
-                      <AvatarFallback>
-                        {conversations
-                          .find((conv) => conv.id === selectedConversation)
-                          ?.other_user.full_name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span>
-                      {
-                        conversations.find(
-                          (conv) => conv.id === selectedConversation
-                        )?.other_user.full_name
-                      }
-                    </span>
-                  </>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-hidden py-2">
-              {" "}
-              {/* Reduced padding */}
-              <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
-                <div className="space-y-3">
-                  {" "}
-                  {/* Reduced space between messages */}
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${
-                        message.user_id === currentUser?.id
-                          ? "justify-end"
-                          : "justify-start"
-                      }`}
-                    >
-                      <div
-                        className={`max-w-[70%] p-2 rounded-2xl text-sm ${
-                          message.user_id === currentUser?.id // Rounder bubbles, smaller text
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-secondary"
-                        }`}
-                      >
-                        {message.content}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-            <CardFooter className="border-t border-border p-3">
-              {" "}
-              {/* Reduced padding */}
-              <form
-                onSubmit={sendMessage}
-                className="flex w-full items-center space-x-2"
-              >
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Skriv ett meddelande..."
-                />
-                <Button type="submit">
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
-            </CardFooter>
-          </Card>
-        ) : (
-          <div className="flex h-full items-center justify-center text-muted-foreground">
-            Välj en konversation
-          </div>
+      <ConversationList
+        conversations={conversations}
+        listings={listings}
+        selectedConversation={selectedConversation}
+        onSelectConversation={setSelectedConversation}
+      />
+      <ChatWindow
+        selectedConversation={selectedConversation}
+        messages={messages}
+        currentUser={currentUser}
+        onSendMessage={sendMessage}
+        listing={listings.find(
+          (l) =>
+            l.id ===
+            conversations.find((c) => c.id === selectedConversation)?.listing_id
         )}
-      </div>
+      />
     </div>
   );
 };
