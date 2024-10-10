@@ -1,70 +1,52 @@
-'use client'
+// ListingCard.tsx
+import React from "react";
+import Image from "next/image";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Ad } from "@/app/types"; // Adjust the import based on your project's structure
+import { useRouter } from "next/navigation";
 
-import React from 'react'
-import Image from 'next/image'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Ad } from '@/app/types'
-
-interface PreviewAdProps {
-  ad: Ad | null
+interface ListingCardProps {
+  ad: Ad;
 }
 
-export function PreviewAd({ ad }: PreviewAdProps) {
-  if (!ad) {
-    return (
-      <Card className="h-full">
-        <CardContent className="flex items-center justify-center h-full">
-          <p>Select an ad to view details</p>
-        </CardContent>
-      </Card>
-    )
-  }
+const PreviewAd: React.FC<ListingCardProps> = ({ ad }) => {
+  const router = useRouter();
 
-  // Log the ad data for debugging
-  console.log('Ad data:', ad);
+  const handleClick = () => {
+    sessionStorage.setItem("selectedAd", JSON.stringify(ad));
+    router.push(`/annonser/${ad.id}`);
+  };
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle>{ad.title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Carousel className="w-full max-w-xs mx-auto">
-          <CarouselContent>
-            {ad.image_urls.length > 0 ? ( // Check if there are images
-              ad.image_urls.map((image, index) => (
-                <CarouselItem key={index}>
-                  <div className="p-1">
-                    <Image
-                      src={image}
-                      alt={`Ad image ${index + 1}`}
-                      width={300}
-                      height={200}
-                      className="w-full object-cover rounded-md"
-                    />
-                  </div>
-                </CarouselItem>
-              ))
-            ) : (
-              <p>No images available for this ad.</p> // Fallback message if no images
-            )}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-        <ScrollArea className="h-[calc(100vh-400px)] mt-4">
-          <div className="space-y-4">
-            <p><strong>Price:</strong> ${ad.title}</p> {/* Ensure property matches your ad structure */}
-            <p><strong>Location:</strong> {ad.address}, {ad.city}, {ad.country}</p>
-            <p><strong>Description:</strong> {ad.area_description}</p> {/* Ensure property matches your ad structure */}
-            <p><strong>Area:</strong> {ad.area_description}</p>
-            <p><strong>Availability:</strong> {new Date(ad.availability_start).toLocaleDateString()} - {new Date(ad.availability_end).toLocaleDateString()}</p>
-            {/* Add more ad details here */}
-          </div>
-        </ScrollArea>
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        <div className="relative">
+          {ad.image_urls.length > 0 && (
+            <Image
+              src={ad.image_urls[0]} // Display the first image
+              alt={ad.title}
+              width={300}
+              height={200}
+              className="object-cover w-full h-48"
+            />
+          )}
+        </div>
+        <div className="p-4">
+          <h3 className="text-lg font-semibold">{ad.title}</h3>
+          <p className="text-muted-foreground text-sm">{ad.city}</p>
+          <p className="text-sm text-muted-foreground mb-2">
+            {ad.property_description.substring(0, 120)}...
+          </p>
+        </div>
       </CardContent>
+      <CardFooter className="bg-secondary p-3">
+        <Button variant="secondary" onClick={handleClick}>
+          Se annons
+        </Button>
+      </CardFooter>
     </Card>
-  )
-}
+  );
+};
+
+export default PreviewAd;
