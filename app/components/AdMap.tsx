@@ -9,6 +9,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { useClient } from '../ClientProvider';
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
+import ListingCard from './ListingCard';
 
 
 interface AdMapProps {
@@ -73,31 +74,9 @@ const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
           icon={customIcon || undefined} // Only render if customIcon is defined
         >
           <Popup className="custom-popup">
-            <div className="text-amber-500 w-48 sm:w-56 md:w-64" onClick={() => handleClick(ad)}>
-              <h3 className="font-bold text-base mb-2">{truncateDescription(ad.title)}</h3>
-              <Carousel className="w-full mb-3">
-                <CarouselContent>
-                  {ad.image_urls.map((url, index) => (
-                    <CarouselItem key={index}>
-                      <div className="relative aspect-[4/3]">
-                        <Image 
-                          src={url} 
-                          alt={`${ad.property_description} - Image ${index + 1}`}
-                          fill
-                          className="object-cover rounded-md"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-1 w-6 h-6" />
-                <CarouselNext className="right-1 w-6 h-6" />
-              </Carousel>
-              <p className="text-xs mb-1">{truncateDescription(ad.area_description)}</p>
-              <p className="text-xs font-semibold">{ad.address}, {ad.city}</p>
-            </div>
+            <ListingCard ad={ad}/>  
           </Popup>
-
+          
         </Marker>
       ))}
     </MapContainer>
