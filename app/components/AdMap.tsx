@@ -8,6 +8,8 @@ import Ad from './AdInterface';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useClient } from '../ClientProvider';
 import Image from 'next/image';
+import { useRouter } from "next/navigation";
+
 
 interface AdMapProps {
   ads: Ad[];
@@ -17,6 +19,7 @@ interface AdMapProps {
 
 const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
   const [customIcon, setCustomIcon] = useState<Icon | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const icon = new Icon({
@@ -45,6 +48,12 @@ const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
     );
   };
 
+  const handleClick = (ad: Ad) => {
+    sessionStorage.setItem("selectedAd", JSON.stringify(ad));
+    router.push(`annonser/${ad.id}`);
+  };
+  
+
   return (
     <MapContainer 
       center={mapCenter}  // Use the dynamic map center
@@ -64,8 +73,8 @@ const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
           icon={customIcon || undefined} // Only render if customIcon is defined
         >
           <Popup className="custom-popup">
-            <div className="text-amber-500 w-48 sm:w-56 md:w-64">
-              <h3 className="font-bold text-base mb-2">{truncateDescription(ad.property_description)}</h3>
+            <div className="text-amber-500 w-48 sm:w-56 md:w-64" onClick={() => handleClick(ad)}>
+              <h3 className="font-bold text-base mb-2">{truncateDescription(ad.title)}</h3>
               <Carousel className="w-full mb-3">
                 <CarouselContent>
                   {ad.image_urls.map((url, index) => (
@@ -88,6 +97,7 @@ const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
               <p className="text-xs font-semibold">{ad.address}, {ad.city}</p>
             </div>
           </Popup>
+
         </Marker>
       ))}
     </MapContainer>

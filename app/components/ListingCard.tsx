@@ -99,7 +99,8 @@ export default function ListingCard({ ad, userId }: ListingCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card     className="overflow-hidden transition-transform transform hover:scale-105 hover:z-10 cursor-pointer"
+    onClick={handleClick}>
       <CardContent className="p-0">
         <div className="relative">
           <Carousel className="w-full">
@@ -160,11 +161,6 @@ export default function ListingCard({ ad, userId }: ListingCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="px-4 py-3 bg-secondary">
-        <Button variant="secondary" className="w-full" onClick={handleClick}>
-          Se annons
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
