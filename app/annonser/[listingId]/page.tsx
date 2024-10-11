@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { Calendar, MapPin, Clock, User } from "lucide-react";
 import AdMap from "../../components/AdMap";
 import Ad from "../../components/AdInterface";
+import { Suspense } from "react";
 
 interface Profile {
   id: string;
@@ -253,17 +254,17 @@ export default function ListingPage() {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between bg-secondary p-6">
-          <Button variant="outline" onClick={() => window.history.back()}>
-            Tillbaka till alla annonser
-          </Button>
-          <Button
-            onClick={handleSendMessage}
-            disabled={!currentUser || currentUser.id === listing.user_id}
-          >
-            Skicka meddelande
-          </Button>
-        </CardFooter>
+          <CardFooter className="flex justify-between bg-secondary p-6">
+            <Button variant="outline" onClick={() => window.history.back()}>
+              Tillbaka till alla annonser
+            </Button>
+            <Button
+              onClick={handleSendMessage}
+              disabled={!currentUser || currentUser.id === listing.user_id}
+            >
+              Skicka meddelande
+            </Button>
+          </CardFooter>
       </Card>
       <Card>
         <CardHeader>

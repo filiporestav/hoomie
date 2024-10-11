@@ -61,7 +61,7 @@ export default function ChatWindow({
             {otherUser && (
               <>
                 <Avatar>
-                  <AvatarImage src={otherUser.avatar_url} />
+                  <AvatarImage src={otherUser.avatar_url || undefined} />
                   <AvatarFallback>
                     {otherUser.full_name?.charAt(0) || "?"}
                   </AvatarFallback>

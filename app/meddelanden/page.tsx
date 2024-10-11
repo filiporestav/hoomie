@@ -8,6 +8,8 @@ import ConversationList from "./ConversationList";
 import { Conversation, Message, User } from "./types";
 import { useSearchParams } from "next/navigation";
 import UserAd from './UserAd';
+import { Suspense } from "react"; // Import Suspense
+
 
 const ChatPage = () => {
   const router = useRouter();
@@ -39,11 +41,19 @@ const ChatPage = () => {
     }
   };
 
-    const getParticipants = (conversationId: string): User[] => {
+  const getParticipants = (conversationId: string): User[] => {
     const conversation = conversations.find(c => c.id === conversationId);
     if (!conversation || !currentUser) return [];
-    return [currentUser, conversation.other_user];
+  
+    // Provide a fallback avatar URL if it's null
+    const otherUser = {
+      ...conversation.other_user,
+      avatar_url: conversation.other_user.avatar_url || '/default-avatar.png', // Fallback value
+    };
+  
+    return [currentUser, otherUser];
   };
+  
   // Fetch current user details
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -214,36 +224,37 @@ const ChatPage = () => {
       setNewMessage("");
     }
   };
-
-  return (
-    <div className="flex bg-background h-[75vh] overflow-hidden">
-      <ConversationList
-        conversations={conversations}
-        listings={listings}
-        selectedConversation={selectedConversation}
-        onSelectConversation={setSelectedConversation}
-      />
-      <div className="flex-grow flex overflow-hidden border-l border-border">
-        <ChatWindow
-          selectedConversation={selectedConversation}
-          messages={messages}
-          currentUser={currentUser}
-          onSendMessage={sendMessage}
-          listing={listings.find(
-            (l) =>
-              l.id ===
-              conversations.find((c) => c.id === selectedConversation)?.listing_id
-          )}
-          participants={selectedConversation ? getParticipants(selectedConversation) : []}
-        />
-        {selectedConversation && (
-          <div className="w-1/3 border-l border-border overflow-hidden">
-            <UserAd userId={getParticipants(selectedConversation).find(user => user.id !== currentUser?.id)?.id || ''} />
+  
+  if (!currentUser) {
+    return <div>Loading user data...</div>;  // This ensures we never pass null to child components
+  }
+  
+    return (
+        <div className="flex bg-background h-[75vh] overflow-hidden">
+          {/* Add Suspense boundaries for the parts that use client-side hooks */}
+          <Suspense fallback={<div>Loading conversations...</div>}>
+            <ConversationList
+              conversations={conversations}
+              listings={listings}
+              selectedConversation={selectedConversation}
+              onSelectConversation={setSelectedConversation}
+            />
+          </Suspense>
+          <div className="flex-grow flex overflow-hidden border-l border-border">
+              <ChatWindow
+                selectedConversation={selectedConversation}
+                messages={messages}
+                currentUser={currentUser}
+                onSendMessage={sendMessage}
+                participants={selectedConversation ? getParticipants(selectedConversation) : []}
+              />
+              {selectedConversation && (
+                <div className="w-1/3 border-l border-border overflow-hidden">
+                  <UserAd userId={getParticipants(selectedConversation).find(user => user.id !== currentUser?.id)?.id || ''} />
+                </div>
+              )}
           </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default ChatPage;
+        </div>
+    );
+  }
+  export default ChatPage;
