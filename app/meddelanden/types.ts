@@ -2,6 +2,7 @@ export interface Listing {
   id: string;
   title: string;
   property_description: string;
+  area_description: string;
   city: string;
   address: string;
   country: string;

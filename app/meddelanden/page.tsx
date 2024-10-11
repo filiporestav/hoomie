@@ -7,18 +7,16 @@ import ChatWindow from "./ChatWindow";
 import ConversationList from "./ConversationList";
 import { Conversation, Message, User } from "./types";
 import { useSearchParams } from "next/navigation";
-
+import UserAd from './UserAd';
 
 const ChatPage = () => {
   const router = useRouter();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [listings, setListings] = useState<any[]>([]); // Add state for listings
-  const [selectedConversation, setSelectedConversation] = useState<
-    string | null
-  >(null);
+  const [listings, setListings] = useState<any[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const supabase = createClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [newMessage, setNewMessage] = useState("");
@@ -218,19 +216,32 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex h-[80vh] bg-background">
+    <div className="flex bg-background h-[75vh] overflow-hidden">
       <ConversationList
         conversations={conversations}
         listings={listings}
         selectedConversation={selectedConversation}
         onSelectConversation={setSelectedConversation}
       />
-      <ChatWindow
-        selectedConversation={selectedConversation}
-        messages={messages}
-        currentUser={currentUser}
-        onSendMessage={sendMessage}
-        participants={selectedConversation ? getParticipants(selectedConversation) : []}      />
+      <div className="flex-grow flex overflow-hidden border-l border-border">
+        <ChatWindow
+          selectedConversation={selectedConversation}
+          messages={messages}
+          currentUser={currentUser}
+          onSendMessage={sendMessage}
+          listing={listings.find(
+            (l) =>
+              l.id ===
+              conversations.find((c) => c.id === selectedConversation)?.listing_id
+          )}
+          participants={selectedConversation ? getParticipants(selectedConversation) : []}
+        />
+        {selectedConversation && (
+          <div className="w-1/3 border-l border-border overflow-hidden">
+            <UserAd userId={getParticipants(selectedConversation).find(user => user.id !== currentUser?.id)?.id || ''} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
