@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { DateRange } from "react-day-picker";
 import { ImagePlus } from "lucide-react";
+import { v4 as uuidv4 } from 'uuid'; // Import UUID library
 
 interface AddEditAdModalProps {
   isOpen: boolean;
@@ -115,42 +116,69 @@ export default function AddEditAdModal({
     }
   };
 
-  const handleImageRemove = (index: number) => {
-    if (index < existingImages.length) {
-      setExistingImages(existingImages.filter((_, i) => i !== index));
-    } else {
-      setSelectedImages(
-        selectedImages.filter((_, i) => i !== index - existingImages.length)
-      );
+  const handleImageRemove = async (index: number) => {
+    console.log(`Removing image from parent at index: ${index}`);  // Log in parent component
+
+    try {
+      if (index < existingImages.length) {
+        const imageUrl = existingImages[index]; // Get the image URL
+  
+        // Extract the correct storage path (this assumes your structure is /ad-images/userId/filename)
+        const pathToDelete = imageUrl.split(`${supabase.storage.from('ad-images').getPublicUrl('').data.publicUrl}`)[1];
+  
+        // Remove the image from the storage bucket
+        const { error: removeError } = await supabase.storage
+          .from("ad-images")
+          .remove([pathToDelete]);
+        console.log(pathToDelete, 'deleted path')
+
+        if (removeError) throw removeError;
+        // Update the state to remove the image from the UI
+        setExistingImages(existingImages.filter((_, i) => i !== index));
+      } else {
+        // If the image hasn't been uploaded yet, just remove it from selectedImages
+        setSelectedImages(
+          selectedImages.filter((_, i) => i !== index - existingImages.length)
+        );
+      }
+    } catch (error) {
+      console.error("Failed to remove image:", error);
+      alert("Failed to remove image. Please try again.");
     }
   };
+  
+  
+  
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
-      const { latitude, longitude } = await geocodeAddress(
-        address,
-        city,
-        country
-      );
-
+      // Geocode address to get latitude and longitude
+      const { latitude, longitude } = await geocodeAddress(address, city, country);
+  
+      // Start with existing images; we do not need to re-upload these
       const imageUrls = [...existingImages];
+  
+      // Process new images and upload them
       for (const image of selectedImages) {
-        const normalizedUrl = normalizeFileName(image.name);
+        const uniqueSuffix = uuidv4(); // Generate a unique suffix for the filename
+        const normalizedUrl = normalizeFileName(image.name) + `-${uniqueSuffix}`;
         const { data, error } = await supabase.storage
           .from("ad-images")
           .upload(`${user.id}/${normalizedUrl}`, image);
-
+  
         if (error) throw error;
         const publicUrl = supabase.storage
           .from("ad-images")
           .getPublicUrl(`${user.id}/${normalizedUrl}`);
-
+  
         imageUrls.push(publicUrl.data.publicUrl);
       }
-
+  
+      // Prepare ad data
       const adData = {
         user_id: user.id,
         title,
@@ -159,26 +187,25 @@ export default function AddEditAdModal({
         address,
         city,
         country,
-        image_urls: imageUrls,
+        image_urls: imageUrls, // Save both old and newly uploaded images
         latitude,
         longitude,
         availability_start: dateRange?.from,
         availability_end: dateRange?.to,
       };
-
+  
+      // If adding a new ad
       if (action === "add") {
         const { error } = await supabase.from("ads").insert(adData);
         if (error) throw error;
         onAdAdded?.();
       } else {
-        const { error } = await supabase
-          .from("ads")
-          .update(adData)
-          .eq("id", ad.id);
+        // If updating an existing ad
+        const { error } = await supabase.from("ads").update(adData).eq("id", ad.id);
         if (error) throw error;
         onAdUpdated?.();
       }
-
+  
       onClose();
     } catch (error) {
       alert(`Failed to ${action} ad. Please try again.`);
@@ -187,11 +214,26 @@ export default function AddEditAdModal({
       setLoading(false);
     }
   };
+  
 
   const handleDelete = async () => {
     try {
+      // Extract the correct storage paths for all associated images
+      const publicUrlPrefix = supabase.storage.from('ad-images').getPublicUrl('').data.publicUrl;
+      const pathsToDelete = existingImages.map((url) => url.split(publicUrlPrefix)[1]);
+  
+      if (pathsToDelete.length > 0) {
+        const { error: removeError } = await supabase.storage
+          .from("ad-images")
+          .remove(pathsToDelete);
+  
+        if (removeError) throw removeError;
+      }
+  
+      // Now delete the ad record from the database
       const { error } = await supabase.from("ads").delete().eq("id", ad.id);
       if (error) throw error;
+  
       onAdDeleted?.();
       onClose();
     } catch (error) {
@@ -199,6 +241,8 @@ export default function AddEditAdModal({
       console.error("Error deleting ad:", error);
     }
   };
+  
+  
 
   const handleImagePlaceholderClick = () => {
     fileInputRef.current?.click();
@@ -212,7 +256,7 @@ export default function AddEditAdModal({
             {action === "add" ? "Lägg upp en ny annons" : "Ändra annons"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="space-y-4 md:w-1/2">
               <div className="space-y-2">

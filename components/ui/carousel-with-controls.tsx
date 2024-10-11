@@ -35,10 +35,14 @@ export function CarouselWithControls({
                     objectFit="cover"
                   />
                   <Button
+                    type='button'
                     variant="destructive"
                     size="icon"
                     className="absolute top-2 right-2"
-                    onClick={() => onRemove(index)}
+                    onClick={() => {
+                      onRemove(index);  // Call the onRemove handler
+                    }}
+                    
                   >
                     <X className="h-4 w-4" />
                   </Button>
