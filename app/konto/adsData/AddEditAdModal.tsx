@@ -83,7 +83,6 @@ export default function AddEditAdModal({
   }, [action, ad]);
 
   const normalizeFileName = (fileName: string) => {
-    // Step 1: Replace special non-English characters with English counterparts
     const specialChars: { [key: string]: string } = {
       å: "a",
       ä: "a",
@@ -92,21 +91,8 @@ export default function AddEditAdModal({
       Ä: "A",
       Ö: "O",
     };
-
-    // Use regex to replace the special characters with English equivalents
     const regex = new RegExp(Object.keys(specialChars).join("|"), "g");
-    let normalizedFileName = fileName.replace(
-      regex,
-      (match) => specialChars[match]
-    );
-
-    // Step 2: Remove any remaining non-English characters using regex
-    normalizedFileName = normalizedFileName.replace(/[^a-zA-Z0-9 ]/g, "");
-
-    // Step 3: Replace spaces with underscores
-    normalizedFileName = normalizedFileName.replace(/ /g, "_");
-
-    return normalizedFileName;
+    return fileName.replace(regex, (match) => specialChars[match]);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,7 +195,7 @@ export default function AddEditAdModal({
       <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {action === "add" ? "Lägg upp en ny annons" : "Ändra annons"}
+            {action === "add" ? "Lägg till en ny annons" : "Ändra annons"}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
