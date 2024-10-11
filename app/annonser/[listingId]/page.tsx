@@ -103,14 +103,14 @@ export default function ListingPage() {
         .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`)
         .or(`user1.eq.${listing.user_id},user2.eq.${listing.user_id}`)
         .single();
-
+  
       if (fetchError && fetchError.code !== "PGRST116") {
         console.error("Error checking existing conversation:", fetchError);
         return;
       }
-
+  
       let conversationId;
-
+  
       if (existingConversation) {
         conversationId = existingConversation.id;
       } else {
@@ -123,20 +123,22 @@ export default function ListingPage() {
           })
           .select("id")
           .single();
-
+  
         if (insertError) {
           console.error("Error creating new conversation:", insertError);
           return;
         }
-
+  
         conversationId = newConversation.id;
       }
-
-      router.push(`/meddelanden`);
+  
+      // Pass conversationId as a query parameter
+      router.push(`/meddelanden?conversationId=${conversationId}`);
     } else {
       alert("Please log in to send a message.");
     }
   };
+  
 
   if (isLoading) {
     return (

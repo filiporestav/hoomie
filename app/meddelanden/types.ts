@@ -31,3 +31,27 @@ export interface Conversation {
   inserted_at: string;
   listing_id: string | null;
 }
+
+export interface User {
+  id: string;
+  full_name: string;
+  avatar_url: string;
+  // Add any other relevant fields
+}
+
+export interface Ad {
+  id: string;
+  property_description: string;
+  area_description: string;
+  address: string;
+  city: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  image_urls: string[];
+  created_at: Date; // Make sure this is the correct field name
+  availability_start: Date;
+  availability_end: Date;
+  title: string;
+  user_id?: string;
+}

@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
 import ChatWindow from "./ChatWindow";
 import ConversationList from "./ConversationList";
-import { Conversation, Message } from "./types";
+import { Conversation, Message, User } from "./types";
+import { useSearchParams } from "next/navigation";
+
 
 const ChatPage = () => {
   const router = useRouter();
@@ -14,11 +16,13 @@ const ChatPage = () => {
   const [selectedConversation, setSelectedConversation] = useState<
     string | null
   >(null);
+  const [users, setUsers] = useState<User[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const supabase = createClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [newMessage, setNewMessage] = useState("");
+  const searchParams = useSearchParams();
 
   // Function to download avatars from Supabase storage
   const downloadAvatar = async (path: string | null) => {
@@ -37,6 +41,11 @@ const ChatPage = () => {
     }
   };
 
+    const getParticipants = (conversationId: string): User[] => {
+    const conversation = conversations.find(c => c.id === conversationId);
+    if (!conversation || !currentUser) return [];
+    return [currentUser, conversation.other_user];
+  };
   // Fetch current user details
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -63,6 +72,15 @@ const ChatPage = () => {
 
     fetchCurrentUser();
   }, [router, supabase]);
+
+  // Set the selected conversation from query param
+  useEffect(() => {
+    const conversationId = searchParams.get("conversationId");
+    if (conversationId) {
+      setSelectedConversation(conversationId);
+    }
+  }, [searchParams]);
+
 
   // Fetch listings
   useEffect(() => {
@@ -212,12 +230,7 @@ const ChatPage = () => {
         messages={messages}
         currentUser={currentUser}
         onSendMessage={sendMessage}
-        listing={listings.find(
-          (l) =>
-            l.id ===
-            conversations.find((c) => c.id === selectedConversation)?.listing_id
-        )}
-      />
+        participants={selectedConversation ? getParticipants(selectedConversation) : []}      />
     </div>
   );
 };
