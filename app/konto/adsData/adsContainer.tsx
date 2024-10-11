@@ -55,22 +55,11 @@ export default function AdsContainer({ user }: { user: User | null }) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold text-primary">Mina annonser</h1>
-        <Button
-          onClick={() => handleOpenModal("add")}
-          className="flex items-center gap-2"
-          size="lg"
-        >
-          <PlusCircle className="w-5 h-5" />
-          Lägg upp ny annons
-        </Button>
-      </div>
-
+      
       <Card className="bg-background">
         <CardContent className="p-6">
           <ScrollArea className="h-[calc(100vh-280px)]">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div >
               {loading ? (
                 Array.from({ length: 6 }).map((_, index) => (
                   <Skeleton key={index} className="w-full h-64 rounded-lg" />
