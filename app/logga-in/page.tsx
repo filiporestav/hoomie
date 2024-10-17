@@ -1,7 +1,8 @@
+// components/LoginPage.tsx
 "use client";
 
-import { login } from "./actions";
-import { useState } from "react";
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext"; // Adjust the path as necessary
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,16 +21,29 @@ import { Home, Loader2 } from "lucide-react";
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { supabase } = useAuth(); // Get supabase from context
   const router = useRouter();
 
   const handleLogin = async (formData: FormData) => {
     setLoading(true);
-    const result = await login(formData);
-    if (result.error) {
-      setError(result.error);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    console.log("LoginPage: Attempting to sign in with", email);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("LoginPage: Error signing in:", error.message);
+      setError(error.message);
     } else {
+      console.log("LoginPage: Signed in successfully");
       setError(null);
-      router.push("/konto");
+      router.push("/konto"); // Navigate to account page
+      // No need to call router.refresh(), as AuthContext will update via onAuthStateChange
     }
     setLoading(false);
   };

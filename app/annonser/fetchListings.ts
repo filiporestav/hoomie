@@ -16,7 +16,6 @@ export const fetchListings = async (): Promise<Ad[]> => {
       throw error;
     }
 
-    // console.log("Fetched data from Supabase:", data);
 
     const listings: Ad[] = data.map((ad: any) => {
       const listing = {
@@ -36,7 +35,6 @@ export const fetchListings = async (): Promise<Ad[]> => {
         title: ad.title,
         user_id: ad.user_id,
       };
-      console.log("Mapped listing:", listing);
       return listing;
     });
 

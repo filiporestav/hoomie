@@ -1,41 +1,29 @@
+// components/Navbar.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import { createClient } from "../utils/supabase/client";
+import { useAuth } from "../context/AuthContext"; // Adjust the path as necessary
 import { useRouter } from "next/navigation";
-import { User } from "@supabase/supabase-js";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button"; // Adjust the path as necessary
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; // Adjust the path as necessary
+import { Separator } from "@/components/ui/separator"; // Adjust the path as necessary
 import Image from "next/image";
 
 const Navbar = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const supabase = createClient();
+  const { user, supabase } = useAuth(); // Consume user and supabase from AuthContext
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error("Error getting user:", error);
-        return;
-      }
-      setUser(data.user);
-    };
-    fetchUser();
-  }, [supabase.auth]);
-
   const handleLogout = async () => {
+    console.log("Logging out...");
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error logging out:", error);
       return;
     }
-    setUser(null);
+    console.log("Logged out successfully");
     router.push("/");
   };
 

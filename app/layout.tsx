@@ -11,6 +11,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import ClientProvider from "./ClientProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
+import { AuthProvider } from "./context/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en" className={inter.className}>
       <body>
         <ClientProvider>
+          <AuthProvider>
           <Navbar />
           <main>
             <Suspense fallback={<div>Loading...</div>}>
@@ -33,6 +35,7 @@ export default function RootLayout({
           {pathname !== "/annonser" && <Footer />}
           <Toaster />
           <SpeedInsights />
+          </AuthProvider>
         </ClientProvider>
       </body>
     </html>
