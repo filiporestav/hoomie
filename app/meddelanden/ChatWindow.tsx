@@ -54,6 +54,11 @@ export default function ChatWindow({
 
   const otherUser = participants.find((user) => user.id !== currentUser.id)
 
+  const toUTCDate = (date: Date) => {
+    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+    return utcDate
+  }
+
   useEffect(() => {
     const fetchConversationStatus = async () => {
       if (!selectedConversation) return
@@ -99,12 +104,17 @@ export default function ChatWindow({
       return
     }
 
+     // Ensure the dates are in local time without time components
+    const startDate = toUTCDate(localDateRange.from)
+    
+    const endDate = toUTCDate(localDateRange.to)
+
     const updates: Partial<ConversationStatus> & {
       suggested_date_start: string
       suggested_date_end: string
     } = {
-      suggested_date_start: localDateRange.from.toISOString(),
-      suggested_date_end: localDateRange.to.toISOString(),
+      suggested_date_start: startDate.toISOString(),
+      suggested_date_end: endDate.toISOString(),
     }
 
     if (!conversationStatus.exchange_suggested_by) {
@@ -187,12 +197,17 @@ export default function ChatWindow({
 
   const handleSuggestNewDates = async () => {
     if (tempDateRange && tempDateRange.from && tempDateRange.to) {
+      const startDate = toUTCDate(tempDateRange.from)
+
+      const endDate = toUTCDate(tempDateRange.to)
+
       const updates = {
         exchange_suggested_by: currentUser.id,
         exchange_accepted_by: null,
-        suggested_date_start: tempDateRange.from.toISOString(),
-        suggested_date_end: tempDateRange.to.toISOString(),
+        suggested_date_start: startDate.toISOString(),
+        suggested_date_end: endDate.toISOString(),
       }
+
 
       const { error } = await supabase
         .from("conversations")
