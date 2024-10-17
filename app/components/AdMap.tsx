@@ -1,26 +1,24 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { LatLngExpression, Icon } from 'leaflet';
+import React, { useEffect, useState, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { LatLngExpression, Icon, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Ad from './AdInterface';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { useClient } from '../ClientProvider';
-import Image from 'next/image';
-import { useRouter } from "next/navigation";
 import ListingCard from './ListingCard';
-
+import { useClient } from '../ClientProvider';
+import { useRouter } from "next/navigation";
+import type { Map as LeafletMap } from 'leaflet';
 
 interface AdMapProps {
   ads: Ad[];
-  latitude: number;   // Add latitude prop
-  longitude: number;  // Add longitude prop
+  latitude: number;
+  longitude: number;
+  onMapBoundsChange: (bounds: LatLngBounds) => void; // Callback to pass bounds to parent
 }
 
-const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
+const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude, onMapBoundsChange }) => {
   const [customIcon, setCustomIcon] = useState<Icon | null>(null);
   const router = useRouter();
+  const mapRef = useRef<LeafletMap | null>(null);
 
   useEffect(() => {
     const icon = new Icon({
@@ -32,41 +30,49 @@ const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
     setCustomIcon(icon);
   }, []);
 
+  useEffect(() => {
+    if (mapRef.current) {
+      console.log('Map is ready:', mapRef.current);
+    }
+  }, []);
+
   const isClient = useClient();
   if (!isClient) return null;
 
-  // Use the passed latitude and longitude to center the map
   const mapCenter: LatLngExpression = [latitude, longitude];
 
-  const truncateDescription = (description: string) => {
-    if (description.length <= 30) return description;
-    return (
-      <span className="truncated-text">
-        {description.slice(0, 25)}
-        <span className="fade-out">{description.slice(25, 30)}</span>
-        ...
-      </span>
-    );
+  // Detect map events and capture bounds changes
+  const MapEventHandler = () => {
+    useMapEvents({
+      moveend: () => {
+        if (mapRef.current) {
+          const bounds = mapRef.current.getBounds();
+          onMapBoundsChange(bounds); // Call the parent callback with the new bounds
+        }
+      },
+    });
+    return null;
   };
 
   const handleClick = (ad: Ad) => {
     sessionStorage.setItem("selectedAd", JSON.stringify(ad));
     router.push(`annonser/${ad.id}`);
   };
-  
 
   return (
-    <MapContainer 
-      center={mapCenter}  // Use the dynamic map center
-      zoom={13} 
+    <MapContainer
+      center={mapCenter}
+      zoom={13}
       style={{ height: '100%', width: '100%' }}
       className="text-indigo-600"
+      ref={mapRef} // Capture the map instance
     >
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url={`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&scale=2`}
+        attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
         maxZoom={19}
       />
+
       {ads.map((ad) => (
         <Marker 
           key={ad.id} 
@@ -76,9 +82,11 @@ const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude }) => {
           <Popup className="custom-popup">
             <ListingCard ad={ad}/>  
           </Popup>
-          
         </Marker>
       ))}
+
+      {/* Attach event handler */}
+      <MapEventHandler />
     </MapContainer>
   );
 };

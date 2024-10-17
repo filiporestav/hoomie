@@ -8,6 +8,7 @@ import FilterBar from "./FilterBar";
 import { fetchListings } from "./fetchListings";
 import Ad from "../components/AdInterface";
 import { useClient } from "../ClientProvider";
+import { LatLngBounds } from "leaflet";
 
 const AdMapNoSSR = dynamic(() => import("../components/AdMap"), { ssr: false });
 
@@ -19,6 +20,8 @@ export default function HomeExchangePage() {
     lat: number;
     lng: number;
   } | null>(null);
+  const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null); // Add state for map bounds
+
   const isClient = useClient();
 
   useEffect(() => {
@@ -53,6 +56,47 @@ export default function HomeExchangePage() {
     getUserLocation();
     loadAds();
   }, []);
+
+  // Function to handle map bounds change
+  const handleMapBoundsChange = (bounds: LatLngBounds) => {
+    setMapBounds(bounds);
+  };
+
+  // Make sure the function is properly defined and used
+  console.log('handleMapBoundsChange:', handleMapBoundsChange);
+
+  // Filter ads based on map bounds and date range
+  // Filter ads based on both date range and map bounds
+  useEffect(() => {
+    const filterAds = () => {
+    let adsToFilter = ads;
+
+    // First, filter by date range if a date range is selected
+    if (dateRange?.from && dateRange?.to) {
+      adsToFilter = adsToFilter.filter((ad) => {
+        const adStart = new Date(ad.availability_start);
+        const adEnd = new Date(ad.availability_end);
+        return adStart <= dateRange.to! && adEnd >= dateRange.from!;
+      });
+    }
+
+    // Then, filter by map bounds if map bounds are set
+    if (mapBounds) {
+      adsToFilter = adsToFilter.filter((ad) => {
+        const adLat = ad.latitude;
+        const adLng = ad.longitude;
+        const withinLat = adLat >= mapBounds.getSouthWest().lat && adLat <= mapBounds.getNorthEast().lat;
+        const withinLng = adLng >= mapBounds.getSouthWest().lng && adLng <= mapBounds.getNorthEast().lng;
+        return withinLat && withinLng;
+      });
+    }
+
+    setFilteredAds(adsToFilter);
+    };
+
+    filterAds();
+  }, [mapBounds, dateRange, ads]);
+
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     setDateRange(range);
@@ -107,6 +151,7 @@ export default function HomeExchangePage() {
                 ads={filteredAds}
                 latitude={userLocation.lat}
                 longitude={userLocation.lng}
+                onMapBoundsChange={handleMapBoundsChange} // Ensure this is correctly passed
               />
             ) : (
               <p>Kartan laddas...</p>
