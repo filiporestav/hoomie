@@ -31,6 +31,10 @@ export interface Conversation {
   last_message: string;
   inserted_at: string;
   listing_id: string | null;
+  exchange_suggested_by?: string | null;
+  exchange_accepted_by?: string | null;
+  suggested_date_start?: string | null;
+  suggested_date_end?: string | null;
 }
 
 export interface User {
