@@ -12,7 +12,7 @@ interface AdMapProps {
   ads: Ad[];
   latitude: number;
   longitude: number;
-  onMapBoundsChange: (bounds: LatLngBounds) => void; // Callback to pass bounds to parent
+  onMapBoundsChange?: (bounds: LatLngBounds) => void; // Callback to pass bounds to parent
 }
 
 const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude, onMapBoundsChange }) => {
@@ -45,7 +45,7 @@ const AdMap: React.FC<AdMapProps> = ({ ads, latitude, longitude, onMapBoundsChan
   const MapEventHandler = () => {
     useMapEvents({
       moveend: () => {
-        if (mapRef.current) {
+        if (mapRef.current && onMapBoundsChange) {
           const bounds = mapRef.current.getBounds();
           onMapBoundsChange(bounds); // Call the parent callback with the new bounds
         }
