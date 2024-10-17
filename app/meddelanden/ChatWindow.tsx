@@ -103,12 +103,11 @@ export default function ChatWindow({
       })
       return
     }
-
-     // Ensure the dates are in local time without time components
+  
+    // Ensure the dates are in local time without time components
     const startDate = toUTCDate(localDateRange.from)
-    
     const endDate = toUTCDate(localDateRange.to)
-
+  
     const updates: Partial<ConversationStatus> & {
       suggested_date_start: string
       suggested_date_end: string
@@ -116,7 +115,9 @@ export default function ChatWindow({
       suggested_date_start: startDate.toISOString(),
       suggested_date_end: endDate.toISOString(),
     }
-
+  
+    let shouldInsertIntoExchanges = false // Flag to track if we need to insert into exchanges
+  
     if (!conversationStatus.exchange_suggested_by) {
       updates.exchange_suggested_by = currentUser.id
     } else if (conversationStatus.exchange_suggested_by !== currentUser.id) {
@@ -125,14 +126,15 @@ export default function ChatWindow({
         updates.exchange_accepted_by = null
       } else {
         updates.exchange_accepted_by = currentUser.id
+        shouldInsertIntoExchanges = true // Set flag to true if exchange is accepted
       }
     }
-
+  
     const { error } = await supabase
       .from("conversations")
       .update(updates)
       .eq("id", selectedConversation)
-
+  
     if (error) {
       console.error("Error updating conversation:", error)
       toast({
@@ -140,19 +142,51 @@ export default function ChatWindow({
         description: "Det gick inte att uppdatera konversationen. Försök igen.",
         variant: "destructive",
       })
+      return
+    }
+  
+    // If the exchange was accepted, insert into "exchanges" table
+    if (shouldInsertIntoExchanges && otherUser && updates.suggested_date_start && updates.suggested_date_end) {
+      const { error: insertError } = await supabase
+        .from("exchanges")
+        .insert({
+          user_1: currentUser.id,
+          user_2: otherUser.id,
+          exchange_start: updates.suggested_date_start,
+          exchange_end: updates.suggested_date_end,
+        })
+  
+      if (insertError) {
+        console.error("Error inserting into exchanges:", insertError)
+        toast({
+          title: "Fel",
+          description: "Det gick inte att uppdatera bytet. Försök igen.",
+          variant: "destructive",
+        })
+        return
+      }
+  
+      toast({
+        title: "Framgång",
+        description: "Byte bekräftat och registrerat!",
+        variant: "default",
+      })
     } else {
-      setConversationStatus((prevStatus) => ({
-        ...prevStatus,
-        ...updates,
-        suggested_date_range: localDateRange,
-      }))
       toast({
         title: "Framgång",
         description: updates.exchange_accepted_by ? "Byte bekräftat!" : "Bytesförfrågan har skickats.",
         variant: "default",
       })
     }
+  
+    // Update the local state with new conversation status
+    setConversationStatus((prevStatus) => ({
+      ...prevStatus,
+      ...updates,
+      suggested_date_range: localDateRange,
+    }))
   }
+  
 
   const handleDateSelection = (dateRange: DateRange | undefined) => {
     setLocalDateRange(dateRange)
