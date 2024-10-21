@@ -109,15 +109,14 @@ const ChatPage = () => {
   useEffect(() => {
     const fetchConversations = async () => {
       if (!currentUser) return;
-
+  
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "id, user1(id, full_name, avatar_url), user2(id, full_name, avatar_url), messages(content, inserted_at), ad_id" // ad_id added here
+          "id, user1(id, full_name, avatar_url), user2(id, full_name, avatar_url), messages(content, inserted_at), ad_id, last_message" // Selecting last_message here
         )
-        .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`)
-        .order("inserted_at", { foreignTable: "messages", ascending: false });
-
+        .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`);
+  
       if (error) {
         console.error("Error fetching conversations:", error);
       } else if (data) {
@@ -126,24 +125,45 @@ const ChatPage = () => {
             const otherUser =
               conv.user1.id === currentUser.id ? conv.user2 : conv.user1;
             const avatarUrl = await downloadAvatar(otherUser.avatar_url); // Download avatar
-
+  
+            const lastMessage = conv.messages[0]; // Assuming messages are sorted by inserted_at
+            const lastMessageContent = lastMessage?.content || "";
+            const lastInsertedAt = lastMessage?.inserted_at || ""; // Use last message's inserted_at
+  
             return {
               id: conv.id,
               other_user: { ...otherUser, avatar_url: avatarUrl }, // Set the downloaded avatar URL
-              last_message: conv.messages[0]?.content || "",
-              inserted_at: conv.messages[0]?.inserted_at || "",
+              last_message: lastMessageContent,
+              last_message_timestamp: conv.last_message, // Store last_message timestamp directly
               listing_id: conv.ad_id || null, // Use ad_id instead of listing_id
+              inserted_at: lastInsertedAt // Include the inserted_at property
             };
           })
         );
+  
+        // Sort formatted conversations by last_message timestamp
+        formattedConversations.sort((a, b) => {
+          const dateA = new Date(a.last_message_timestamp); // Use last_message for sorting
+          const dateB = new Date(b.last_message_timestamp);
+  
+          // Check for valid date
+          if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0; // Both are invalid, treat them equally
+          if (isNaN(dateA.getTime())) return 1; // Move invalid dates to the end
+          if (isNaN(dateB.getTime())) return -1; // Move invalid dates to the end
+  
+          return dateB.getTime() - dateA.getTime(); // Sort in descending order
+        });
+  
         setConversations(formattedConversations);
-        // console.log(formattedConversations, "formatted conversations");
       }
     };
-
+  
     fetchConversations();
   }, [currentUser, supabase]);
-
+  
+  
+  
+  
   // Fetch messages for the selected conversation and download avatars
   useEffect(() => {
     const fetchMessages = async () => {
