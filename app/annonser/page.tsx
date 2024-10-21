@@ -124,10 +124,6 @@ export default function HomeExchangePage() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <h1 className="text-2xl text-primary font-bold p-4 text-center">
-        Utforska annonser
-      </h1>
-
       <div className="flex flex-1 overflow-hidden">
         <div className="w-7/12 flex flex-col">
           <div className="p-4">
