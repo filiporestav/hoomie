@@ -25,6 +25,8 @@ import { Calendar, MapPin, Clock, User } from "lucide-react";
 import AdMap from "../../components/AdMap";
 import Ad from "../../components/AdInterface";
 import { Suspense } from "react";
+import UserAd from "@/app/meddelanden/UserAd";
+import HoverMessageButton from './hover-message-button'
 
 interface Profile {
   id: string;
@@ -40,6 +42,8 @@ export default function ListingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
+  const [currentUserAd, setCurrentUserAd] = useState<boolean>(false); // New state for currentUserAd
+
 
   useEffect(() => {
     const fetchListingAndOwner = async () => {
@@ -80,6 +84,21 @@ export default function ListingPage() {
           data: { user },
         } = await supabase.auth.getUser();
         setCurrentUser(user);
+
+         // Check if currentUser.id matches any user_id in the ads table
+         if (user) {
+          const { data: userAd, error: userAdError } = await supabase
+            .from("ads")
+            .select("id")
+            .eq("user_id", user.id)
+            .single();
+
+          if (userAdError) {
+            console.error("Error checking user ad:", userAdError);
+          } else {
+            setCurrentUserAd(!!userAd); // Set currentUserAd to true if the ad exists
+          }
+        }
       } catch (error) {
         console.error("Error in fetchListingAndOwner:", error);
       } finally {
@@ -97,7 +116,7 @@ export default function ListingPage() {
   };
 
   const handleSendMessage = async () => {
-    if (currentUser && listing) {
+    if (currentUser && listing && currentUserAd) {
       const { data: existingConversation, error: fetchError } = await supabase
         .from("conversations")
         .select("id")
@@ -136,7 +155,7 @@ export default function ListingPage() {
       // Pass conversationId as a query parameter
       router.push(`/meddelanden?conversationId=${conversationId}`);
     } else {
-      alert("Please log in to send a message.");
+      alert("Vänligen logga in och skapa en annons för att kunna skicka meddelanden.");
     }
   };
   
@@ -258,12 +277,15 @@ export default function ListingPage() {
             <Button variant="outline" onClick={() => window.history.back()}>
               Tillbaka till alla annonser
             </Button>
-            <Button
-              onClick={handleSendMessage}
-              disabled={!currentUser || currentUser.id === listing.user_id}
-            >
-              Skicka meddelande
-            </Button>
+            <CardFooter className="flex justify-between bg-secondary p-6">
+
+            <HoverMessageButton
+            currentUser={currentUser}
+            listing={listingOwner?.id}
+            currentUserAd={currentUserAd}
+            handleSendMessage={handleSendMessage}
+          />
+          </CardFooter>
           </CardFooter>
       </Card>
       <Card>
