@@ -9,6 +9,7 @@ import { fetchListings } from "./fetchListings";
 import Ad from "../components/AdInterface";
 import { useClient } from "../ClientProvider";
 import { LatLngBounds } from "leaflet";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AdMapNoSSR = dynamic(() => import("../components/AdMap"), { ssr: false });
 
@@ -20,7 +21,8 @@ export default function HomeExchangePage() {
     lat: number;
     lng: number;
   } | null>(null);
-  const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null); // Add state for map bounds
+  const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
+  const [isMapLoading, setIsMapLoading] = useState(true);
 
   const isClient = useClient();
 
@@ -41,14 +43,17 @@ export default function HomeExchangePage() {
           (position) => {
             const { latitude, longitude } = position.coords;
             setUserLocation({ lat: latitude, lng: longitude });
+            setIsMapLoading(false);
           },
           (error) => {
             console.error("Error fetching user location:", error);
             setUserLocation({ lat: 59.3293, lng: 18.0686 });
+            setIsMapLoading(false);
           }
         );
       } else {
         setUserLocation({ lat: 59.3293, lng: 18.0686 });
+        setIsMapLoading(false);
         console.error("Geolocation is not supported by this browser");
       }
     };
@@ -57,46 +62,37 @@ export default function HomeExchangePage() {
     loadAds();
   }, []);
 
-  // Function to handle map bounds change
   const handleMapBoundsChange = (bounds: LatLngBounds) => {
     setMapBounds(bounds);
   };
 
-  // Make sure the function is properly defined and used
-  console.log('handleMapBoundsChange:', handleMapBoundsChange);
-
-  // Filter ads based on map bounds and date range
-  // Filter ads based on both date range and map bounds
   useEffect(() => {
     const filterAds = () => {
-    let adsToFilter = ads;
+      let adsToFilter = ads;
 
-    // First, filter by date range if a date range is selected
-    if (dateRange?.from && dateRange?.to) {
-      adsToFilter = adsToFilter.filter((ad) => {
-        const adStart = new Date(ad.availability_start);
-        const adEnd = new Date(ad.availability_end);
-        return adStart <= dateRange.to! && adEnd >= dateRange.from!;
-      });
-    }
+      if (dateRange?.from && dateRange?.to) {
+        adsToFilter = adsToFilter.filter((ad) => {
+          const adStart = new Date(ad.availability_start);
+          const adEnd = new Date(ad.availability_end);
+          return adStart <= dateRange.to! && adEnd >= dateRange.from!;
+        });
+      }
 
-    // Then, filter by map bounds if map bounds are set
-    if (mapBounds) {
-      adsToFilter = adsToFilter.filter((ad) => {
-        const adLat = ad.latitude;
-        const adLng = ad.longitude;
-        const withinLat = adLat >= mapBounds.getSouthWest().lat && adLat <= mapBounds.getNorthEast().lat;
-        const withinLng = adLng >= mapBounds.getSouthWest().lng && adLng <= mapBounds.getNorthEast().lng;
-        return withinLat && withinLng;
-      });
-    }
+      if (mapBounds) {
+        adsToFilter = adsToFilter.filter((ad) => {
+          const adLat = ad.latitude;
+          const adLng = ad.longitude;
+          const withinLat = adLat >= mapBounds.getSouthWest().lat && adLat <= mapBounds.getNorthEast().lat;
+          const withinLng = adLng >= mapBounds.getSouthWest().lng && adLng <= mapBounds.getNorthEast().lng;
+          return withinLat && withinLng;
+        });
+      }
 
-    setFilteredAds(adsToFilter);
+      setFilteredAds(adsToFilter);
     };
 
     filterAds();
   }, [mapBounds, dateRange, ads]);
-
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     setDateRange(range);
@@ -142,15 +138,17 @@ export default function HomeExchangePage() {
 
         <div className="w-5/12 relative">
           <div className="absolute inset-0">
-            {userLocation ? (
+            {isMapLoading ? (
+              <div className="w-full h-full bg-gray-100 animate-pulse">
+                <Skeleton className="w-full h-full" />
+              </div>
+            ) : (
               <AdMapNoSSR
                 ads={filteredAds}
-                latitude={userLocation.lat}
-                longitude={userLocation.lng}
-                onMapBoundsChange={handleMapBoundsChange} // Ensure this is correctly passed
+                latitude={userLocation?.lat || 59.3293}
+                longitude={userLocation?.lng || 18.0686}
+                onMapBoundsChange={handleMapBoundsChange}
               />
-            ) : (
-              <p>Kartan laddas...</p>
             )}
           </div>
         </div>
