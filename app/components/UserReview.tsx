@@ -50,38 +50,76 @@ export default function UserReview({ reviewedBy, reviewedUser, isOpen, onClose, 
     return (rating_communication + rating_cleanliness + rating_facilities + rating_area + rating_overall) / 5
   }
 
-  const updateProfileStats = async (newReviewScore: number) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('average_review_score, number_of_exchanges')
-      .eq('id', reviewedUser)
+  const updateProfileReviewStats = async (data: ReviewFormData) => {
+    const { rating_communication, rating_cleanliness, rating_facilities, rating_area, rating_overall } = data
+  
+    // Fetch the current stats from profileReviews
+    const { data: profileData, error } = await supabase
+      .from('profileReviews')
+      .select('average_communication, average_cleanliness, average_facilities, average_area, average_overall, average_total_score, number_of_exchanges')
+      .eq('user_id', reviewedUser)
       .single()
-    console.log(data, 'data fetched from updateProfileStats')
-    if (error) {
+  
+    if (error && error.code !== 'PGRST116') { // PGRST116 indicates "no rows returned"
       console.error('Error fetching profile stats:', error)
-      return
+      return false
     }
-
-    const { average_review_score, number_of_exchanges } = data
-    const newNumberOfExchanges = number_of_exchanges + 1
-    const newAverageScore = (average_review_score * number_of_exchanges + newReviewScore) / newNumberOfExchanges
-
-    const {  data: updatedData, error: updateError } = await supabase
-      .from('profiles')
-      .update({
-        average_review_score: newAverageScore,
-        number_of_exchanges: newNumberOfExchanges
-      })
-      .eq('id', reviewedUser)
-    console.log(reviewedUser, 'reviewedUser')
-    console.log(updatedData, 'updatedData')
-
-    if (updateError) {
-      console.error('Error updating profile stats:', updateError)
-    }
-    else {
+  
+    if (!profileData) {
+      // No existing profile review data for the user, so we create a new entry
+      const newNumberOfExchanges = 1
+      const newAverageTotalScore = calculateWeightedAverage(data)
+  
+      const { error: insertError } = await supabase
+        .from('profileReviews')
+        .insert({
+          user_id: reviewedUser,
+          average_total_score: newAverageTotalScore,
+          number_of_exchanges: newNumberOfExchanges,
+          average_communication: rating_communication,
+          average_cleanliness: rating_cleanliness,
+          average_facilities: rating_facilities,
+          average_area: rating_area,
+          average_overall: rating_overall
+        })
+  
+      if (insertError) {
+        console.error('Error inserting new profile stats:', insertError)
+        return false
+      }
+  
       return true
     }
+  
+    // If profileData exists, update the entry
+    const { average_communication, average_cleanliness, average_facilities, average_area, average_overall, average_total_score, number_of_exchanges } = profileData
+    const newNumberOfExchanges = number_of_exchanges + 1
+    const newAverageTotalScore = (average_total_score * number_of_exchanges + calculateWeightedAverage(data)) / newNumberOfExchanges
+    const newAverageCommunication = (average_communication * number_of_exchanges + rating_communication) / newNumberOfExchanges
+    const newAverageCleanliness = (average_cleanliness * number_of_exchanges + rating_cleanliness) / newNumberOfExchanges
+    const newAverageFacilities = (average_facilities * number_of_exchanges + rating_facilities) / newNumberOfExchanges
+    const newAverageArea = (average_area * number_of_exchanges + rating_area) / newNumberOfExchanges
+    const newAverageOverall = (average_overall * number_of_exchanges + rating_overall) / newNumberOfExchanges
+  
+    const { error: updateError } = await supabase
+      .from('profileReviews')
+      .update({
+        average_total_score: newAverageTotalScore,
+        number_of_exchanges: newNumberOfExchanges,
+        average_communication: newAverageCommunication,
+        average_cleanliness: newAverageCleanliness,
+        average_facilities: newAverageFacilities,
+        average_area: newAverageArea,
+        average_overall: newAverageOverall
+      })
+      .eq('user_id', reviewedUser)
+  
+    if (updateError) {
+      console.error('Error updating profile stats:', updateError)
+      return false
+    }
+  
+    return true
   }
 
   const handleFormSubmit = async (data: ReviewFormData) => {
@@ -95,12 +133,11 @@ export default function UserReview({ reviewedBy, reviewedUser, isOpen, onClose, 
 
       if (error) throw error
 
-      const weightedAverage = calculateWeightedAverage(data)
-      let success = await updateProfileStats(weightedAverage)
-      console.log('success', success)
-
-      onSubmit()
-      onClose()
+      const success = await updateProfileReviewStats(data)
+      if (success) {
+        onSubmit()
+        onClose()
+      }
     } catch (error) {
       console.error('Error submitting review:', error)
       // You might want to add an error notification here
