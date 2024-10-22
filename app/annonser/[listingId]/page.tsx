@@ -21,16 +21,30 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, MapPin, Clock, User } from "lucide-react";
+import { Calendar, MapPin, Clock, User, Star } from "lucide-react";
 import AdMap from "../../components/AdMap";
 import Ad from "../../components/AdInterface";
-import { Suspense } from "react";
-import UserAd from "@/app/meddelanden/UserAd";
 import HoverMessageButton from './hover-message-button'
 
 interface Profile {
   id: string;
   full_name: string;
+}
+
+interface Rating {
+  average_communication: number;
+  average_cleanliness: number;
+  average_facilities: number;
+  average_overall: number;
+}
+
+interface Review {
+  reviewed_by: string;
+  rating_text: string;
+  rating_overall: number;
+  username?: string;
+  avatar_url?: string;
+  avatar_image_url?: string | null;  // New property to store the downloaded image URL
 }
 
 export default function ListingPage() {
@@ -40,17 +54,33 @@ export default function ListingPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [ratings, setRatings] = useState<Rating | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const router = useRouter();
   const supabase = createClient();
-  const [currentUserAd, setCurrentUserAd] = useState<boolean>(false); // New state for currentUserAd
-
+  const [currentUserAd, setCurrentUserAd] = useState<boolean>(false);
+  // Function to download avatar image
+  const downloadAvatarImage = async (path: string): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("avatars")
+        .download(path);
+      if (error) {
+        console.error("Error downloading avatar image:", error);
+        return null;
+      }
+      return URL.createObjectURL(data);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const fetchListingAndOwner = async () => {
       try {
         setIsLoading(true);
 
-        // Fetch the listing from Supabase
         const { data: adData, error: adError } = await supabase
           .from("ads")
           .select("*")
@@ -65,7 +95,6 @@ export default function ListingPage() {
         if (adData) {
           setListing(adData);
 
-          // Fetch the listing owner's profile
           const { data: ownerProfile, error: profileError } = await supabase
             .from("profiles")
             .select("id, full_name")
@@ -77,16 +106,61 @@ export default function ListingPage() {
           } else {
             setListingOwner(ownerProfile);
           }
+
+          // Fetch ratings
+          const { data: ratingsData, error: ratingsError } = await supabase
+            .from("profileReviews")
+            .select(
+              "average_communication, average_cleanliness, average_facilities, average_overall"
+            )
+            .eq("user_id", adData.user_id)
+            .single();
+
+          if (ratingsError) {
+            console.error("Error fetching ratings:", ratingsError);
+          } else {
+            setRatings(ratingsData);
+          }
+
+          // Fetch reviews
+          const { data: reviewsData, error: reviewsError } = await supabase
+            .from("reviews")
+            .select("reviewed_by, rating_text, rating_overall")
+            .eq("reviewed_user", adData.user_id);
+
+          if (reviewsError) {
+            console.error("Error fetching reviews:", reviewsError);
+          } else {
+            // Fetch usernames and avatars for each review
+            const reviewsWithUserInfo = await Promise.all(
+              reviewsData.map(async (review) => {
+                const { data: userData, error: userError } = await supabase
+                  .from("profiles")
+                  .select("username, avatar_url")
+                  .eq("id", review.reviewed_by)
+                  .single();
+
+                if (userError) {
+                  console.error("Error fetching user info:", userError);
+                  return review;
+                }
+
+                // Download the avatar image using the avatar_url
+                const avatarImageUrl = await downloadAvatarImage(userData.avatar_url);
+
+                return { ...review, ...userData, avatar_image_url: avatarImageUrl };
+              })
+            );
+            setReviews(reviewsWithUserInfo);
+          }
         }
 
-        // Fetch current user
         const {
           data: { user },
         } = await supabase.auth.getUser();
         setCurrentUser(user);
 
-         // Check if currentUser.id matches any user_id in the ads table
-         if (user) {
+        if (user) {
           const { data: userAd, error: userAdError } = await supabase
             .from("ads")
             .select("id")
@@ -96,7 +170,7 @@ export default function ListingPage() {
           if (userAdError) {
             console.error("Error checking user ad:", userAdError);
           } else {
-            setCurrentUserAd(!!userAd); // Set currentUserAd to true if the ad exists
+            setCurrentUserAd(!!userAd);
           }
         }
       } catch (error) {
@@ -110,6 +184,7 @@ export default function ListingPage() {
       fetchListingAndOwner();
     }
   }, [listingId, supabase]);
+  
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString();
@@ -152,13 +227,11 @@ export default function ListingPage() {
         conversationId = newConversation.id;
       }
   
-      // Pass conversationId as a query parameter
       router.push(`/meddelanden?conversationId=${conversationId}`);
     } else {
       alert("Vänligen logga in och skapa en annons för att kunna skicka meddelanden.");
     }
   };
-  
 
   if (isLoading) {
     return (
@@ -229,6 +302,30 @@ export default function ListingPage() {
                   </span>
                 </div>
               </div>
+              <Separator />
+              {ratings && (
+                <div className="space-y-2">
+                  <h3 className="text-xl font-semibold mb-2">Betyg</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center">
+                      <Star className="w-4 h-4 mr-1 text-yellow-400" />
+                      <span>Kommunikation: {ratings.average_communication.toFixed(1)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="w-4 h-4 mr-1 text-yellow-400" />
+                      <span>Renlighet: {ratings.average_cleanliness.toFixed(1)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="w-4 h-4 mr-1 text-yellow-400" />
+                      <span>Faciliteter: {ratings.average_facilities.toFixed(1)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="w-4 h-4 mr-1 text-yellow-400" />
+                      <span>Totalt: {ratings.average_overall.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="lg:w-1/2">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -272,22 +369,53 @@ export default function ListingPage() {
               </Dialog>
             </div>
           </div>
+          
         </CardContent>
-          <CardFooter className="flex justify-between bg-secondary p-6">
-            <Button variant="outline" onClick={() => window.history.back()}>
-              Tillbaka till alla annonser
-            </Button>
-            <CardFooter className="flex justify-between bg-secondary p-6">
-
-            <HoverMessageButton
+        <CardFooter className="flex justify-between bg-secondary p-6">
+          <Button variant="outline" onClick={() => window.history.back()}>
+            Tillbaka till alla annonser
+          </Button>
+          <HoverMessageButton
             currentUser={currentUser}
             listing={listingOwner?.id}
             currentUserAd={currentUserAd}
             handleSendMessage={handleSendMessage}
           />
-          </CardFooter>
-          </CardFooter>
+        </CardFooter>
       </Card>
+      {reviews.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recensioner</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {reviews.map((review, index) => (
+                <div key={index} className="flex items-start space-x-4">
+                  <Image
+                    src={review.avatar_image_url|| "/default-avatar.png"}
+                    alt={review.username || "Användarens avatar"}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                  <div>
+                    <div className="flex items-center">
+                      <span className="font-semibold mr-2">{review.username}</span>
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-400" />
+                        <span className="ml-1">{review.rating_overall}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{review.rating_text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Karta</CardTitle>
@@ -302,6 +430,7 @@ export default function ListingPage() {
           </div>
         </CardContent>
       </Card>
+      
     </div>
   );
 }
