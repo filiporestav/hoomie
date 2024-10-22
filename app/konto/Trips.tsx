@@ -5,8 +5,11 @@ import { createClient } from "../utils/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CalendarIcon, MapPinIcon } from "lucide-react";
+import { CalendarIcon, MapPinIcon, Star } from "lucide-react";
 import Image from "next/image";
+import UserReview from "../components/UserReview";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface MyTripsProps {
   userId: string;
@@ -19,7 +22,7 @@ interface Ad {
   city: string;
   country: string;
   image_urls: string[];
-  user_id: string; // Assuming user_id is present in the ads table
+  user_id: string;
 }
 
 interface TripWithAd {
@@ -30,26 +33,32 @@ interface TripWithAd {
   exchange_end: string;
 }
 
+interface Review {
+  rating_communication: number;
+  rating_cleanliness: number;
+  rating_facilities: number;
+  rating_area: number;
+  rating_overall: number;
+}
+
 export default function MyTrips({ userId }: MyTripsProps) {
   const [myTrips, setMyTrips] = useState<TripWithAd[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const supabase = createClient();
+  const [reviewTrip, setReviewTrip] = useState<TripWithAd | null>(null);
+  const [reviews, setReviews] = useState<{ [key: string]: Review }>({});
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchMyTrips = async () => {
       setLoading(true);
       try {
-        // Fetch exchanges where userId is either user_1 or user_2
         const { data: tripsData, error: tripsError } = await supabase
           .from("exchanges")
           .select("user_1, user_2, exchange_start, exchange_end")
           .or(`user_1.eq.${userId},user_2.eq.${userId}`);
 
-        if (tripsError) {
-          console.error("Error fetching exchanges:", tripsError);
-          setLoading(false);
-          return;
-        }
+        if (tripsError) throw tripsError;
 
         if (!tripsData || tripsData.length === 0) {
           setMyTrips([]);
@@ -61,32 +70,20 @@ export default function MyTrips({ userId }: MyTripsProps) {
           trip.user_1 === userId ? trip.user_2 : trip.user_1
         );
 
-        if (otherUserIds.length === 0) {
-          setMyTrips([]);
-          setLoading(false);
-          return;
-        }
-
-        // Fetch ads for the other users involved in exchanges
         const { data: adsData, error: adsError } = await supabase
           .from("ads")
-          .select("id, title, city, country, image_urls, user_id, address") // Make sure user_id is selected
-          .in("user_id", otherUserIds); // Fetch ads by other users
+          .select("id, title, city, country, image_urls, user_id, address")
+          .in("user_id", otherUserIds);
 
-        if (adsError) {
-          console.error("Error fetching ads:", adsError);
-          setLoading(false);
-          return;
-        }
+        if (adsError) throw adsError;
 
-        // Combine the ads with the trip details
         const combinedTrips = tripsData
           .map((trip) => {
             const ad = adsData.find(
               (ad) =>
                 ad.user_id === (trip.user_1 === userId ? trip.user_2 : trip.user_1)
             );
-            if (!ad) return null; // Handle missing ads
+            if (!ad) return null;
 
             return {
               ad,
@@ -96,11 +93,26 @@ export default function MyTrips({ userId }: MyTripsProps) {
               exchange_end: trip.exchange_end,
             };
           })
-          .filter(Boolean); // Remove null entries
+          .filter(Boolean) as TripWithAd[];
 
-        setMyTrips(combinedTrips as TripWithAd[]);
+        setMyTrips(combinedTrips);
+
+        // Fetch existing reviews
+        const { data: reviewsData, error: reviewsError } = await supabase
+          .from("reviews")
+          .select("reviewed_user, rating_overall, rating_communication, rating_cleanliness, rating_facilities, rating_area")
+          .eq("reviewed_by", userId);
+
+        if (reviewsError) throw reviewsError;
+
+        const reviewsMap = reviewsData.reduce((acc, review) => {
+          acc[review.reviewed_user] = review;
+          return acc;
+        }, {} as { [key: string]: Review });
+
+        setReviews(reviewsMap);
       } catch (error) {
-        console.error("Error fetching trips or ads:", error);
+        console.error("Error fetching trips, ads, or reviews:", error);
       } finally {
         setLoading(false);
       }
@@ -110,6 +122,32 @@ export default function MyTrips({ userId }: MyTripsProps) {
       fetchMyTrips();
     }
   }, [userId, supabase]);
+
+  const handleReviewSubmit = async (reviewedUser: string) => {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("rating_overall, rating_communication, rating_cleanliness, rating_facilities, rating_area")
+      .eq("reviewed_by", userId)
+      .eq("reviewed_user", reviewedUser)
+      .single();
+
+    if (error) {
+      console.error("Error fetching updated review:", error);
+      return;
+    }
+
+    setReviews((prev) => ({
+      ...prev,
+      [reviewedUser]: data,
+    }));
+
+    setReviewTrip(null);
+    toast({
+      title: "Recension skickad!",
+      description: "Tack för att du gör sajten bättre!",
+      duration: 4000,
+    });
+  };
 
   if (loading) return <div className="text-center p-8">Laddar...</div>;
 
@@ -154,6 +192,36 @@ export default function MyTrips({ userId }: MyTripsProps) {
                     {new Date(trip.exchange_end).toLocaleDateString()}
                   </span>
                 </div>
+                {new Date(trip.exchange_end) < currentDate && (
+                  <div className="flex items-center justify-between mt-2">
+                    {reviews[trip.ad.user_id] ? (
+                      <div className="flex items-center">
+                        <p className="text-sm text-muted-foreground mr-2">
+                          Din recension:
+                        </p>
+                        <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                        <span>
+                          {(
+                            (reviews[trip.ad.user_id].rating_communication +
+                              reviews[trip.ad.user_id].rating_cleanliness +
+                              reviews[trip.ad.user_id].rating_facilities +
+                              reviews[trip.ad.user_id].rating_area +
+                              reviews[trip.ad.user_id].rating_overall) / 5
+                          ).toFixed(1)}
+                        </span>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="ml-auto"
+                        onClick={() => setReviewTrip(trip)}
+                      >
+                        Lämna en recension
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </div>
           </Card>
@@ -185,6 +253,15 @@ export default function MyTrips({ userId }: MyTripsProps) {
           )}
         </TabsContent>
       </Tabs>
+      {reviewTrip && (
+        <UserReview
+          reviewedBy={userId}
+          reviewedUser={reviewTrip.ad.user_id}
+          isOpen={!!reviewTrip}
+          onClose={() => setReviewTrip(null)}
+          onSubmit={() => handleReviewSubmit(reviewTrip.ad.user_id)}
+        />
+      )}
     </div>
   );
 }
