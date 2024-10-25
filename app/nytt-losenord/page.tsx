@@ -78,7 +78,6 @@ export default function UpdatePasswordPage() {
           )}
           {isPasswordUpdated ? (
             <div className="text-center space-y-4">
-              <p className="text-lg font-semibold">Lösenord uppdaterat</p>
               <Button 
                 className="w-full" 
                 onClick={() => router.push('https://semesterbyte.se/konto')}
@@ -135,10 +134,10 @@ export default function UpdatePasswordPage() {
             <p className="text-sm text-center w-full text-muted-foreground">
               Vill du gå tillbaka?{" "}
               <a
-                href="/profil"
+                href="/logga-in"
                 className="font-medium text-primary hover:underline"
               >
-                Gå till din profil
+                Gå till inloggning
               </a>
             </p>
           </CardFooter>
