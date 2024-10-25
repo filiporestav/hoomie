@@ -112,15 +112,26 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter>
-          <p className="text-sm text-center w-full text-muted-foreground">
-            Har du inget konto?{" "}
-            <a
-              href="/skapa-konto"
-              className="font-medium text-primary hover:underline"
-            >
-              Skapa ett konto
-            </a>
-          </p>
+          <div className="flex flex-col items-center space-y-2">
+            <p className="text-sm text-center w-full text-muted-foreground">
+              Har du inget konto?{" "}
+              <a
+                href="/skapa-konto"
+                className="font-medium text-primary hover:underline"
+              >
+                Skapa ett konto
+              </a>
+            </p>
+            <p className="text-sm text-center w-full text-muted-foreground">
+              Glömt lösenordet?{" "}
+              <a
+                href="/aterstall-losenord"
+                className="font-medium text-primary hover:underline"
+              >
+                Återställ lösenord
+              </a>
+            </p>
+          </div>
         </CardFooter>
       </Card>
     </div>
