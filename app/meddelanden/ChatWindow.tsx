@@ -6,17 +6,16 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, X } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
-import { format, isEqual } from "date-fns"
+import { format } from "date-fns"
 import MessageInput from "./MessageInput"
 import { Message, User } from "./types"
 import { createClient } from "@/app/utils/supabase/client"
 import { DateRange } from "react-day-picker"
 import { useToast } from "@/hooks/use-toast"
-import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
+import { Bold } from "lucide-react"
 
 interface ChatWindowProps {
   selectedConversation: string | null
@@ -26,10 +25,15 @@ interface ChatWindowProps {
   participants: User[]
 }
 
-interface ConversationStatus {
-  exchange_suggested_by: string | null
-  exchange_accepted_by: string | null
-  suggested_date_range: DateRange | undefined
+interface ExchangeProposal {
+  id: string
+  conversation_id: string
+  suggested_by: string
+  received_by: string
+  exchange_start: string
+  exchange_end: string
+  status: 'sent' | 'declined' | 'accepted'
+  created_at: string
 }
 
 export default function ChatWindow({
@@ -42,11 +46,7 @@ export default function ChatWindow({
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
   const { toast } = useToast()
-  const [conversationStatus, setConversationStatus] = useState<ConversationStatus>({
-    exchange_suggested_by: null,
-    exchange_accepted_by: null,
-    suggested_date_range: undefined,
-  })
+  const [proposals, setProposals] = useState<ExchangeProposal[]>([])
   const [localDateRange, setLocalDateRange] = useState<DateRange | undefined>(undefined)
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
   const [tempDateRange, setTempDateRange] = useState<DateRange | undefined>(undefined)
@@ -55,47 +55,41 @@ export default function ChatWindow({
   const otherUser = participants.find((user) => user.id !== currentUser.id)
 
   const toUTCDate = (date: Date) => {
-    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-    return utcDate
+    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
   }
 
   useEffect(() => {
-    const fetchConversationStatus = async () => {
+    const fetchProposals = async () => {
       if (!selectedConversation) return
 
       const { data, error } = await supabase
-        .from("conversations")
-        .select("exchange_suggested_by, exchange_accepted_by, suggested_date_start, suggested_date_end")
-        .eq("id", selectedConversation)
-        .single()
+        .from("exchangeProposal")
+        .select("*")
+        .eq("conversation_id", selectedConversation)
+        .order("created_at", { ascending: true })
 
       if (error) {
-        console.error("Error fetching conversation status:", error)
-      } else {
-        const fetchedDateRange = data.suggested_date_start && data.suggested_date_end
-          ? { from: new Date(data.suggested_date_start), to: new Date(data.suggested_date_end) }
-          : undefined
-        setConversationStatus({
-          exchange_suggested_by: data.exchange_suggested_by,
-          exchange_accepted_by: data.exchange_accepted_by,
-          suggested_date_range: fetchedDateRange,
-        })
-        setLocalDateRange(fetchedDateRange)
+        console.error("Error fetching exchange proposals:", error)
+      } else if (data) {
+        setProposals(data)
       }
     }
 
-    fetchConversationStatus()
+    fetchProposals()
   }, [selectedConversation, supabase])
 
-  const areDateRangesEqual = (range1: DateRange | undefined, range2: DateRange | undefined): boolean => {
-    if (!range1 || !range2) return range1 === range2
-    const fromEqual = (!range1.from && !range2.from) || (!!range1.from && !!range2.from && isEqual(range1.from, range2.from))
-    const toEqual = (!range1.to && !range2.to) || (!!range1.to && !!range2.to && isEqual(range1.to, range2.to))
-    return fromEqual && toEqual
+  const getProposalFromMessage = (message: Message) => {
+    if (!message.content.startsWith("Föreslår byte:")) return null
+
+    const dateStr = message.content.replace("Föreslår byte: ", "")
+    return proposals.find(p => {
+      const proposalDateStr = `${format(new Date(p.exchange_start), 'yyyy-MM-dd')} - ${format(new Date(p.exchange_end), 'yyyy-MM-dd')}`
+      return proposalDateStr === dateStr && p.suggested_by === message.user_id
+    })
   }
 
-  const handleExchangeAction = async () => {
-    if (!selectedConversation || !localDateRange || !localDateRange.from || !localDateRange.to) {
+  const handleExchangeAction = async (action: 'suggest' | 'accept' | 'decline', proposalId?: string) => {
+    if (!selectedConversation || (!localDateRange && action === 'suggest')) {
       toast({
         title: "Datum saknas",
         description: "Vänligen välj ett datumintervall innan du föreslår byte.",
@@ -103,209 +97,120 @@ export default function ChatWindow({
       })
       return
     }
-  
-    // Ensure the dates are in local time without time components
-    const startDate = toUTCDate(localDateRange.from)
-    const endDate = toUTCDate(localDateRange.to)
-  
-    const updates: Partial<ConversationStatus> & {
-      suggested_date_start: string
-      suggested_date_end: string
-    } = {
-      suggested_date_start: startDate.toISOString(),
-      suggested_date_end: endDate.toISOString(),
-    }
-  
-    let shouldInsertIntoExchanges = false // Flag to track if we need to insert into exchanges
-  
-    if (!conversationStatus.exchange_suggested_by) {
-      updates.exchange_suggested_by = currentUser.id
-    } else if (conversationStatus.exchange_suggested_by !== currentUser.id) {
-      if (!areDateRangesEqual(localDateRange, conversationStatus.suggested_date_range)) {
-        updates.exchange_suggested_by = currentUser.id
-        updates.exchange_accepted_by = null
-      } else {
-        updates.exchange_accepted_by = currentUser.id
-        shouldInsertIntoExchanges = true // Set flag to true if exchange is accepted
-      }
-    }
-  
-    const { error } = await supabase
-      .from("conversations")
-      .update(updates)
-      .eq("id", selectedConversation)
-  
-    if (error) {
-      console.error("Error updating conversation:", error)
-      toast({
-        title: "Fel",
-        description: "Det gick inte att uppdatera konversationen. Försök igen.",
-        variant: "destructive",
-      })
-      return
-    }
-  
-    // If the exchange was accepted, insert into "exchanges" table
-    if (shouldInsertIntoExchanges && otherUser && updates.suggested_date_start && updates.suggested_date_end) {
-      const { error: insertError } = await supabase
-        .from("exchanges")
+
+    if (!otherUser) return
+
+    if (action === 'suggest') {
+      if (!localDateRange?.from || !localDateRange?.to) return
+
+      const startDate = toUTCDate(localDateRange.from)
+      const endDate = toUTCDate(localDateRange.to)
+
+      const { data, error } = await supabase
+        .from("exchangeProposal")
         .insert({
-          user_1: currentUser.id,
-          user_2: otherUser.id,
-          exchange_start: updates.suggested_date_start,
-          exchange_end: updates.suggested_date_end,
+          conversation_id: selectedConversation,
+          suggested_by: currentUser.id,
+          received_by: otherUser.id,
+          exchange_start: startDate.toISOString(),
+          exchange_end: endDate.toISOString(),
+          status: 'sent'
         })
-  
-      if (insertError) {
-        console.error("Error inserting into exchanges:", insertError)
+        .select()
+        .single()
+
+      if (error) {
+        console.error("Error creating exchange proposal:", error)
         toast({
           title: "Fel",
-          description: "Det gick inte att uppdatera bytet. Försök igen.",
+          description: "Det gick inte att skapa bytesförslaget. Försök igen.",
           variant: "destructive",
         })
         return
       }
-  
-      toast({
-        title: "Framgång",
-        description: "Byte bekräftat och registrerat!",
-        variant: "default",
-      })
-    } else {
-      toast({
-        title: "Framgång",
-        description: updates.exchange_accepted_by ? "Byte bekräftat!" : "Bytesförfrågan har skickats.",
-        variant: "default",
-      })
-    }
-  
-    // Update the local state with new conversation status
-    setConversationStatus((prevStatus) => ({
-      ...prevStatus,
-      ...updates,
-      suggested_date_range: localDateRange,
-    }))
-  }
-  
 
-  const handleDateSelection = (dateRange: DateRange | undefined) => {
-    setLocalDateRange(dateRange)
-  }
+      setProposals(prev => [...prev, data])
+      const messageContent = `Föreslår byte: ${format(localDateRange.from, 'yyyy-MM-dd')} - ${format(localDateRange.to, 'yyyy-MM-dd')}`
+      onSendMessage(messageContent)
 
-  const handleCancelRequest = async () => {
-    if (!selectedConversation) return
+    } else if ((action === 'accept' || action === 'decline') && proposalId) {
+      const newStatus = action === 'accept' ? 'accepted' : 'declined'
+      const { error } = await supabase
+        .from("exchangeProposal")
+        .update({ status: newStatus })
+        .eq('id', proposalId)
 
-    const updates = {
-      exchange_suggested_by: null,
-      exchange_accepted_by: null,
-      suggested_date_start: null,
-      suggested_date_end: null,
-    }
+       
+      if (error) {
+        console.error(`Error ${action}ing exchange proposal:`, error)
+        toast({
+          title: "Fel",
+          description: `Det gick inte att ${action === 'accept' ? 'acceptera' : 'avböja'} bytet. Försök igen.`,
+          variant: "destructive",
+        })
+        return
+      }
 
-    const { error } = await supabase
-      .from("conversations")
-      .update(updates)
-      .eq("id", selectedConversation)
+      if (error === null) {
+        console.log("Exchange proposal updated successfully")
+        const { data } = await supabase
+        .from("exchangeProposal")
+        .select()
+        .eq('id', proposalId)
+        .single()
 
-    if (error) {
-      console.error("Error canceling request:", error)
-      toast({
-        title: "Fel",
-        description: "Det gick inte att avbryta förfrågan. Försök igen.",
-        variant: "destructive",
-      })
-    } else {
-      setConversationStatus({
-        exchange_suggested_by: null,
-        exchange_accepted_by: null,
-        suggested_date_range: undefined,
-      })
-      setLocalDateRange(undefined)
-      toast({
-        title: "Framgång",
-        description: "Bytesförfrågan har avbrutits.",
-        variant: "default",
-      })
+        setProposals(prev => 
+          prev.map(p => p.id === proposalId ? data : p)
+        )
+
+        if (action === 'accept') {
+          const {error: exchangeError } = await supabase
+            .from("exchanges")
+            .insert({
+              user_1: data.suggested_by,
+              user_2: data.received_by,
+              exchange_start: data.exchange_start,
+              exchange_end: data.exchange_end,
+            })
+          if (exchangeError) {
+            console.error("Error creating exchange:", exchangeError)
+            toast({
+              title: "Fel",
+              description: "Det gick inte att registrera bytet. Försök igen.",
+              variant: "destructive",
+            })
+            return
+          }
+        }
+
+        toast({
+          title: "Framgång",
+          description: action === 'accept' ? "Byte accepterat!" : "Bytesförfrågan avböjd.",
+          variant: "default",
+        })
+      } else {
+        console.error("No data returned from update operation")
+        toast({
+          title: "Fel",
+          description: `Det gick inte att ${action === 'accept' ? 'acceptera' : 'avböja'} bytet. Försök igen.`,
+          variant: "destructive",
+        })
+      }
     }
   }
 
   const handleSuggestNewDates = async () => {
-    if (tempDateRange && tempDateRange.from && tempDateRange.to) {
-      const startDate = toUTCDate(tempDateRange.from)
-
-      const endDate = toUTCDate(tempDateRange.to)
-
-      const updates = {
-        exchange_suggested_by: currentUser.id,
-        exchange_accepted_by: null,
-        suggested_date_start: startDate.toISOString(),
-        suggested_date_end: endDate.toISOString(),
-      }
-
-
-      const { error } = await supabase
-        .from("conversations")
-        .update(updates)
-        .eq("id", selectedConversation)
-
-      if (error) {
-        console.error("Error updating conversation:", error)
-        toast({
-          title: "Fel",
-          description: "Det gick inte att föreslå nya datum. Försök igen.",
-          variant: "destructive",
-        })
-      } else {
-        setConversationStatus((prevStatus) => ({
-          ...prevStatus,
-          ...updates,
-          suggested_date_range: tempDateRange,
-        }))
-        setLocalDateRange(tempDateRange)
-        toast({
-          title: "Framgång",
-          description: "Nya datum har föreslagits.",
-          variant: "default",
-        })
-      }
+    if (tempDateRange?.from && tempDateRange?.to) {
+      setLocalDateRange(tempDateRange)
+      setIsAlertDialogOpen(false)
+      await handleExchangeAction('suggest')
+    } else {
+      toast({
+        title: "Fel",
+        description: "Vänligen välj ett giltigt datumintervall.",
+        variant: "destructive",
+      })
     }
-    setIsAlertDialogOpen(false)
-  }
-
-  const getButtonLabel = () => {
-    const { exchange_suggested_by, exchange_accepted_by } = conversationStatus
-    if (!exchange_suggested_by) {
-      return "Föreslå Byte"
-    }
-    if (exchange_suggested_by === currentUser.id && !exchange_accepted_by) {
-      return "Förfrågan Skickad"
-    }
-    if (exchange_suggested_by !== currentUser.id && !exchange_accepted_by) {
-      return "Bekräfta Byte"
-    }
-    if (exchange_accepted_by) {
-      return "Byte Bekräftat!"
-    }
-    return ""
-  }
-
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
-      )
-      if (scrollElement) {
-        scrollElement.scrollTop = scrollElement.scrollHeight
-      }
-    }
-  }, [messages])
-
-  if (!selectedConversation) {
-    return (
-      <div className="flex-1 flex items-center justify-center text-muted-foreground">
-        Välj en konversation
-      </div>
-    )
   }
 
   return (
@@ -327,59 +232,27 @@ export default function ChatWindow({
           </CardTitle>
 
           <div className="flex items-center gap-2">
-            {localDateRange?.from && localDateRange?.to && (
-              <Badge variant="secondary" className="text-sm">
-                {`${format(localDateRange.from, 'yyyy-MM-dd')} - ${format(localDateRange.to, 'yyyy-MM-dd')}`}
-              </Badge>
-            )}
-            {!conversationStatus.exchange_suggested_by && (
-              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <CalendarIcon className="h-4 w-4" />
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline">Föreslå byte</Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={localDateRange}
+                  onSelect={setLocalDateRange}
+                  numberOfMonths={2}
+                />
+                <div className="p-2 border-t">
+                  <Button onClick={() => {
+                    setIsCalendarOpen(false)
+                    handleExchangeAction('suggest')
+                  }} className="w-full">
+                    Föreslå Byte
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="range"
-                    selected={localDateRange}
-                    onSelect={handleDateSelection}
-                    numberOfMonths={2}
-                  />
-                  <div className="p-2 border-t">
-                    <Button onClick={() => setIsCalendarOpen(false)} className="w-full">
-                      Välj Datum
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            )}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={handleExchangeAction}
-                    disabled={conversationStatus.exchange_accepted_by !== null}
-                  >
-                    {getButtonLabel()}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Du måste välja datum för att föreslå ett byte</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            {conversationStatus.exchange_suggested_by === currentUser.id && !conversationStatus.exchange_accepted_by && (
-              <Button variant="destructive" size="icon" onClick={handleCancelRequest}>
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-            {conversationStatus.exchange_suggested_by !== currentUser.id && !conversationStatus.exchange_accepted_by && 
-            conversationStatus.exchange_suggested_by !== null &&(
-              <Button variant="outline" onClick={() => setIsAlertDialogOpen(true)}>
-                Ändra Datum
-              </Button>
-            )}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </CardHeader>
@@ -387,26 +260,68 @@ export default function ChatWindow({
       <CardContent className="flex-1 overflow-hidden py-2">
         <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
           <div className="space-y-3">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.user_id === currentUser.id
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
-              >
+            {messages.map((message) => {
+              const proposal = getProposalFromMessage(message)
+              return (
                 <div
-                  className={`max-w-[70%] p-2 rounded-2xl text-sm ${
+                  key={message.id}
+                  className={`flex ${
                     message.user_id === currentUser.id
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary"
+                      ? "justify-end"
+                      : "justify-start"
                   }`}
                 >
-                  {message.content}
+                  <div
+                    className={`max-w-[70%] p-4 rounded-2xl text-sm relative ${
+                      message.user_id === currentUser.id
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary"
+                    }`}
+                  >
+                    {message.content}
+                    {proposal && (
+                      <div className="mt-2">
+                        {proposal.status === 'sent' && message.user_id !== currentUser.id && (
+                          <div className="mt-2 space-x-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleExchangeAction('accept', proposal.id)}
+                            >
+                              Acceptera
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleExchangeAction('decline', proposal.id)}
+                            >
+                              Avböj
+                            </Button>
+                          </div>
+                        )}
+                        <div className="pb-3">
+                        <Badge 
+                          variant={
+                            proposal.status === 'accepted' ? "default" :
+                            proposal.status === 'declined' ? "destructive" :
+                            "secondary"
+                          }
+                          className={`absolute bottom-2 right-2 text-xs ${
+                            proposal.status === 'accepted' ? "bg-green-500" :
+                            proposal.status === 'sent' ? "bg-blue-500" :
+                            ""
+                          }`}
+                        >
+                          {proposal.status === 'accepted' ? 'Accepterat' :
+                           proposal.status === 'declined' ? 'Avböjt' :
+                           'Förfrågan'}
+                        </Badge>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </ScrollArea>
       </CardContent>
@@ -437,6 +352,5 @@ export default function ChatWindow({
         </AlertDialogContent>
       </AlertDialog>
     </Card>
-  
   )
 }
