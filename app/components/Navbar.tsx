@@ -55,6 +55,12 @@ const Navbar = () => {
           >
             Hur det fungerar
           </Link>
+          <Link
+            href="/om-oss"
+            className="text-gray-800 hover:text-indigo-600 transition-colors duration-200"
+          >
+            Om oss
+          </Link>
           {user ? (
             <>
               <Link
@@ -117,6 +123,9 @@ const Navbar = () => {
                 className="text-lg hover:text-indigo-400"
               >
                 Hur det fungerar
+              </Link>
+              <Link href="/om-oss" className="text-lg hover:text-indigo-400">
+                Om oss
               </Link>
               {user ? (
                 <>
