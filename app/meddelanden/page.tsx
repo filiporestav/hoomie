@@ -9,6 +9,7 @@ import { Conversation, Message, User } from "./types";
 import { useSearchParams } from "next/navigation";
 import UserAd from './UserAd';
 import { Suspense } from "react"; // Import Suspense
+import { verify } from "crypto";
 
 
 const ChatPage = () => {
@@ -113,7 +114,7 @@ const ChatPage = () => {
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "id, user1(id, full_name, avatar_url), user2(id, full_name, avatar_url), messages(content, inserted_at), ad_id" // ad_id added here
+          "id, user1(id, full_name, avatar_url, verified), user2(id, full_name, avatar_url, verified), messages(content, inserted_at), ad_id" // ad_id added here
         )
         .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`)
         .order("inserted_at", { foreignTable: "messages", ascending: false });
@@ -126,10 +127,11 @@ const ChatPage = () => {
             const otherUser =
               conv.user1.id === currentUser.id ? conv.user2 : conv.user1;
             const avatarUrl = await downloadAvatar(otherUser.avatar_url); // Download avatar
+            const verified = otherUser.verified;
 
             return {
               id: conv.id,
-              other_user: { ...otherUser, avatar_url: avatarUrl }, // Set the downloaded avatar URL
+              other_user: { ...otherUser, avatar_url: avatarUrl, verified: verified }, // Set the downloaded avatar URL
               last_message: conv.messages[0]?.content || "",
               inserted_at: conv.messages[0]?.inserted_at || "",
               listing_id: conv.ad_id || null, // Use ad_id instead of listing_id
@@ -151,7 +153,7 @@ const ChatPage = () => {
 
       const { data, error } = await supabase
         .from("messages")
-        .select("*, user:profiles(full_name, avatar_url)")
+        .select("*, user:profiles(full_name, avatar_url, verified)")
         .eq("conversation_id", selectedConversation)
         .order("inserted_at", { ascending: true });
 

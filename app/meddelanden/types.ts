@@ -27,6 +27,7 @@ export interface Conversation {
     id: string;
     full_name: string;
     avatar_url: string | null;
+    verified: boolean;
   };
   last_message: string;
   inserted_at: string;

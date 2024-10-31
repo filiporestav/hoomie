@@ -21,14 +21,16 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, MapPin, Clock, User, Star } from "lucide-react";
+import { Calendar, MapPin, Clock, User, Star, CheckCircle } from "lucide-react";
 import AdMap from "../../components/AdMap";
 import Ad from "../../components/AdInterface";
 import HoverMessageButton from './hover-message-button'
+import { CheckboxIcon } from "@radix-ui/react-icons";
 
 interface Profile {
   id: string;
   full_name: string;
+  verified: boolean;
 }
 
 interface Rating {
@@ -97,7 +99,7 @@ export default function ListingPage() {
 
           const { data: ownerProfile, error: profileError } = await supabase
             .from("profiles")
-            .select("id, full_name")
+            .select("id, full_name, verified")
             .eq("id", adData.user_id)
             .single();
 
@@ -297,8 +299,11 @@ export default function ListingPage() {
                 </div>
                 <div className="flex items-center">
                   <User className="w-5 h-5 mr-2 text-primary" />
-                  <span>
-                    Annonsör: {listingOwner?.full_name || "Laddar..."}
+                  <span className="flex items-center space-x-1">
+                    <span>Annonsör: {listingOwner?.full_name || "Laddar..."}</span>
+                    {listingOwner?.verified && (
+                      <CheckCircle className="w-4 h-4 text-blue-500" />
+                    )}
                   </span>
                 </div>
               </div>

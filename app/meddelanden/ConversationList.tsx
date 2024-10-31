@@ -1,6 +1,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Conversation, Listing } from "./types";
+import { CheckCircle } from "lucide-react";
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -36,7 +37,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">{conv.other_user.full_name}</p>
+                  <span className="font-medium">{conv.other_user.full_name} {conv.other_user?.verified && (
+                  <CheckCircle className="w-4 h-4 text-blue-500" />
+                )}</span>
+                  
                   <p className="text-sm text-muted-foreground truncate">
                     {conv.last_message}
                   </p>

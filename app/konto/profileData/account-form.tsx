@@ -3,17 +3,22 @@
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "../../utils/supabase/client";
 import { type User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 import Avatar from "./avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { CheckCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function AccountForm({ user }: { user: User | null }) {
   const supabase = createClient();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [avatar_url, setAvatarUrl] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
   const getProfile = useCallback(async () => {
     try {
@@ -21,7 +26,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
       const { data, error, status } = await supabase
         .from("profiles")
-        .select(`full_name, username, avatar_url`)
+        .select(`full_name, username, avatar_url, verified`)
         .eq("id", user?.id)
         .single();
 
@@ -33,6 +38,7 @@ export default function AccountForm({ user }: { user: User | null }) {
         setFullname(data.full_name);
         setUsername(data.username);
         setAvatarUrl(data.avatar_url);
+        setIsVerified(data.verified);
       }
     } catch (error) {
       alert("Error loading user data!");
@@ -78,7 +84,7 @@ export default function AccountForm({ user }: { user: User | null }) {
         Ändra profiluppgifter
       </h2>
       <div className="space-y-8">
-        <div className="flex flex-col items-center">
+        <div className="flex items-center justify-center space-x-2">
           <Avatar
             uid={user?.id ?? null}
             url={avatar_url}
@@ -88,7 +94,28 @@ export default function AccountForm({ user }: { user: User | null }) {
               updateProfile({ fullname, username, avatar_url: url });
             }}
           />
+          {isVerified && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <CheckCircle className="w-6 h-6 text-blue-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Du är verifierad</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
+
+        {!isVerified && (
+          <Button
+            className="w-full"
+            onClick={() => router.push('/verifiering')}
+          >
+            Bli verifierad
+          </Button>
+        )}
 
         <div className="space-y-4">
           <div className="space-y-2">

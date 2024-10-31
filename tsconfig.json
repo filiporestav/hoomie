@@ -29,6 +29,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "middleware.ts"
-  ],
+, "app/api/send-verification/send-verification.js", "app/api/send-verification.js"  ],
   "exclude": ["node_modules"]
 }
