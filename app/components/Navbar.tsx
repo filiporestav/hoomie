@@ -38,7 +38,7 @@ const Navbar = () => {
             height={40}
             className="mr-2"
           />
-          <span className="text-indigo-600 font-bold text-2xl">hoomie</span>
+          <span className="text-indigo-600 font-bold text-2xl">hoomies</span>
         </Link>
 
         {/* Desktop Menu */}
