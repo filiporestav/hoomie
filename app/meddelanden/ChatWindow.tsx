@@ -274,7 +274,7 @@ export default function ChatWindow({
                   <div
                     className={`max-w-[70%] p-4 rounded-2xl text-sm relative ${
                       message.user_id === currentUser.id
-                        ? "bg-indigo-700 text-primary-foreground"
+                        ? "bg-indigo-600 text-primary-foreground"
                         : "bg-secondary"
                     }`}
                   >
