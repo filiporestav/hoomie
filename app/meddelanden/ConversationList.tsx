@@ -37,9 +37,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <span className="font-medium">{conv.other_user.full_name} {conv.other_user?.verified && (
-                  <CheckCircle className="w-4 h-4 text-blue-500" />
-                )}</span>
+                <span className="font-medium flex items-center gap-1">
+                  {conv.other_user.full_name}
+                  {conv.other_user?.verified && (
+                    <CheckCircle className="w-4 h-4 text-blue-500" />
+                  )}
+                </span>
+
                   
                   <p className="text-sm text-muted-foreground truncate">
                     {conv.last_message}
