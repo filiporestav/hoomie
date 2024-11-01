@@ -29,7 +29,7 @@ export default function RootLayout({
           name="description"
           content="Res billigt och enkelt med Hoomies"
         ></meta>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </head>
       <body>
         <ClientProvider>
