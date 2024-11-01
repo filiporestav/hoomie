@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
 
     try {
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://semesterbyte.se/nytt-losenord',
+        redirectTo: 'https://hoomies.se/nytt-losenord',
       });
 
       if (error) {

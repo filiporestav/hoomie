@@ -44,7 +44,7 @@ export default function RegisterPage() {
             Välkommen till Hoomie
           </CardTitle>
           <CardDescription className="text-center">
-            Skapa ett konto för att börja ditt äventyr med studentbostadsbyte
+            Skapa ett konto för att börja ditt äventyr med bostadsbyte
           </CardDescription>
         </CardHeader>
         <CardContent>
