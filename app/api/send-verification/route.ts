@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const { data, error: emailError } = await resend.emails.send({
-        from: 'Acme <noreply@semesterbyte.se>',
+        from: 'Acme <noreply@hoomies.se>',
         to: ['hoomies.verify@gmail.com'],
         subject: 'User Verification Request',
         text: `Please verify ${userId} (${username}) with the following images`,

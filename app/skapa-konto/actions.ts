@@ -21,7 +21,7 @@ export async function signup(formData: FormData) {
     email: data.email,
     password: data.password,
     options: {
-      emailRedirectTo: "https://semesterbyte.se/welcome",
+      emailRedirectTo: "https://hoomies.se/verifiering",
     },
   });
 
