@@ -23,18 +23,24 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={inter.className}>
+      <head>
+        <title>Hoomies - Ditt andra hem är bara en student bort</title>
+        <meta
+          name="description"
+          content="Res billigt och enkelt med Hoomies"
+        ></meta>
+        <link rel="icon" href="/icon.ico" />
+      </head>
       <body>
         <ClientProvider>
           <AuthProvider>
-          <Navbar />
-          <main>
-            <Suspense fallback={<div>Loading...</div>}>
-              {children}
-            </Suspense>
-           </main>
-          {pathname !== "/annonser" && <Footer />}
-          <Toaster />
-          <SpeedInsights />
+            <Navbar />
+            <main>
+              <Suspense fallback={<div>Laddar...</div>}>{children}</Suspense>
+            </main>
+            {pathname !== "/annonser" && <Footer />}
+            <Toaster />
+            <SpeedInsights />
           </AuthProvider>
         </ClientProvider>
       </body>
