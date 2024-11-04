@@ -92,6 +92,7 @@ export default function UserAd({ userId }: UserAdProps) {
               <span className="text-sm text-muted-foreground">{ad.country}</span>
             </div>
             <p className="text-sm">{ad.address}</p>
+            <p className="text-sm">Tillgänglig mellan: {ad.availability_start} - {ad.availability_end}</p>
           </div>
         </div>
       </ScrollArea>

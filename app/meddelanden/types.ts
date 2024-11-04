@@ -7,6 +7,8 @@ export interface Listing {
   address: string;
   country: string;
   image_urls: string[];
+  availability_start: string;
+  availability_end: string;
 }
 
 export interface Message {
