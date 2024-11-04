@@ -1,19 +1,17 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
 import ChatWindow from "./ChatWindow";
 import ConversationList from "./ConversationList";
 import { Conversation, Message, User } from "./types";
-import { useSearchParams } from "next/navigation";
 import UserAd from './UserAd';
-import { Suspense } from "react"; // Import Suspense
-import { verify } from "crypto";
-
+import { Suspense } from "react";
 
 const ChatPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [listings, setListings] = useState<any[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -23,11 +21,10 @@ const ChatPage = () => {
   const supabase = createClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [newMessage, setNewMessage] = useState("");
-  const searchParams = useSearchParams();
 
   // Function to download avatars from Supabase storage
   const downloadAvatar = async (path: string | null) => {
-    if (!path) return null; // If there's no avatar URL, return null
+    if (!path) return null;
     try {
       const { data, error } = await supabase.storage
         .from("avatars")
@@ -35,7 +32,7 @@ const ChatPage = () => {
       if (error) {
         throw error;
       }
-      return URL.createObjectURL(data); // Convert the file to a usable URL
+      return URL.createObjectURL(data);
     } catch (error) {
       console.error("Error downloading avatar:", error);
       return null;
@@ -46,10 +43,9 @@ const ChatPage = () => {
     const conversation = conversations.find(c => c.id === conversationId);
     if (!conversation || !currentUser) return [];
   
-    // Provide a fallback avatar URL if it's null
     const otherUser = {
       ...conversation.other_user,
-      avatar_url: conversation.other_user.avatar_url || '/default-avatar.png', // Fallback value
+      avatar_url: conversation.other_user.avatar_url || '/default-avatar.png',
     };
   
     return [currentUser, otherUser];
@@ -82,14 +78,19 @@ const ChatPage = () => {
     fetchCurrentUser();
   }, [router, supabase]);
 
-  // Set the selected conversation from query param
+  // Set the selected conversation from query param or most recent
   useEffect(() => {
     const conversationId = searchParams.get("conversationId");
     if (conversationId) {
       setSelectedConversation(conversationId);
+    } else if (conversations.length > 0) {
+      // If no conversationId in URL, select the most recent conversation
+      const mostRecentConversation = conversations.reduce((prev, current) => {
+        return new Date(current.inserted_at) > new Date(prev.inserted_at) ? current : prev;
+      });
+      setSelectedConversation(mostRecentConversation.id);
     }
-  }, [searchParams]);
-
+  }, [searchParams, conversations]);
 
   // Fetch listings
   useEffect(() => {
@@ -98,7 +99,6 @@ const ChatPage = () => {
       if (error) {
         console.error("Error fetching listings:", error);
       } else {
-        console.log(data, "data");
         setListings(data);
       }
     };
@@ -114,7 +114,7 @@ const ChatPage = () => {
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "id, user1(id, full_name, avatar_url, verified), user2(id, full_name, avatar_url, verified), messages(content, inserted_at), ad_id" // ad_id added here
+          "id, user1(id, full_name, avatar_url, verified), user2(id, full_name, avatar_url, verified), messages(content, inserted_at), ad_id"
         )
         .or(`user1.eq.${currentUser.id},user2.eq.${currentUser.id}`)
         .order("inserted_at", { foreignTable: "messages", ascending: false });
@@ -126,20 +126,19 @@ const ChatPage = () => {
           data.map(async (conv: any) => {
             const otherUser =
               conv.user1.id === currentUser.id ? conv.user2 : conv.user1;
-            const avatarUrl = await downloadAvatar(otherUser.avatar_url); // Download avatar
+            const avatarUrl = await downloadAvatar(otherUser.avatar_url);
             const verified = otherUser.verified;
 
             return {
               id: conv.id,
-              other_user: { ...otherUser, avatar_url: avatarUrl, verified: verified }, // Set the downloaded avatar URL
+              other_user: { ...otherUser, avatar_url: avatarUrl, verified: verified },
               last_message: conv.messages[0]?.content || "",
               inserted_at: conv.messages[0]?.inserted_at || "",
-              listing_id: conv.ad_id || null, // Use ad_id instead of listing_id
+              listing_id: conv.ad_id || null,
             };
           })
         );
         setConversations(formattedConversations);
-        // console.log(formattedConversations, "formatted conversations");
       }
     };
 
@@ -228,35 +227,35 @@ const ChatPage = () => {
   };
   
   if (!currentUser) {
-    return <div>Loading user data...</div>;  // This ensures we never pass null to child components
+    return <div>Loading user data...</div>;
   }
   
-    return (
-        <div className="flex bg-background h-[75vh] overflow-hidden">
-          {/* Add Suspense boundaries for the parts that use client-side hooks */}
-          <Suspense fallback={<div>Loading conversations...</div>}>
-            <ConversationList
-              conversations={conversations}
-              listings={listings}
-              selectedConversation={selectedConversation}
-              onSelectConversation={setSelectedConversation}
-            />
-          </Suspense>
-          <div className="flex-grow flex overflow-hidden border-l border-border">
-              <ChatWindow
-                selectedConversation={selectedConversation}
-                messages={messages}
-                currentUser={currentUser}
-                onSendMessage={sendMessage}
-                participants={selectedConversation ? getParticipants(selectedConversation) : []}
-              />
-              {selectedConversation && (
-                <div className="w-1/3 border-l border-border overflow-hidden">
-                  <UserAd userId={getParticipants(selectedConversation).find(user => user.id !== currentUser?.id)?.id || ''} />
-                </div>
-              )}
+  return (
+    <div className="flex bg-background h-[75vh] overflow-hidden">
+      <Suspense fallback={<div>Loading conversations...</div>}>
+        <ConversationList
+          conversations={conversations}
+          listings={listings}
+          selectedConversation={selectedConversation}
+          onSelectConversation={setSelectedConversation}
+        />
+      </Suspense>
+      <div className="flex-grow flex overflow-hidden border-l border-border">
+        <ChatWindow
+          selectedConversation={selectedConversation}
+          messages={messages}
+          currentUser={currentUser}
+          onSendMessage={sendMessage}
+          participants={selectedConversation ? getParticipants(selectedConversation) : []}
+        />
+        {selectedConversation && (
+          <div className="w-1/3 border-l border-border overflow-hidden">
+            <UserAd userId={getParticipants(selectedConversation).find(user => user.id !== currentUser?.id)?.id || ''} />
           </div>
-        </div>
-    );
-  }
-  export default ChatPage;
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default ChatPage;
