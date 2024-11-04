@@ -12,7 +12,7 @@ export interface Listing {
 }
 
 export interface Message {
-  id: number;
+  id: string;
   content: string;
   inserted_at: string;
   user_id: string;

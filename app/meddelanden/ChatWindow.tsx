@@ -15,7 +15,6 @@ import { DateRange } from "react-day-picker"
 import { useToast } from "@/hooks/use-toast"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Bold } from "lucide-react"
 
 interface ChatWindowProps {
   selectedConversation: string | null
@@ -76,6 +75,33 @@ export default function ChatWindow({
     }
 
     fetchProposals()
+
+    // Set up real-time listener for new proposals and updates
+    const proposalsChannel = supabase
+      .channel('custom-all-channel')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'exchangeProposal' },
+        (payload) => {
+          setProposals((currentProposals) => [...currentProposals, payload.new as ExchangeProposal])
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'exchangeProposal' },
+        (payload) => {
+          setProposals((currentProposals) =>
+            currentProposals.map((proposal) =>
+              proposal.id === payload.new.id ? { ...proposal, ...payload.new } : proposal
+            )
+          )
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(proposalsChannel)
+    }
   }, [selectedConversation, supabase])
 
   const getProposalFromMessage = (message: Message) => {
@@ -140,7 +166,6 @@ export default function ChatWindow({
         .update({ status: newStatus })
         .eq('id', proposalId)
 
-       
       if (error) {
         console.error(`Error ${action}ing exchange proposal:`, error)
         toast({
