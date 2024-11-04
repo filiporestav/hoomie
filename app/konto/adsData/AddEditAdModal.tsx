@@ -28,8 +28,23 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DateRange } from "react-day-picker";
-import { ImagePlus } from "lucide-react";
-import { v4 as uuidv4 } from 'uuid'; // Import UUID library
+import { ImagePlus, Camera } from "lucide-react";
+import { v4 as uuidv4 } from 'uuid';
+
+interface RequiredDatePickerWithRangeProps {
+  value: DateRange | undefined;
+  onChange: (date: DateRange | undefined) => void;
+  error?: string;
+}
+
+function RequiredDatePickerWithRange({ value, onChange, error }: RequiredDatePickerWithRangeProps) {
+  return (
+    <div>
+      <DatePickerWithRange value={value} onChange={onChange} />
+      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
 
 interface AddEditAdModalProps {
   isOpen: boolean;
@@ -63,6 +78,7 @@ export default function AddEditAdModal({
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -84,29 +100,13 @@ export default function AddEditAdModal({
   }, [action, ad]);
 
   const normalizeFileName = (fileName: string) => {
-    // Step 1: Replace special non-English characters with English counterparts
     const specialChars: { [key: string]: string } = {
-      å: "a",
-      ä: "a",
-      ö: "o",
-      Å: "A",
-      Ä: "A",
-      Ö: "O",
+      å: "a", ä: "a", ö: "o", Å: "A", Ä: "A", Ö: "O",
     };
-
-    // Use regex to replace the special characters with English equivalents
     const regex = new RegExp(Object.keys(specialChars).join("|"), "g");
-    let normalizedFileName = fileName.replace(
-      regex,
-      (match) => specialChars[match]
-    );
-
-    // Step 2: Remove any remaining non-English characters using regex
+    let normalizedFileName = fileName.replace(regex, (match) => specialChars[match]);
     normalizedFileName = normalizedFileName.replace(/[^a-zA-Z0-9 ]/g, "");
-
-    // Step 3: Replace spaces with underscores
     normalizedFileName = normalizedFileName.replace(/ /g, "_");
-
     return normalizedFileName;
   };
 
@@ -117,68 +117,64 @@ export default function AddEditAdModal({
   };
 
   const handleImageRemove = async (index: number) => {
-    console.log(`Removing image from parent at index: ${index}`);  // Log in parent component
-
     try {
       if (index < existingImages.length) {
-        const imageUrl = existingImages[index]; // Get the image URL
-  
-        // Extract the correct storage path (this assumes your structure is /ad-images/userId/filename)
+        const imageUrl = existingImages[index];
         const pathToDelete = imageUrl.split(`${supabase.storage.from('ad-images').getPublicUrl('').data.publicUrl}`)[1];
-  
-        // Remove the image from the storage bucket
         const { error: removeError } = await supabase.storage
           .from("ad-images")
           .remove([pathToDelete]);
-        console.log(pathToDelete, 'deleted path')
-
         if (removeError) throw removeError;
-        // Update the state to remove the image from the UI
         setExistingImages(existingImages.filter((_, i) => i !== index));
       } else {
-        // If the image hasn't been uploaded yet, just remove it from selectedImages
-        setSelectedImages(
-          selectedImages.filter((_, i) => i !== index - existingImages.length)
-        );
+        setSelectedImages(selectedImages.filter((_, i) => i !== index - existingImages.length));
       }
     } catch (error) {
       console.error("Failed to remove image:", error);
       alert("Failed to remove image. Please try again.");
     }
   };
-  
-  
-  
-  
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!title.trim()) newErrors.title = "Annonstitel är obligatorisk";
+    if (!propertyDescription.trim()) newErrors.propertyDescription = "Beskrivning av fastigheten är obligatorisk";
+    if (!areaDescription.trim()) newErrors.areaDescription = "Beskrivning av läget är obligatorisk";
+    if (!address.trim()) newErrors.address = "Adress är obligatorisk";
+    if (!city.trim()) newErrors.city = "Stad är obligatorisk";
+    if (!country.trim()) newErrors.country = "Land är obligatoriskt";
+    if (!dateRange?.from || !dateRange?.to) {
+      newErrors.dateRange = "Datumintervall är obligatoriskt";
+    }
+    if (existingImages.length === 0 && selectedImages.length === 0) newErrors.images = "Minst en bild är obligatorisk";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setLoading(true);
-  
+
     try {
-      // Geocode address to get latitude and longitude
       const { latitude, longitude } = await geocodeAddress(address, city, country);
-  
-      // Start with existing images; we do not need to re-upload these
       const imageUrls = [...existingImages];
-  
-      // Process new images and upload them
+
       for (const image of selectedImages) {
-        const uniqueSuffix = uuidv4(); // Generate a unique suffix for the filename
+        const uniqueSuffix = uuidv4();
         const normalizedUrl = normalizeFileName(image.name) + `-${uniqueSuffix}`;
         const { data, error } = await supabase.storage
           .from("ad-images")
           .upload(`${user.id}/${normalizedUrl}`, image);
-  
+
         if (error) throw error;
         const publicUrl = supabase.storage
           .from("ad-images")
           .getPublicUrl(`${user.id}/${normalizedUrl}`);
-  
+
         imageUrls.push(publicUrl.data.publicUrl);
       }
-  
-      // Prepare ad data
+
       const adData = {
         user_id: user.id,
         title,
@@ -187,25 +183,23 @@ export default function AddEditAdModal({
         address,
         city,
         country,
-        image_urls: imageUrls, // Save both old and newly uploaded images
+        image_urls: imageUrls,
         latitude,
         longitude,
         availability_start: dateRange?.from,
         availability_end: dateRange?.to,
       };
-  
-      // If adding a new ad
+
       if (action === "add") {
         const { error } = await supabase.from("ads").insert(adData);
         if (error) throw error;
         onAdAdded?.();
       } else {
-        // If updating an existing ad
         const { error } = await supabase.from("ads").update(adData).eq("id", ad.id);
         if (error) throw error;
         onAdUpdated?.();
       }
-  
+
       onClose();
     } catch (error) {
       alert(`Failed to ${action} ad. Please try again.`);
@@ -214,26 +208,23 @@ export default function AddEditAdModal({
       setLoading(false);
     }
   };
-  
 
   const handleDelete = async () => {
     try {
-      // Extract the correct storage paths for all associated images
       const publicUrlPrefix = supabase.storage.from('ad-images').getPublicUrl('').data.publicUrl;
       const pathsToDelete = existingImages.map((url) => url.split(publicUrlPrefix)[1]);
-  
+
       if (pathsToDelete.length > 0) {
         const { error: removeError } = await supabase.storage
           .from("ad-images")
           .remove(pathsToDelete);
-  
+
         if (removeError) throw removeError;
       }
-  
-      // Now delete the ad record from the database
+
       const { error } = await supabase.from("ads").delete().eq("id", ad.id);
       if (error) throw error;
-  
+
       onAdDeleted?.();
       onClose();
     } catch (error) {
@@ -241,12 +232,12 @@ export default function AddEditAdModal({
       console.error("Error deleting ad:", error);
     }
   };
-  
-  
 
   const handleImagePlaceholderClick = () => {
     fileInputRef.current?.click();
   };
+
+  const isFormValid = title && propertyDescription && areaDescription && address && city && country && dateRange?.from && dateRange?.to && (existingImages.length > 0 || selectedImages.length > 0);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -266,18 +257,24 @@ export default function AddEditAdModal({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Lägg till titel"
+                  required
+                  aria-invalid={errors.title ? 'true' : 'false'}
+                  aria-describedby={errors.title ? 'title-error' : undefined}
                 />
+                {errors.title && <p id="title-error" className="text-sm text-red-500">{errors.title}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="propertyDescription">
-                  Beskrivning av fastigheten
-                </Label>
+                <Label htmlFor="propertyDescription">Beskrivning av fastigheten</Label>
                 <Textarea
                   id="propertyDescription"
                   value={propertyDescription}
                   onChange={(e) => setPropertyDescription(e.target.value)}
                   placeholder="Beskriv fastigheten"
+                  required
+                  aria-invalid={errors.propertyDescription ? 'true' : 'false'}
+                  aria-describedby={errors.propertyDescription ? 'propertyDescription-error' : undefined}
                 />
+                {errors.propertyDescription && <p id="propertyDescription-error" className="text-sm text-red-500">{errors.propertyDescription}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="areaDescription">Beskrivning av läget</Label>
@@ -286,7 +283,11 @@ export default function AddEditAdModal({
                   value={areaDescription}
                   onChange={(e) => setAreaDescription(e.target.value)}
                   placeholder="Beskriv området"
+                  required
+                  aria-invalid={errors.areaDescription ? 'true' : 'false'}
+                  aria-describedby={errors.areaDescription ? 'areaDescription-error' : undefined}
                 />
+                {errors.areaDescription && <p id="areaDescription-error" className="text-sm text-red-500">{errors.areaDescription}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Adress</Label>
@@ -295,7 +296,11 @@ export default function AddEditAdModal({
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="Ange adress"
+                  required
+                  aria-invalid={errors.address ? 'true' : 'false'}
+                  aria-describedby={errors.address ? 'address-error' : undefined}
                 />
+                {errors.address && <p id="address-error" className="text-sm text-red-500">{errors.address}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city">Stad</Label>
@@ -304,7 +309,11 @@ export default function AddEditAdModal({
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   placeholder="Ange stad"
+                  required
+                  aria-invalid={errors.city ? 'true' : 'false'}
+                  aria-describedby={errors.city ? 'city-error' : undefined}
                 />
+                {errors.city && <p id="city-error" className="text-sm text-red-500">{errors.city}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">Land</Label>
@@ -313,13 +322,18 @@ export default function AddEditAdModal({
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   placeholder="Ange land"
+                  required
+                  aria-invalid={errors.country ? 'true' : 'false'}
+                  aria-describedby={errors.country ? 'country-error' : undefined}
                 />
+                {errors.country && <p id="country-error" className="text-sm text-red-500">{errors.country}</p>}
               </div>
               <div className="space-y-2">
-                <Label>Tillgänglig för byte mellan</Label>
-                <DatePickerWithRange
+                <Label htmlFor="dateRange">Tillgänglig för byte mellan</Label>
+                <RequiredDatePickerWithRange
                   value={dateRange}
                   onChange={(newDateRange) => setDateRange(newDateRange)}
+                  error={errors.dateRange}
                 />
               </div>
             </div>
@@ -327,15 +341,26 @@ export default function AddEditAdModal({
               <div className="space-y-2">
                 <Label>Bilder</Label>
                 {existingImages.length > 0 || selectedImages.length > 0 ? (
-                  <CarouselWithControls
-                    images={[
-                      ...existingImages,
-                      ...selectedImages.map((file) =>
-                        URL.createObjectURL(file)
-                      ),
-                    ]}
-                    onRemove={handleImageRemove}
-                  />
+                  <>
+                    <CarouselWithControls
+                      images={[
+                        ...existingImages,
+                        ...selectedImages.map((file) =>
+                          URL.createObjectURL(file)
+                        ),
+                      ]}
+                      onRemove={handleImageRemove}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleImagePlaceholderClick}
+                      className="mt-4 w-full"
+                    >
+                      <Camera className="mr-2  h-4 w-4" />
+                      Lägg till Bilder
+                    </Button>
+                  </>
                 ) : (
                   <div
                     className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer"
@@ -354,7 +379,11 @@ export default function AddEditAdModal({
                   onChange={handleImageChange}
                   className="hidden"
                   ref={fileInputRef}
+                  required={existingImages.length === 0 && selectedImages.length === 0}
+                  aria-invalid={errors.images ? 'true' : 'false'}
+                  aria-describedby={errors.images ? 'images-error' : undefined}
                 />
+                {errors.images && <p id="images-error" className="text-sm text-red-500">{errors.images}</p>}
               </div>
             </div>
           </div>
@@ -385,7 +414,7 @@ export default function AddEditAdModal({
           <Button type="button" variant="outline" onClick={onClose}>
             Ångra
           </Button>
-          <Button type="submit" disabled={loading} onClick={handleSubmit}>
+          <Button type="submit" disabled={loading || !isFormValid} onClick={handleSubmit}>
             {loading
               ? "Bearbetar..."
               : action === "add"

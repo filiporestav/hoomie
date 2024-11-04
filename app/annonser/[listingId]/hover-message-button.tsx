@@ -10,6 +10,7 @@ interface HoverMessageButtonProps {
   currentUser: { id: string } | null
   listing?: string
   currentUserAd: boolean
+  completeProfile: boolean
   handleSendMessage: () => void
 }
 
@@ -17,14 +18,16 @@ export default function HoverMessageButton({
   currentUser,
   listing,
   currentUserAd,
+  completeProfile,
   handleSendMessage
 }: HoverMessageButtonProps) {
-  const isDisabled = !currentUser || currentUser.id === listing || !currentUserAd
+  const isDisabled = !currentUser || currentUser.id === listing || !currentUserAd || !completeProfile
 
   const getHoverMessage = () => {
     if (!currentUser) return "Du måste vara inloggad för att skicka ett meddelande."
     if (currentUser.id === listing) return "Du kan inte skicka ett meddelande till din egen annons."
     if (!currentUserAd) return "Du måste ha en aktiv annons för att skicka ett meddelande."
+    if (!completeProfile) return "Du måste fylla i din profil för att skicka ett meddelande. Se Mitt Konto > Användaruppgifter."
     return "Klicka för att skicka ett meddelande."
   }
 

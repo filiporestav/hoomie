@@ -30,6 +30,7 @@ import { CheckboxIcon } from "@radix-ui/react-icons";
 interface Profile {
   id: string;
   full_name: string;
+  username: string;
   verified: boolean;
 }
 
@@ -99,7 +100,7 @@ export default function ListingPage() {
 
           const { data: ownerProfile, error: profileError } = await supabase
             .from("profiles")
-            .select("id, full_name, verified")
+            .select("id, full_name, verified, username")
             .eq("id", adData.user_id)
             .single();
 
@@ -193,7 +194,7 @@ export default function ListingPage() {
   };
 
   const handleSendMessage = async () => {
-    if (currentUser && listing && currentUserAd) {
+    if (currentUser && listing && currentUserAd ) {
       const { data: existingConversation, error: fetchError } = await supabase
         .from("conversations")
         .select("id")
@@ -384,6 +385,7 @@ export default function ListingPage() {
             currentUser={currentUser}
             listing={listingOwner?.id}
             currentUserAd={currentUserAd}
+            completeProfile={!!currentUser?.full_name && !!currentUser?.username}
             handleSendMessage={handleSendMessage}
           />
         </CardFooter>
