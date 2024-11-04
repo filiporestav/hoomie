@@ -170,10 +170,17 @@ export default function ListingPage() {
             .eq("user_id", user.id)
             .single();
 
+          const { data: userData, error: userDataError } = await supabase
+          .from("profiles")
+          .select("id, full_name, username")
+          .eq("id", user.id)
+          .single();
+
           if (userAdError) {
             console.error("Error checking user ad:", userAdError);
           } else {
             setCurrentUserAd(!!userAd);
+            setCurrentUser(userData);
           }
         }
       } catch (error) {
@@ -235,6 +242,7 @@ export default function ListingPage() {
       alert("Vänligen logga in och skapa en annons för att kunna skicka meddelanden.");
     }
   };
+
 
   if (isLoading) {
     return (
