@@ -3,7 +3,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, MapPin, Heart, Users } from "lucide-react"; // Replacing icons with similar alternatives
+import { Eye, MapPin, Heart, Users,  } from "lucide-react"; // Replacing icons with similar alternatives
 
 const AboutUs = () => {
   const router = useRouter();
@@ -124,7 +124,8 @@ const AboutUs = () => {
               Vår mission är att ge studenter ett prisvärt och tryggt sätt att
               utforska världen och träffa nya människor. Vi stödjer resenärer
               som värdesätter upplevelser framför saker och hjälper dem att resa
-              enkelt och tryggt.
+              enkelt och tryggt. Tjänsten är byggd av två KTH studenter, Filip och Kolumbus,
+              som båda brinner för att resa och upptäcka världen.
             </p>
           </CardContent>
         </Card>
@@ -149,6 +150,13 @@ const AboutUs = () => {
               Gå med nu
             </Button>
           </div>
+          <section className="text-center text-gray-600">
+
+            <p>Kontakta oss: hoomies.verify@gmail.com</p>
+          </section>
+        </section>
+        <section className="text-center text-gray-600">
+          <p>&copy; 2024 Hoomies. All rights reserved.</p>
         </section>
       </div>
     </div>
