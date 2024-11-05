@@ -40,7 +40,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative w-full h-full flex flex-col justify-center items-center text-white text-center px-4">
           <h1 className="text-5xl md:text-6xl font-bold mb-4">
-            Välkommen till Hoomie
+            Välkommen till Hoomies
           </h1>
           <p className="text-lg md:text-2xl mb-6 max-w-2xl">
             Byt ditt studentboende med andra studenter i hela Sverige
