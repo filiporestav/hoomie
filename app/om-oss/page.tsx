@@ -3,7 +3,10 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, MapPin, Heart, Users,  } from "lucide-react"; // Replacing icons with similar alternatives
+import Image from "next/image";
+import { FaLinkedin } from "react-icons/fa";
+import { AiOutlineMail } from "react-icons/ai";
+import { Eye, MapPin, Heart, Users } from "lucide-react"; // Replacing icons with similar alternatives
 
 const AboutUs = () => {
   const router = useRouter();
@@ -124,15 +127,79 @@ const AboutUs = () => {
               Vår mission är att ge studenter ett prisvärt och tryggt sätt att
               utforska världen och träffa nya människor. Vi stödjer resenärer
               som värdesätter upplevelser framför saker och hjälper dem att resa
-              enkelt och tryggt. Tjänsten är byggd av två KTH studenter, Filip och Kolumbus,
-              som båda brinner för att resa och upptäcka världen.
+              enkelt och tryggt. Tjänsten är byggd av två KTH studenter, Filip
+              och Kolumbus, som båda brinner för att resa och upptäcka världen.
             </p>
           </CardContent>
         </Card>
+        {/* Team Section */}
+        <section className="space-y-8">
+          <h2 className="text-3xl font-semibold text-center text-indigo-600 mb-4">
+            Möt teamet
+          </h2>
+          <div className="flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-6">
+            {/* Team Member 1 */}
+            <Card className="flex flex-col items-center text-center p-4 shadow-lg">
+              <Image
+                src="/kolumbus.jpg"
+                width={200}
+                height={200}
+                alt="Kolumbus Lindh"
+                className="rounded-full mb-4"
+              />
+              <CardTitle className="text-xl font-semibold text-indigo-700">
+                Kolumbus
+              </CardTitle>
+              <p className="text-gray-600">Co-founder</p>
+              <CardContent className="text-gray-700 mt-2">
+                Kolumbus är en femteårsstudent i industriell ekonomi på KTH, med
+                en passion för att resa och upptäcka nya platser. Han brinner
+                för att göra resandet tillgängligt för alla.
+              </CardContent>
+              <a
+                href="https://www.linkedin.com/in/kolumbuslindh/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-600 mt-2 hover:underline"
+              >
+                <FaLinkedin className="text-indigo-600 w-6 h-6" />
+              </a>
+            </Card>
+
+            {/* Team Member 2 */}
+            <Card className="flex flex-col items-center text-center p-4 shadow-lg">
+              <Image
+                src="/filip.jpg"
+                width={200}
+                height={200}
+                alt="Filip Orestav"
+                className="rounded-full mb-4"
+              />
+
+              <CardTitle className="text-xl font-semibold text-indigo-700">
+                Filip Orestav
+              </CardTitle>
+              <p className="text-gray-600">Co-founder</p>
+              <CardContent className="text-gray-700 mt-2">
+                Filip är en fjärdeårstudent i industriell ekonomi på KTH med
+                master i maskininlärning. Hans passion är att innovera,
+                effektivisera processer och att skapa värde för användare.
+              </CardContent>
+              <a
+                href="https://www.linkedin.com/in/filip-orestav"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-600 mt-2 hover:underline"
+              >
+                <FaLinkedin className="text-indigo-600 w-6 h-6" />
+              </a>
+            </Card>
+          </div>
+        </section>
 
         {/* Call to Action Section */}
         <section className="space-y-4">
-          <h2 className="text-3xl font-semibold text-indigo-600">
+          <h2 className="text-3xl font-semibold text-indigo-600 text-center">
             Bli en del av Hoomies!
           </h2>
           <p className="text-gray-700 leading-relaxed">
@@ -150,9 +217,19 @@ const AboutUs = () => {
               Gå med nu
             </Button>
           </div>
-          <section className="text-center text-gray-600">
-
-            <p>Kontakta oss: hoomies.verify@gmail.com</p>
+          <section className="text-center text-gray-600 py-8">
+            <p className="text-xl font-semibold text-indigo-700 mb-2">
+              Kontakta oss
+            </p>
+            <div className="flex justify-center items-center space-x-2">
+              <AiOutlineMail className="text-indigo-600 w-6 h-6" />
+              <a
+                href="mailto:hoomies.verify@gmail.com"
+                className="text-lg font-medium text-indigo-600 hover:text-indigo-800 hover:underline transition duration-300"
+              >
+                hoomies.verify@gmail.com
+              </a>
+            </div>
           </section>
         </section>
         <section className="text-center text-gray-600">
