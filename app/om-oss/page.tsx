@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { FaLinkedin } from "react-icons/fa";
 import { AiOutlineMail } from "react-icons/ai";
-import { Eye, MapPin, Heart, Users } from "lucide-react"; // Replacing icons with similar alternatives
+import { Eye, MapPin, Heart, Users } from "lucide-react";
 
 const AboutUs = () => {
   const router = useRouter();
@@ -19,119 +19,100 @@ const AboutUs = () => {
           Om Hoomies
         </h1>
         <p className="text-lg text-center text-gray-600 leading-relaxed mb-6">
-          Hoomies gör resandet tillgängligt för studenter genom att erbjuda ett
-          tryggt och prisvärt sätt att upptäcka nya platser. Vi kopplar samman
-          studenter för hembyten och skapar möjligheter för minnesvärda
-          upplevelser.
+          Hoomies är här för att göra resandet tillgängligt och prisvärt för
+          studenter. Genom att erbjuda en trygg plattform för hembyten kan
+          studenter utforska världen och besöka andra universitetsstäder, allt
+          utan att betala dyra boendekostnader.
         </p>
 
-        {/* Vision Section */}
+        {/* Why We Exist Section */}
         <Card>
           <CardHeader className="flex items-center space-x-2">
             <Eye className="text-indigo-600" />
             <CardTitle className="text-3xl font-semibold text-indigo-600">
-              Vår vision
+              Varför finns Hoomies?
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-700 leading-relaxed">
-              Vi på Hoomies tror på en värld där resande är en möjlighet för
-              alla, oavsett ekonomi. Genom vår plattform kan resenärer byta hem
-              utan höga kostnader, vilket skapar en gemenskap för äkta
-              upplevelser och hållbart resande.
+              Hoomies grundades för att möjliggöra meningsfulla resor för
+              studenter som annars kanske inte skulle ha råd att resa. Genom att
+              skapa en enkel och säker lösning för hembyten mellan studenter,
+              vill vi öppna dörren för fler att uppleva nya miljöer, knyta nya
+              kontakter och få en inblick i livet på andra studieorter.
             </p>
           </CardContent>
         </Card>
 
-        {/* Roadmap Section */}
-        <Card>
-          <CardHeader className="flex items-center space-x-2">
-            <MapPin className="text-indigo-600" />
-            <CardTitle className="text-3xl font-semibold text-indigo-600">
-              Vår resa framåt
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-700 leading-relaxed">
-              Hoomies står för friheten att utforska, ansluta och skapa minnen.
-              På vår resa strävar vi efter att:
-            </p>
-            <ul className="list-disc list-inside text-gray-700 space-y-2">
-              <li>
-                <strong className="text-indigo-700">
-                  2024 - Utökad säkerhet:
-                </strong>{" "}
-                Implementera fler verifieringsverktyg och en utökad
-                försäkringsplan för ökad trygghet.
-              </li>
-              <li>
-                <strong className="text-indigo-700">
-                  2025 - Fler destinationer:
-                </strong>{" "}
-                Expandera till fler länder och skapa utbytesmöjligheter globalt.
-              </li>
-              <li>
-                <strong className="text-indigo-700">
-                  2026 - En hållbar resa:
-                </strong>{" "}
-                Introducera klimatkompensation och hållbara resemöjligheter för
-                att minska vårt miljöavtryck.
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Culture Section */}
+        {/* Core Values and Principles Section */}
         <Card>
           <CardHeader className="flex items-center space-x-2">
             <Heart className="text-indigo-600" />
             <CardTitle className="text-3xl font-semibold text-indigo-600">
-              Vår kultur
+              Våra värderingar och vägledande principer
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-700 leading-relaxed">
-              På Hoomies bygger vi på samarbete, gemenskap och tillit. Vi
-              värdesätter:
+              Vår grund är byggd på tre kärnvärderingar: säkerhet, gemenskap och
+              hållbarhet. Dessa principer guidar oss i allt vi gör:
             </p>
             <ul className="list-disc list-inside text-gray-700 space-y-2">
               <li>
-                <strong className="text-indigo-700">Öppenhet:</strong> En
-                transparent kommunikation och process skapar förtroende mellan
-                användare.
+                <strong className="text-indigo-700">Säkerhet:</strong> Vi
+                strävar efter att skapa en trygg upplevelse för alla användare.
               </li>
               <li>
-                <strong className="text-indigo-700">Innovation:</strong> Vi
-                utvecklar ständigt våra tjänster för att förbättra
-                användarupplevelsen.
+                <strong className="text-indigo-700">Gemenskap:</strong> Att
+                koppla samman människor från olika platser, vilket skapar äkta
+                möten och vänskap.
               </li>
               <li>
-                <strong className="text-indigo-700">Gemenskap:</strong> Resande
-                är personligt, och vi stödjer en gemenskap där människor kan
-                mötas och dela sina upplevelser.
+                <strong className="text-indigo-700">Hållbarhet:</strong> Resor
+                som minskar miljöpåverkan genom att dela resurser och utrymmen.
               </li>
             </ul>
           </CardContent>
         </Card>
 
-        {/* Values Section */}
+        {/* Brand Differentiation Section */}
         <Card>
           <CardHeader className="flex items-center space-x-2">
-            <Users className="text-indigo-600" />
+            <MapPin className="text-indigo-600" />
             <CardTitle className="text-3xl font-semibold text-indigo-600">
-              Våra värderingar
+              Vad gör oss unika?
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-700 leading-relaxed">
-              Vår mission är att ge studenter ett prisvärt och tryggt sätt att
-              utforska världen och träffa nya människor. Vi stödjer resenärer
-              som värdesätter upplevelser framför saker och hjälper dem att resa
-              enkelt och tryggt. Tjänsten är byggd av två KTH studenter, Filip
-              och Kolumbus, som båda brinner för att resa och upptäcka världen.
+              Till skillnad från andra boendeplattformar fokuserar Hoomies på
+              att möjliggöra kortsiktiga, prisvärda och personliga hembyten för
+              studenter. Vi har en verifieringsprocess som ökar säkerheten,
+              vilket gör att du kan känna dig trygg när du delar ditt hem och
+              reser till nya platser.
             </p>
           </CardContent>
         </Card>
+
+        {/* Why People Should Care Section */}
+        <Card>
+          <CardHeader className="flex items-center space-x-2">
+            <Users className="text-indigo-600" />
+            <CardTitle className="text-3xl font-semibold text-indigo-600">
+              Varför Hoomies?
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 leading-relaxed">
+              Genom Hoomies kan studenter resa och få en autentisk
+              boendeupplevelse utan att behöva betala för hotell eller hyra.
+              Vårt mål är att studenter ska kunna resa och uppleva nya
+              studieorter och kulturer på ett meningsfullt sätt, samtidigt som
+              de skapar värdefulla nätverk och minnen för livet.
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Team Section */}
         <section className="space-y-8">
           <h2 className="text-3xl font-semibold text-center text-indigo-600 mb-4">
@@ -203,10 +184,9 @@ const AboutUs = () => {
             Bli en del av Hoomies!
           </h2>
           <p className="text-gray-700 leading-relaxed">
-            Oavsett om du vill upptäcka Sverige eller världen, finns Hoomies här
-            för att göra resandet tillgängligt för alla. Bli en del av vår
-            gemenskap och låt oss tillsammans skapa hållbara och minnesvärda
-            upplevelser!
+            Utforska världen med trygghet och gemenskap genom Hoomies. Gå med i
+            vår plattform och låt oss tillsammans skapa minnesvärda resor och
+            relationer som varar.
           </p>
           <div className="text-center">
             <Button
