@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <head>
-        <title>Hoomies - Ditt andra hem är bara en student bort</title>
+        <title>Hoomies - Byt hem, dela berättelser, se världen</title>
         <meta
           name="description"
           content="Res billigt och enkelt med Hoomies"

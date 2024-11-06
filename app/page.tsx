@@ -43,7 +43,7 @@ export default function Home() {
             Välkommen till Hoomies
           </h1>
           <p className="text-lg md:text-2xl mb-6 max-w-2xl">
-            Byt ditt studentboende med andra studenter i hela Sverige
+            Byt hem, dela äventyr - upptäck Sverige tillsammans
           </p>
           <div className="flex justify-center space-x-4 mt-4">
             <Link
